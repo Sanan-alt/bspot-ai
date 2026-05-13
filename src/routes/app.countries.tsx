@@ -1,67 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, Search, Sparkles, TrendingUp, ShieldAlert, Activity } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Search, Sparkles, TrendingUp, ShieldAlert, Activity, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { scoreCountry } from "@/lib/countries.functions";
+import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
+import { WorldMap } from "@/components/WorldMap";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
-
-type Country = { code: string; name: string; region: string; flag: string; currency: string };
-
-const COUNTRIES: Country[] = [
-  { code: "US", name: "United States", region: "Americas", flag: "🇺🇸", currency: "USD" },
-  { code: "CA", name: "Canada", region: "Americas", flag: "🇨🇦", currency: "CAD" },
-  { code: "MX", name: "Mexico", region: "Americas", flag: "🇲🇽", currency: "MXN" },
-  { code: "BR", name: "Brazil", region: "Americas", flag: "🇧🇷", currency: "BRL" },
-  { code: "AR", name: "Argentina", region: "Americas", flag: "🇦🇷", currency: "ARS" },
-  { code: "CL", name: "Chile", region: "Americas", flag: "🇨🇱", currency: "CLP" },
-  { code: "GB", name: "United Kingdom", region: "Europe", flag: "🇬🇧", currency: "GBP" },
-  { code: "DE", name: "Germany", region: "Europe", flag: "🇩🇪", currency: "EUR" },
-  { code: "FR", name: "France", region: "Europe", flag: "🇫🇷", currency: "EUR" },
-  { code: "ES", name: "Spain", region: "Europe", flag: "🇪🇸", currency: "EUR" },
-  { code: "IT", name: "Italy", region: "Europe", flag: "🇮🇹", currency: "EUR" },
-  { code: "NL", name: "Netherlands", region: "Europe", flag: "🇳🇱", currency: "EUR" },
-  { code: "CH", name: "Switzerland", region: "Europe", flag: "🇨🇭", currency: "CHF" },
-  { code: "SE", name: "Sweden", region: "Europe", flag: "🇸🇪", currency: "SEK" },
-  { code: "NO", name: "Norway", region: "Europe", flag: "🇳🇴", currency: "NOK" },
-  { code: "PL", name: "Poland", region: "Europe", flag: "🇵🇱", currency: "PLN" },
-  { code: "TR", name: "Turkey", region: "Europe", flag: "🇹🇷", currency: "TRY" },
-  { code: "RU", name: "Russia", region: "Europe", flag: "🇷🇺", currency: "RUB" },
-  { code: "UA", name: "Ukraine", region: "Europe", flag: "🇺🇦", currency: "UAH" },
-  { code: "CN", name: "China", region: "Asia", flag: "🇨🇳", currency: "CNY" },
-  { code: "JP", name: "Japan", region: "Asia", flag: "🇯🇵", currency: "JPY" },
-  { code: "KR", name: "South Korea", region: "Asia", flag: "🇰🇷", currency: "KRW" },
-  { code: "IN", name: "India", region: "Asia", flag: "🇮🇳", currency: "INR" },
-  { code: "SG", name: "Singapore", region: "Asia", flag: "🇸🇬", currency: "SGD" },
-  { code: "HK", name: "Hong Kong", region: "Asia", flag: "🇭🇰", currency: "HKD" },
-  { code: "ID", name: "Indonesia", region: "Asia", flag: "🇮🇩", currency: "IDR" },
-  { code: "TH", name: "Thailand", region: "Asia", flag: "🇹🇭", currency: "THB" },
-  { code: "VN", name: "Vietnam", region: "Asia", flag: "🇻🇳", currency: "VND" },
-  { code: "AE", name: "UAE", region: "MENA", flag: "🇦🇪", currency: "AED" },
-  { code: "SA", name: "Saudi Arabia", region: "MENA", flag: "🇸🇦", currency: "SAR" },
-  { code: "IL", name: "Israel", region: "MENA", flag: "🇮🇱", currency: "ILS" },
-  { code: "EG", name: "Egypt", region: "MENA", flag: "🇪🇬", currency: "EGP" },
-  { code: "ZA", name: "South Africa", region: "Africa", flag: "🇿🇦", currency: "ZAR" },
-  { code: "NG", name: "Nigeria", region: "Africa", flag: "🇳🇬", currency: "NGN" },
-  { code: "KE", name: "Kenya", region: "Africa", flag: "🇰🇪", currency: "KES" },
-  { code: "AU", name: "Australia", region: "Oceania", flag: "🇦🇺", currency: "AUD" },
-  { code: "NZ", name: "New Zealand", region: "Oceania", flag: "🇳🇿", currency: "NZD" },
-];
 
 type Score = {
   overall: number; stability: number; growth: number; risk: number;
   currency: string; summary: string;
   opportunities: string[]; risks: string[]; top_sectors: string[];
+  _cached?: boolean; _age_hours?: number;
 };
 
 function CountriesPage() {
   const [q, setQ] = useState("");
   const [region, setRegion] = useState<string>("All");
-  const [selected, setSelected] = useState<Country | null>(null);
+  const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const score = useServerFn(scoreCountry);
+  const qc = useQueryClient();
+  const selected = selectedCode ? COUNTRY_BY_CODE[selectedCode] : null;
 
   const regions = useMemo(() => ["All", ...Array.from(new Set(COUNTRIES.map(c => c.region)))], []);
   const filtered = useMemo(
@@ -72,19 +36,35 @@ function CountriesPage() {
     [q, region]
   );
 
-  const { data, isFetching, error } = useQuery<Score>({
-    queryKey: ["country-score", selected?.code],
+  const { data, isFetching, error, refetch } = useQuery<Score>({
+    queryKey: ["country-score", selectedCode],
     queryFn: () => score({ data: { code: selected!.code, name: selected!.name } }),
     enabled: !!selected,
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 60 * 24,
   });
+
+  const refresh = async () => {
+    if (!selected) return;
+    await score({ data: { code: selected.code, name: selected.name, refresh: true } });
+    qc.invalidateQueries({ queryKey: ["country-score", selected.code] });
+    refetch();
+  };
 
   return (
     <div className="space-y-6">
       <div>
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">// COUNTRY DATA</p>
         <h1 className="mt-2 font-display text-3xl md:text-4xl">Investment Atlas</h1>
-        <p className="text-sm text-muted-foreground mt-1">AI-scored country profiles · click any tile</p>
+        <p className="text-sm text-muted-foreground mt-1">AI-scored country profiles · click any highlighted country</p>
+      </div>
+
+      <div className="panel-neon p-3">
+        <WorldMap onSelect={setSelectedCode} highlight={selectedCode} />
+        <div className="mt-2 flex items-center justify-center gap-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-[oklch(0.30_0.08_95)]" /> Investable</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-[oklch(0.18_0.01_95)]" /> Not tracked</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-[oklch(0.88_0.19_95)]" /> Selected</span>
+        </div>
       </div>
 
       <div className="panel-neon p-4 flex flex-wrap items-center gap-3">
@@ -107,7 +87,7 @@ function CountriesPage() {
         {filtered.map(c => (
           <button
             key={c.code}
-            onClick={() => setSelected(c)}
+            onClick={() => setSelectedCode(c.code)}
             className="panel p-4 text-left hover:border-primary hover:glow-sm transition-all group"
           >
             <div className="text-3xl">{c.flag}</div>
@@ -120,7 +100,7 @@ function CountriesPage() {
         )}
       </div>
 
-      <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+      <Sheet open={!!selected} onOpenChange={(o) => !o && setSelectedCode(null)}>
         <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
           {selected && (
             <>
@@ -143,10 +123,19 @@ function CountriesPage() {
 
                 {data && (
                   <>
-                    <div className="panel-neon p-5 text-center">
+                    <div className="panel-neon p-5 text-center relative">
                       <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Overall Score</p>
                       <p className="mt-2 font-display text-6xl text-neon">{data.overall}</p>
                       <p className="mt-1 text-xs text-muted-foreground">/ 100</p>
+                      {data._cached && (
+                        <button
+                          onClick={refresh}
+                          className="absolute top-3 right-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-neon flex items-center gap-1"
+                          title="Refresh AI score"
+                        >
+                          <RefreshCw className="h-3 w-3" /> Cached {data._age_hours}h
+                        </button>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
@@ -165,7 +154,7 @@ function CountriesPage() {
                     <Section title="Top Sectors" items={data.top_sectors} />
 
                     <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
-                      <Sparkles className="h-3 w-3 text-neon" /> Powered by Lovable AI · gemini-2.5-flash
+                      <Sparkles className="h-3 w-3 text-neon" /> Powered by Lovable AI · cached 24h
                     </div>
                   </>
                 )}
