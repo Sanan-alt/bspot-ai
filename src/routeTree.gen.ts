@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -29,41 +31,57 @@ const SigninRoute = SigninRouteImport.update({
   path: '/signin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin' | '/signup' | '/terms'
+  fullPaths: '/' | '/app' | '/signin' | '/signup' | '/terms' | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/signup' | '/terms'
-  id: '__root__' | '/' | '/signin' | '/signup' | '/terms'
+  to: '/' | '/signin' | '/signup' | '/terms' | '/app'
+  id: '__root__' | '/' | '/app' | '/signin' | '/signup' | '/terms' | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
@@ -92,6 +110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SigninRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,11 +124,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
