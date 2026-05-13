@@ -15,6 +15,14 @@ import { Route as SigninRouteImport } from './routes/signin'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppSuggestionsRouteImport } from './routes/app.suggestions'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
+import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
+import { Route as AppHistoryRouteImport } from './routes/app.history'
+import { Route as AppCountriesRouteImport } from './routes/app.countries'
+import { Route as AppConverterRouteImport } from './routes/app.converter'
+import { Route as AppAssistantRouteImport } from './routes/app.assistant'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -46,6 +54,46 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSuggestionsRoute = AppSuggestionsRouteImport.update({
+  id: '/suggestions',
+  path: '/suggestions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortfolioRoute = AppPortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCountriesRoute = AppCountriesRouteImport.update({
+  id: '/countries',
+  path: '/countries',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConverterRoute = AppConverterRouteImport.update({
+  id: '/converter',
+  path: '/converter',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssistantRoute = AppAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,6 +101,14 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/assistant': typeof AppAssistantRoute
+  '/app/converter': typeof AppConverterRoute
+  '/app/countries': typeof AppCountriesRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/notifications': typeof AppNotificationsRoute
+  '/app/portfolio': typeof AppPortfolioRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/suggestions': typeof AppSuggestionsRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -60,6 +116,14 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/assistant': typeof AppAssistantRoute
+  '/app/converter': typeof AppConverterRoute
+  '/app/countries': typeof AppCountriesRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/notifications': typeof AppNotificationsRoute
+  '/app/portfolio': typeof AppPortfolioRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/suggestions': typeof AppSuggestionsRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -69,14 +133,64 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/assistant': typeof AppAssistantRoute
+  '/app/converter': typeof AppConverterRoute
+  '/app/countries': typeof AppCountriesRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/notifications': typeof AppNotificationsRoute
+  '/app/portfolio': typeof AppPortfolioRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/suggestions': typeof AppSuggestionsRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/signin' | '/signup' | '/terms' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/signin'
+    | '/signup'
+    | '/terms'
+    | '/app/assistant'
+    | '/app/converter'
+    | '/app/countries'
+    | '/app/history'
+    | '/app/notifications'
+    | '/app/portfolio'
+    | '/app/settings'
+    | '/app/suggestions'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/signup' | '/terms' | '/app'
-  id: '__root__' | '/' | '/app' | '/signin' | '/signup' | '/terms' | '/app/'
+  to:
+    | '/'
+    | '/signin'
+    | '/signup'
+    | '/terms'
+    | '/app/assistant'
+    | '/app/converter'
+    | '/app/countries'
+    | '/app/history'
+    | '/app/notifications'
+    | '/app/portfolio'
+    | '/app/settings'
+    | '/app/suggestions'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/signin'
+    | '/signup'
+    | '/terms'
+    | '/app/assistant'
+    | '/app/converter'
+    | '/app/countries'
+    | '/app/history'
+    | '/app/notifications'
+    | '/app/portfolio'
+    | '/app/settings'
+    | '/app/suggestions'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -131,14 +245,86 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/suggestions': {
+      id: '/app/suggestions'
+      path: '/suggestions'
+      fullPath: '/app/suggestions'
+      preLoaderRoute: typeof AppSuggestionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/portfolio': {
+      id: '/app/portfolio'
+      path: '/portfolio'
+      fullPath: '/app/portfolio'
+      preLoaderRoute: typeof AppPortfolioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/notifications': {
+      id: '/app/notifications'
+      path: '/notifications'
+      fullPath: '/app/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/history': {
+      id: '/app/history'
+      path: '/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/countries': {
+      id: '/app/countries'
+      path: '/countries'
+      fullPath: '/app/countries'
+      preLoaderRoute: typeof AppCountriesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/converter': {
+      id: '/app/converter'
+      path: '/converter'
+      fullPath: '/app/converter'
+      preLoaderRoute: typeof AppConverterRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assistant': {
+      id: '/app/assistant'
+      path: '/assistant'
+      fullPath: '/app/assistant'
+      preLoaderRoute: typeof AppAssistantRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAssistantRoute: typeof AppAssistantRoute
+  AppConverterRoute: typeof AppConverterRoute
+  AppCountriesRoute: typeof AppCountriesRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
+  AppPortfolioRoute: typeof AppPortfolioRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSuggestionsRoute: typeof AppSuggestionsRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAssistantRoute: AppAssistantRoute,
+  AppConverterRoute: AppConverterRoute,
+  AppCountriesRoute: AppCountriesRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
+  AppPortfolioRoute: AppPortfolioRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSuggestionsRoute: AppSuggestionsRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -154,3 +340,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { Construction } from "lucide-react";
 
 export function ComingSoon({ title, kicker, eta }: { title: string; kicker: string; eta: string }) {
@@ -16,6 +15,3 @@ export function ComingSoon({ title, kicker, eta }: { title: string; kicker: stri
     </div>
   );
 }
-
-// dummy export so TanStack route splitter doesn't pick this up as a route
-export const _placeholder = createFileRoute;
