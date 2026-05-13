@@ -10,7 +10,21 @@ const Input = z.object({
 
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-async function callGemini(name: string, code: string): Promise<unknown> {
+export type CountryScore = {
+  overall: number;
+  stability: number;
+  growth: number;
+  risk: number;
+  currency: string;
+  summary: string;
+  opportunities: string[];
+  risks: string[];
+  top_sectors: string[];
+  _cached: boolean;
+  _age_hours: number;
+};
+
+async function callGemini(name: string, code: string): Promise<Omit<CountryScore, "_cached" | "_age_hours">> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
 
@@ -66,7 +80,7 @@ async function callGemini(name: string, code: string): Promise<unknown> {
 
 export const scoreCountry = createServerFn({ method: "POST" })
   .inputValidator((input) => Input.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<CountryScore> => {
     const code = data.code.toUpperCase();
 
     // Check cache (24h TTL)
@@ -80,7 +94,8 @@ export const scoreCountry = createServerFn({ method: "POST" })
       if (cached) {
         const age = Date.now() - new Date(cached.updated_at).getTime();
         if (age < TTL_MS) {
-          return { ...(cached.data as object), _cached: true, _age_hours: Math.round(age / 3600000) };
+          const base = cached.data as Omit<CountryScore, "_cached" | "_age_hours">;
+          return { ...base, _cached: true, _age_hours: Math.round(age / 3600000) };
         }
       }
     }
@@ -89,7 +104,12 @@ export const scoreCountry = createServerFn({ method: "POST" })
     const fresh = await callGemini(data.name, code);
     await supabaseAdmin
       .from("country_scores")
-      .upsert({ code, name: data.name, data: fresh as object, updated_at: new Date().toISOString() });
+      .upsert({
+        code,
+        name: data.name,
+        data: fresh as unknown as Record<string, unknown>,
+        updated_at: new Date().toISOString(),
+      });
 
-    return { ...(fresh as object), _cached: false, _age_hours: 0 };
+    return { ...fresh, _cached: false, _age_hours: 0 };
   });
