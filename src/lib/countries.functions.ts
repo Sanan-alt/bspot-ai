@@ -107,7 +107,7 @@ export const scoreCountry = createServerFn({ method: "POST" })
       .upsert({
         code,
         name: data.name,
-        data: fresh as unknown as Record<string, unknown>,
+        data: JSON.parse(JSON.stringify(fresh)),
         updated_at: new Date().toISOString(),
       });
 
