@@ -100,7 +100,7 @@ export const scoreCountry = createServerFn({ method: "POST" })
       }
     }
 
-    // Call AI and upsert
+    // Call AI and upsert (credits are deducted client-side before calling)
     const fresh = await callGemini(data.name, code);
     await supabaseAdmin
       .from("country_scores")

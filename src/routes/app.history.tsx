@@ -98,8 +98,11 @@ function HistoryPage() {
     else { setSortKey(key); setSortDir(key === "created_at" ? "desc" : "asc"); }
   };
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     if (!sorted.length) { toast.error("No rows match the current filters"); return; }
+    const { spendCredits } = await import("@/lib/credits");
+    const ok = await spendCredits(50, "export_csv", `Export ${sorted.length} conversion rows`);
+    if (!ok) return;
     const blob = new Blob([toCSV(sorted)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
