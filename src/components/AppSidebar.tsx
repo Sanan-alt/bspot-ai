@@ -9,6 +9,8 @@ import {
   Bell,
   Bot,
   Settings,
+  Coins,
+  Receipt,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +35,11 @@ const items = [
   { title: "Portfolio Tracker", url: "/app/portfolio", icon: Briefcase },
   { title: "Notifications", url: "/app/notifications", icon: Bell },
   { title: "AI Assistant", url: "/app/assistant", icon: Bot },
+];
+
+const billing = [
+  { title: "Buy Credits", url: "/app/buy-credits", icon: Coins },
+  { title: "Credit History", url: "/app/history-credits", icon: Receipt },
   { title: "Settings", url: "/app/settings", icon: Settings },
 ];
 
@@ -61,6 +68,29 @@ export function AppSidebar() {
                         className={`flex items-center gap-3 ${
                           active ? "text-neon" : "hover:text-neon"
                         }`}
+                      >
+                        <it.icon className="h-4 w-4" />
+                        {!collapsed && <span>{it.title}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-mono text-[10px] tracking-[0.25em]">// BILLING</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {billing.map((it) => {
+                const active = path === it.url;
+                return (
+                  <SidebarMenuItem key={it.url}>
+                    <SidebarMenuButton asChild isActive={active}>
+                      <Link
+                        to={it.url}
+                        className={`flex items-center gap-3 ${active ? "text-neon" : "hover:text-neon"}`}
                       >
                         <it.icon className="h-4 w-4" />
                         {!collapsed && <span>{it.title}</span>}
