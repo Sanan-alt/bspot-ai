@@ -19,9 +19,11 @@ import { Route as AppSuggestionsRouteImport } from './routes/app.suggestions'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
+import { Route as AppHistoryCreditsRouteImport } from './routes/app.history-credits'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppCountriesRouteImport } from './routes/app.countries'
 import { Route as AppConverterRouteImport } from './routes/app.converter'
+import { Route as AppBuyCreditsRouteImport } from './routes/app.buy-credits'
 import { Route as AppAssistantRouteImport } from './routes/app.assistant'
 
 const TermsRoute = TermsRouteImport.update({
@@ -74,6 +76,11 @@ const AppNotificationsRoute = AppNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AppRoute,
 } as any)
+const AppHistoryCreditsRoute = AppHistoryCreditsRouteImport.update({
+  id: '/history-credits',
+  path: '/history-credits',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -89,6 +96,11 @@ const AppConverterRoute = AppConverterRouteImport.update({
   path: '/converter',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBuyCreditsRoute = AppBuyCreditsRouteImport.update({
+  id: '/buy-credits',
+  path: '/buy-credits',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAssistantRoute = AppAssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
@@ -102,9 +114,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app/assistant': typeof AppAssistantRoute
+  '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
   '/app/history': typeof AppHistoryRoute
+  '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
@@ -117,9 +131,11 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app/assistant': typeof AppAssistantRoute
+  '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
   '/app/history': typeof AppHistoryRoute
+  '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
@@ -134,9 +150,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app/assistant': typeof AppAssistantRoute
+  '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
   '/app/history': typeof AppHistoryRoute
+  '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
@@ -152,9 +170,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app/assistant'
+    | '/app/buy-credits'
     | '/app/converter'
     | '/app/countries'
     | '/app/history'
+    | '/app/history-credits'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/settings'
@@ -167,9 +187,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app/assistant'
+    | '/app/buy-credits'
     | '/app/converter'
     | '/app/countries'
     | '/app/history'
+    | '/app/history-credits'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/settings'
@@ -183,9 +205,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app/assistant'
+    | '/app/buy-credits'
     | '/app/converter'
     | '/app/countries'
     | '/app/history'
+    | '/app/history-credits'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/settings'
@@ -273,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotificationsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/history-credits': {
+      id: '/app/history-credits'
+      path: '/history-credits'
+      fullPath: '/app/history-credits'
+      preLoaderRoute: typeof AppHistoryCreditsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/history': {
       id: '/app/history'
       path: '/history'
@@ -294,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConverterRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/buy-credits': {
+      id: '/app/buy-credits'
+      path: '/buy-credits'
+      fullPath: '/app/buy-credits'
+      preLoaderRoute: typeof AppBuyCreditsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/assistant': {
       id: '/app/assistant'
       path: '/assistant'
@@ -306,9 +344,11 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAssistantRoute: typeof AppAssistantRoute
+  AppBuyCreditsRoute: typeof AppBuyCreditsRoute
   AppConverterRoute: typeof AppConverterRoute
   AppCountriesRoute: typeof AppCountriesRoute
   AppHistoryRoute: typeof AppHistoryRoute
+  AppHistoryCreditsRoute: typeof AppHistoryCreditsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -318,9 +358,11 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAssistantRoute: AppAssistantRoute,
+  AppBuyCreditsRoute: AppBuyCreditsRoute,
   AppConverterRoute: AppConverterRoute,
   AppCountriesRoute: AppCountriesRoute,
   AppHistoryRoute: AppHistoryRoute,
+  AppHistoryCreditsRoute: AppHistoryCreditsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppSettingsRoute: AppSettingsRoute,
@@ -340,3 +382,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
