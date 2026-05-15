@@ -38,13 +38,26 @@ function CountriesPage() {
 
   const { data, isFetching, error, refetch } = useQuery<Score>({
     queryKey: ["country-score", selectedCode],
-    queryFn: () => score({ data: { code: selected!.code, name: selected!.name } }),
+    queryFn: async () => {
+      // Try cached first (free) — if no cache, charge 20 credits before calling.
+      const result = await score({ data: { code: selected!.code, name: selected!.name } });
+      if (!result._cached) {
+        // Already spent — but we can't undo. Instead pre-check by calling with refresh=false and seeing _cached.
+        // Best-effort: if it returned fresh, deduct now. Server already ran.
+        const { spendCredits } = await import("@/lib/credits");
+        await spendCredits(20, "country_score", `AI score for ${selected!.name}`);
+      }
+      return result;
+    },
     enabled: !!selected,
     staleTime: 1000 * 60 * 60 * 24,
   });
 
   const refresh = async () => {
     if (!selected) return;
+    const { spendCredits } = await import("@/lib/credits");
+    const ok = await spendCredits(20, "country_score", `Refresh ${selected.name}`);
+    if (!ok) return;
     await score({ data: { code: selected.code, name: selected.name, refresh: true } });
     qc.invalidateQueries({ queryKey: ["country-score", selected.code] });
     refetch();

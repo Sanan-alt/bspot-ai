@@ -72,7 +72,7 @@ function SignUp() {
       <Field label="Confirm Password" type="password" value={pw2} onChange={setPw2} required />
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-1 accent-primary" />
-        <span>I accept the <Link to="/terms" className="text-neon hover:underline">Terms and Conditions</Link></span>
+        <span>I agree to the <Link to="/terms" className="text-neon hover:underline">Terms &amp; Conditions</Link>, Privacy Policy, and Community Guidelines</span>
       </label>
       {err && <div className="text-sm text-destructive font-mono">{err}</div>}
       <button disabled={loading || !terms} className="w-full bg-primary text-primary-foreground font-mono uppercase tracking-widest py-3 rounded-md glow disabled:opacity-50 inline-flex items-center justify-center gap-2">
