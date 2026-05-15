@@ -9,7 +9,7 @@ export async function spendCredits(amount: number, feature: string, description?
   const { error } = await supabase.rpc("consume_credits", {
     p_amount: amount,
     p_feature: feature,
-    p_description: description ?? null,
+    p_description: description ?? undefined,
   });
   if (error) {
     if (error.message?.includes("INSUFFICIENT_CREDITS")) {
