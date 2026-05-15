@@ -100,6 +100,19 @@ export const scoreCountry = createServerFn({ method: "POST" })
       }
     }
 
+    // Charge 20 credits for fresh AI scoring (cached returns above are free)
+    const { error: chargeErr } = await supabaseAdmin.rpc("consume_credits" as never, {
+      p_amount: 20,
+      p_feature: "country_score",
+      p_description: `AI score for ${data.name}`,
+    } as never);
+    if (chargeErr) {
+      if (chargeErr.message?.includes("INSUFFICIENT_CREDITS")) {
+        throw new Error("Not enough credits — country scoring costs 20 credits.");
+      }
+      throw new Error(chargeErr.message);
+    }
+
     // Call AI and upsert
     const fresh = await callGemini(data.name, code);
     await supabaseAdmin
