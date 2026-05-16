@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { scoreCountry } from "@/lib/countries.functions";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { WorldMap } from "@/components/WorldMap";
+import { VISA_PROGRAMS } from "@/lib/visa-programs";
+import { Plane, CheckCircle2, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
 
@@ -133,6 +135,51 @@ function CountriesPage() {
                   </div>
                 )}
                 {error && <div className="text-sm text-destructive">{(error as Error).message}</div>}
+
+                {/* VISA & IMMIGRATION PROGRAMS — always shown */}
+                {(() => {
+                  const programs = VISA_PROGRAMS[selected.code] ?? [];
+                  if (!programs.length) {
+                    return (
+                      <div className="panel p-4">
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">// Visa & Immigration</p>
+                        <p className="text-xs text-muted-foreground">No curated visa programs yet for {selected.name}. Email us suggestions at <a href="mailto:bspot.ai.official@gmail.com" className="text-neon">bspot.ai.official@gmail.com</a>.</p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="panel p-4">
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
+                        <Plane className="h-3 w-3 text-neon" /> Visa & Immigration Programs
+                      </p>
+                      <ul className="space-y-3">
+                        {programs.map((p) => (
+                          <li key={p.name} className="border-l-2 border-primary/40 pl-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="font-display text-sm">{p.name}</span>
+                              {p.pathToPR && (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-widest text-neon">
+                                  <CheckCircle2 className="h-3 w-3" /> PR
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">
+                              {p.category} · {p.minInvestment} · {p.duration}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">{p.summary}</p>
+                          </li>
+                        ))}
+                      </ul>
+                      <a
+                        href="mailto:bspot.ai.official@gmail.com"
+                        className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-neon"
+                      >
+                        <Mail className="h-3 w-3" /> Suggest a program
+                      </a>
+                    </div>
+                  );
+                })()}
+
 
                 {data && (
                   <>
