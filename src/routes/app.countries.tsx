@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { scoreCountry } from "@/lib/countries.functions";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { WorldMap } from "@/components/WorldMap";
+import { VISA_PROGRAMS } from "@/lib/visa-programs";
+import { Plane, CheckCircle2, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
 
