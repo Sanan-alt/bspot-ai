@@ -25,6 +25,7 @@ import { Route as AppCountriesRouteImport } from './routes/app.countries'
 import { Route as AppConverterRouteImport } from './routes/app.converter'
 import { Route as AppBuyCreditsRouteImport } from './routes/app.buy-credits'
 import { Route as AppAssistantRouteImport } from './routes/app.assistant'
+import { Route as AppAdminRouteImport } from './routes/app.admin'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -106,6 +107,11 @@ const AppAssistantRoute = AppAssistantRouteImport.update({
   path: '/assistant',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/converter': typeof AppConverterRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/converter': typeof AppConverterRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/converter': typeof AppConverterRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/terms'
+    | '/app/admin'
     | '/app/assistant'
     | '/app/buy-credits'
     | '/app/converter'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/terms'
+    | '/app/admin'
     | '/app/assistant'
     | '/app/buy-credits'
     | '/app/converter'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/terms'
+    | '/app/admin'
     | '/app/assistant'
     | '/app/buy-credits'
     | '/app/converter'
@@ -339,10 +351,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssistantRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/admin': {
+      id: '/app/admin'
+      path: '/admin'
+      fullPath: '/app/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppAssistantRoute: typeof AppAssistantRoute
   AppBuyCreditsRoute: typeof AppBuyCreditsRoute
   AppConverterRoute: typeof AppConverterRoute
@@ -357,6 +377,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppAssistantRoute: AppAssistantRoute,
   AppBuyCreditsRoute: AppBuyCreditsRoute,
   AppConverterRoute: AppConverterRoute,
