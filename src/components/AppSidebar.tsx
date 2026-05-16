@@ -11,7 +11,9 @@ import {
   Settings,
   Coins,
   Receipt,
+  Shield,
 } from "lucide-react";
+import { useCredits } from "@/hooks/use-credits";
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +49,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const { isOwner } = useCredits();
 
   return (
     <Sidebar collapsible="icon">
@@ -102,6 +105,23 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {isOwner && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="font-mono text-[10px] tracking-[0.25em] text-neon">// OWNER</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={path === "/app/admin"}>
+                    <Link to="/app/admin" className={`flex items-center gap-3 ${path === "/app/admin" ? "text-neon" : "hover:text-neon"}`}>
+                      <Shield className="h-4 w-4" />
+                      {!collapsed && <span>Admin Panel</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
