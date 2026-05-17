@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Bot, Briefcase, Globe2, Mail, Sparkles, TrendingUp, Zap, Plane, Building2, Award } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { TOP_INVESTMENT_COUNTRIES, VISA_PROGRAMS } from "@/lib/visa-programs";
 
@@ -23,6 +24,7 @@ function Landing() {
             <Link to="/terms" className="hover:text-neon">Terms</Link>
           </nav>
           <div className="flex items-center gap-3">
+            <LanguageSelector compact />
             <Link to="/signin" className="text-sm font-mono uppercase tracking-widest hover:text-neon">Sign In</Link>
             <Link to="/signup" className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-mono text-xs uppercase tracking-widest glow-sm hover:scale-105 transition-transform">
               Launch →
@@ -202,10 +204,11 @@ function Landing() {
             If any user, admin, or website worker has suggestions or ideas to improve the platform, reach out — we read every message.
           </p>
           <a
-            href="mailto:bspot.ai.official@gmail.com"
+            href="mailto:bspot.ai.official@gmail.com?subject=BSpot%20AI%20—%20Suggestion"
             className="mt-6 inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-mono uppercase tracking-widest text-sm glow hover:scale-105 transition-transform"
           >
-            <Mail className="h-4 w-4" /> bspot.ai.official@gmail.com
+            <Mail className="h-4 w-4" />
+            <span>bspot.ai.official@gmail.com</span>
           </a>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground font-mono">
             <Building2 className="h-3 w-3" /> Partnerships · Press · Product feedback
