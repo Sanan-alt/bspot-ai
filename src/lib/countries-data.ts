@@ -6,7 +6,7 @@ export const NUM_TO_ISO2: Record<string, string> = {
   "756": "CH", "752": "SE", "578": "NO", "616": "PL", "792": "TR", "643": "RU",
   "804": "UA", "156": "CN", "392": "JP", "410": "KR", "356": "IN", "702": "SG",
   "344": "HK", "360": "ID", "764": "TH", "704": "VN", "784": "AE", "682": "SA",
-  "376": "IL", "818": "EG", "710": "ZA", "566": "NG", "404": "KE", "036": "AU",
+  "818": "EG", "710": "ZA", "566": "NG", "404": "KE", "036": "AU",
   "554": "NZ",
 };
 
@@ -43,7 +43,7 @@ export const COUNTRIES: Country[] = [
   { code: "VN", name: "Vietnam", region: "Asia", flag: "🇻🇳", currency: "VND" },
   { code: "AE", name: "UAE", region: "MENA", flag: "🇦🇪", currency: "AED" },
   { code: "SA", name: "Saudi Arabia", region: "MENA", flag: "🇸🇦", currency: "SAR" },
-  { code: "IL", name: "Israel", region: "MENA", flag: "🇮🇱", currency: "ILS" },
+  
   { code: "EG", name: "Egypt", region: "MENA", flag: "🇪🇬", currency: "EGP" },
   { code: "ZA", name: "South Africa", region: "Africa", flag: "🇿🇦", currency: "ZAR" },
   { code: "NG", name: "Nigeria", region: "Africa", flag: "🇳🇬", currency: "NGN" },
