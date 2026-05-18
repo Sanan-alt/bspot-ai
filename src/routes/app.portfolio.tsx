@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/lib/countries-data";
+import { optimizePortfolio } from "@/lib/portfolio.functions";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
 
 export const Route = createFileRoute("/app/portfolio")({ component: PortfolioPage });
