@@ -31,6 +31,7 @@ type Investment = {
 const empty = { name: "", country: "", currency: "USD", initial_amount: "", current_value: "", notes: "" };
 
 function PortfolioPage() {
+  const optimizeFn = useServerFn(optimizePortfolio);
   const { user } = useAuth();
   const [items, setItems] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
