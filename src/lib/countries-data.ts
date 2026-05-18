@@ -43,7 +43,7 @@ export const COUNTRIES: Country[] = [
   { code: "VN", name: "Vietnam", region: "Asia", flag: "🇻🇳", currency: "VND" },
   { code: "AE", name: "UAE", region: "MENA", flag: "🇦🇪", currency: "AED" },
   { code: "SA", name: "Saudi Arabia", region: "MENA", flag: "🇸🇦", currency: "SAR" },
-  { code: "IL", name: "Israel", region: "MENA", flag: "🇮🇱", currency: "ILS" },
+  
   { code: "EG", name: "Egypt", region: "MENA", flag: "🇪🇬", currency: "EGP" },
   { code: "ZA", name: "South Africa", region: "Africa", flag: "🇿🇦", currency: "ZAR" },
   { code: "NG", name: "Nigeria", region: "Africa", flag: "🇳🇬", currency: "NGN" },
