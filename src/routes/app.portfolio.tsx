@@ -126,23 +126,11 @@ function PortfolioPage() {
       const { spendCredits } = await import("@/lib/credits");
       const ok = await spendCredits(15, "portfolio_optimize", "AI portfolio review");
       if (!ok) { setAiLoading(false); return; }
-      const apiKey = import.meta.env.VITE_LOVABLE_API_KEY;
       const summary = items.map(i =>
         `${i.name} (${i.country || "n/a"}, ${i.currency}): invested ${i.initial_amount}, now ${i.current_value}`
       ).join("\n");
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: "You are a portfolio advisor. Be concise, 4-6 bullet points, practical." },
-            { role: "user", content: `Review my portfolio and give optimization tips:\n${summary}` },
-          ],
-        }),
-      });
-      const json = await res.json();
-      setAiAdvice(json?.choices?.[0]?.message?.content ?? "No advice returned.");
+      const { advice } = await optimizeFn({ data: { summary } });
+      setAiAdvice(advice);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
