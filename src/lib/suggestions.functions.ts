@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   budget_usd: z.number().min(100).max(100_000_000),
@@ -8,6 +9,8 @@ const Input = z.object({
   risk: z.enum(["low", "medium", "high"]),
   horizon_years: z.number().min(1).max(30),
 });
+
+const COST = 5;
 
 export type Suggestion = {
   title: string;
@@ -22,10 +25,23 @@ export type Suggestion = {
 };
 
 export const suggestBusinesses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
+
+    const { error: creditErr } = await context.supabase.rpc("consume_credits", {
+      p_amount: COST,
+      p_feature: "ai_suggestions",
+      p_description: "Generate business suggestions",
+    });
+    if (creditErr) {
+      if (creditErr.message?.includes("INSUFFICIENT_CREDITS")) {
+        throw new Error(`Not enough credits — this action costs ${COST}.`);
+      }
+      throw new Error(creditErr.message || "Could not spend credits");
+    }
 
     const userPrompt = `Generate 5 realistic, distinct investment / business opportunities for a foreign investor.
 
