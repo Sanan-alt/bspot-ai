@@ -1,9 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { purchaseCreditsMockFn, adminGrantCreditsFn } from "@/lib/credits.functions";
 
 /**
- * Spend credits on a feature. Owners are not charged (handled server-side).
- * Returns true if the action should proceed, false otherwise (and shows a toast).
+ * Spend credits on a feature client-side (used for legacy/optimistic UI only).
+ * AI server functions now consume credits server-side atomically.
  */
 export async function spendCredits(amount: number, feature: string, description?: string): Promise<boolean> {
   const { error } = await supabase.rpc("consume_credits", {
@@ -23,26 +24,14 @@ export async function spendCredits(amount: number, feature: string, description?
 }
 
 /**
- * Mock purchase — grants credits to current user with type 'purchase'.
- * Replace with real Stripe flow in Phase B.
+ * Mock purchase — routed through a server function (capped, auth-checked).
+ * Replace with real Stripe flow when payments go live.
  */
-export async function purchaseCreditsMock(userId: string, amount: number, packLabel: string) {
-  const { error } = await supabase.rpc("grant_credits", {
-    p_user: userId,
-    p_amount: amount,
-    p_type: "purchase",
-    p_description: `Mock purchase: ${packLabel}`,
-  });
-  if (error) throw new Error(error.message);
+export async function purchaseCreditsMock(_userId: string, amount: number, packLabel: string) {
+  await purchaseCreditsMockFn({ data: { amount, pack_label: packLabel } });
 }
 
-/** Owner/admin grant to any user. */
+/** Owner/admin grant to any user — role enforced server-side. */
 export async function adminGrantCredits(userId: string, amount: number, description: string) {
-  const { error } = await supabase.rpc("grant_credits", {
-    p_user: userId,
-    p_amount: amount,
-    p_type: "admin_grant",
-    p_description: description,
-  });
-  if (error) throw new Error(error.message);
+  await adminGrantCreditsFn({ data: { user_id: userId, amount, description } });
 }
