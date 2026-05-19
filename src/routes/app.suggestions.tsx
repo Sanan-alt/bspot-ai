@@ -22,9 +22,6 @@ function SuggestionsPage() {
 
   const m = useMutation<Suggestion[], Error>({
     mutationFn: async () => {
-      const { spendCredits } = await import("@/lib/credits");
-      const ok = await spendCredits(5, "ai_suggestions", "Generate business suggestions");
-      if (!ok) throw new Error("Insufficient credits");
       return fn({ data: {
         budget_usd: Math.max(100, parseFloat(budget) || 0),
         country: country || undefined,
@@ -33,7 +30,7 @@ function SuggestionsPage() {
         horizon_years: Math.max(1, parseInt(horizon) || 5),
       }});
     },
-    onError: (e) => { if (e.message !== "Insufficient credits") toast.error(e.message); },
+    onError: (e) => toast.error(e.message),
   });
 
   return (
