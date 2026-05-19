@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   code: z.string().min(2).max(3),
@@ -9,6 +10,7 @@ const Input = z.object({
 });
 
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const SCORE_COST = 20;
 
 export type CountryScore = {
   overall: number;
@@ -79,11 +81,13 @@ async function callGemini(name: string, code: string): Promise<Omit<CountryScore
 }
 
 export const scoreCountry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
-  .handler(async ({ data }): Promise<CountryScore> => {
+  .handler(async ({ data, context }): Promise<CountryScore> => {
     const code = data.code.toUpperCase();
+    const { supabase } = context;
 
-    // Check cache (24h TTL)
+    // Check cache (24h TTL) — cached reads are free.
     if (!data.refresh) {
       const { data: cached } = await supabaseAdmin
         .from("country_scores")
@@ -100,7 +104,19 @@ export const scoreCountry = createServerFn({ method: "POST" })
       }
     }
 
-    // Call AI and upsert (credits are deducted client-side before calling)
+    // Charge credits BEFORE calling AI (atomic; owners are free via RPC).
+    const { error: creditErr } = await supabase.rpc("consume_credits", {
+      p_amount: SCORE_COST,
+      p_feature: "country_score",
+      p_description: `AI score for ${data.name}`,
+    });
+    if (creditErr) {
+      if (creditErr.message?.includes("INSUFFICIENT_CREDITS")) {
+        throw new Error(`Not enough credits — this action costs ${SCORE_COST}.`);
+      }
+      throw new Error(creditErr.message || "Could not spend credits");
+    }
+
     const fresh = await callGemini(data.name, code);
     await supabaseAdmin
       .from("country_scores")
