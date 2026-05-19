@@ -123,9 +123,6 @@ function PortfolioPage() {
     setAiLoading(true);
     setAiAdvice(null);
     try {
-      const { spendCredits } = await import("@/lib/credits");
-      const ok = await spendCredits(15, "portfolio_optimize", "AI portfolio review");
-      if (!ok) { setAiLoading(false); return; }
       const summary = items.map(i =>
         `${i.name} (${i.country || "n/a"}, ${i.currency}): invested ${i.initial_amount}, now ${i.current_value}`
       ).join("\n");
