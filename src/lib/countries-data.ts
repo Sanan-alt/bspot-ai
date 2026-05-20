@@ -7,7 +7,7 @@ export const NUM_TO_ISO2: Record<string, string> = {
   "804": "UA", "156": "CN", "392": "JP", "410": "KR", "356": "IN", "702": "SG",
   "344": "HK", "360": "ID", "764": "TH", "704": "VN", "784": "AE", "682": "SA",
   "818": "EG", "710": "ZA", "566": "NG", "404": "KE", "036": "AU",
-  "554": "NZ",
+  "554": "NZ", "586": "PK", "364": "IR",
 };
 
 export type Country = { code: string; name: string; region: string; flag: string; currency: string };
@@ -41,9 +41,10 @@ export const COUNTRIES: Country[] = [
   { code: "ID", name: "Indonesia", region: "Asia", flag: "🇮🇩", currency: "IDR" },
   { code: "TH", name: "Thailand", region: "Asia", flag: "🇹🇭", currency: "THB" },
   { code: "VN", name: "Vietnam", region: "Asia", flag: "🇻🇳", currency: "VND" },
+  { code: "PK", name: "Pakistan", region: "Asia", flag: "🇵🇰", currency: "PKR" },
   { code: "AE", name: "UAE", region: "MENA", flag: "🇦🇪", currency: "AED" },
   { code: "SA", name: "Saudi Arabia", region: "MENA", flag: "🇸🇦", currency: "SAR" },
-  
+  { code: "IR", name: "Iran", region: "MENA", flag: "🇮🇷", currency: "IRR" },
   { code: "EG", name: "Egypt", region: "MENA", flag: "🇪🇬", currency: "EGP" },
   { code: "ZA", name: "South Africa", region: "Africa", flag: "🇿🇦", currency: "ZAR" },
   { code: "NG", name: "Nigeria", region: "Africa", flag: "🇳🇬", currency: "NGN" },

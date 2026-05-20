@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeftRight, Loader2, Save } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeftRight, Loader2, Save, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/app/converter")({ component: ConverterPage });
 
 const CURRENCIES = [
-  "USD","EUR","GBP","JPY","CHF","AUD","CAD","CNY","INR","BRL","MXN","ZAR","NGN","EGP","TRY","SEK","NOK","DKK","PLN","CZK","HUF","SGD","HKD","KRW","NZD","AED","SAR","ILS","THB","IDR","MYR","PHP","VND","RUB","UAH",
+  "USD","EUR","GBP","JPY","CHF","AUD","CAD","CNY","INR","PKR","IRR","BRL","MXN","ZAR","NGN","EGP","TRY","SEK","NOK","DKK","PLN","CZK","HUF","SGD","HKD","KRW","NZD","AED","SAR","THB","IDR","MYR","PHP","VND","RUB","UAH",
 ];
 
 async function fetchRate(from: string, to: string): Promise<number> {
@@ -35,6 +35,8 @@ function ConverterPage() {
   const [rate, setRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [fromPerUsd, setFromPerUsd] = useState<number | null>(null);
+  const [toPerUsd, setToPerUsd] = useState<number | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -50,8 +52,47 @@ function ConverterPage() {
 
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [from, to]);
 
+  // Independent USD strength fetch — used for the comparison panel
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [f, t] = await Promise.all([
+          from === "USD" ? Promise.resolve(1) : fetchRate("USD", from),
+          to === "USD" ? Promise.resolve(1) : fetchRate("USD", to),
+        ]);
+        if (!cancelled) { setFromPerUsd(f); setToPerUsd(t); }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [from, to]);
+
   const amt = parseFloat(amount) || 0;
   const converted = rate ? amt * rate : 0;
+
+  // Strength comparison: lower units-per-USD = stronger currency.
+  const strength = useMemo(() => {
+    if (!fromPerUsd || !toPerUsd) return null;
+    const fromStrongerPct = ((toPerUsd / fromPerUsd) - 1) * 100; // >0 = from is stronger
+    const stronger = fromStrongerPct >= 0 ? from : to;
+    const weaker = fromStrongerPct >= 0 ? to : from;
+    const magnitude = Math.abs(fromStrongerPct);
+    // Normalize to a 0-100 "strength index" relative to USD baseline (USD = 50)
+    const idx = (v: number) => {
+      if (!v) return 0;
+      // log scale so 1 unit/USD maps high, large units/USD map low
+      const score = 50 - Math.log10(v) * 18;
+      return Math.max(1, Math.min(99, Math.round(score)));
+    };
+    return {
+      fromStrongerPct,
+      stronger,
+      weaker,
+      magnitude,
+      fromIdx: idx(fromPerUsd),
+      toIdx: idx(toPerUsd),
+    };
+  }, [fromPerUsd, toPerUsd, from, to]);
 
   const swap = () => { setFrom(to); setTo(from); };
 
@@ -130,6 +171,68 @@ function ConverterPage() {
           </div>
         </div>
       </div>
+
+      {/* CURRENCY STRENGTH COMPARISON */}
+      {strength && (
+        <div className="panel-neon p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">// CURRENCY STRENGTH</p>
+              <h2 className="mt-1 font-display text-xl">
+                <span className="text-neon">{strength.stronger}</span> is{" "}
+                <span className="text-neon">{strength.magnitude.toFixed(2)}%</span> stronger than {strength.weaker}
+              </h2>
+            </div>
+            {strength.fromStrongerPct >= 0
+              ? <TrendingUp className="h-6 w-6 text-success" />
+              : <TrendingDown className="h-6 w-6 text-destructive" />}
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <StrengthBar code={from} score={strength.fromIdx} perUsd={fromPerUsd!} active={strength.fromStrongerPct >= 0} />
+            <StrengthBar code={to} score={strength.toIdx} perUsd={toPerUsd!} active={strength.fromStrongerPct < 0} />
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-3 pt-2 border-t border-border">
+            <Stat label="1 USD" value={`${fromPerUsd!.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${from}`} />
+            <Stat label="1 USD" value={`${toPerUsd!.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${to}`} />
+            <Stat label={`1 ${from}`} value={`${(toPerUsd! / fromPerUsd!).toLocaleString(undefined, { maximumFractionDigits: 6 })} ${to}`} />
+          </div>
+          <p className="text-[10px] font-mono text-muted-foreground">
+            // Strength index is logarithmic vs. USD baseline (50). Higher = stronger purchasing parity per unit.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StrengthBar({ code, score, perUsd, active }: { code: string; score: number; perUsd: number; active: boolean }) {
+  return (
+    <div className={`panel p-4 ${active ? "border-primary glow-sm" : ""}`}>
+      <div className="flex items-baseline justify-between">
+        <span className="font-display text-lg">{code}</span>
+        <span className="font-mono text-xs text-muted-foreground">{perUsd.toLocaleString(undefined, { maximumFractionDigits: 4 })} / USD</span>
+      </div>
+      <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-[oklch(0.78_0.18_80)]"
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <div className="mt-1 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+        <span>Strength</span>
+        <span className="text-neon">{score}/100</span>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="terminal px-3 py-2">
+      <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">{label}</div>
+      <div className="text-sm truncate">{value}</div>
     </div>
   );
 }

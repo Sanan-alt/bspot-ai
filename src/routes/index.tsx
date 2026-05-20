@@ -3,6 +3,8 @@ import { ArrowRight, Bot, Briefcase, Globe2, Mail, Sparkles, TrendingUp, Zap, Pl
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { StockTicker } from "@/components/StockTicker";
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { TOP_INVESTMENT_COUNTRIES, VISA_PROGRAMS } from "@/lib/visa-programs";
 
@@ -23,7 +25,8 @@ function Landing() {
             <a href="#contact" className="hover:text-neon">Contact</a>
             <Link to="/terms" className="hover:text-neon">Terms</Link>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
             <LanguageSelector compact />
             <Link to="/signin" className="text-sm font-mono uppercase tracking-widest hover:text-neon">Sign In</Link>
             <Link to="/signup" className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-mono text-xs uppercase tracking-widest glow-sm hover:scale-105 transition-transform">
@@ -32,6 +35,10 @@ function Landing() {
           </div>
         </div>
       </header>
+
+      <div className="mx-auto max-w-7xl px-6 pt-4">
+        <StockTicker />
+      </div>
 
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 pt-24 pb-32 grid lg:grid-cols-2 gap-12 items-center">
