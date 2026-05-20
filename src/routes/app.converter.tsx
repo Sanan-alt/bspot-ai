@@ -35,6 +35,8 @@ function ConverterPage() {
   const [rate, setRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [fromPerUsd, setFromPerUsd] = useState<number | null>(null);
+  const [toPerUsd, setToPerUsd] = useState<number | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -50,8 +52,47 @@ function ConverterPage() {
 
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [from, to]);
 
+  // Independent USD strength fetch — used for the comparison panel
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [f, t] = await Promise.all([
+          from === "USD" ? Promise.resolve(1) : fetchRate("USD", from),
+          to === "USD" ? Promise.resolve(1) : fetchRate("USD", to),
+        ]);
+        if (!cancelled) { setFromPerUsd(f); setToPerUsd(t); }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [from, to]);
+
   const amt = parseFloat(amount) || 0;
   const converted = rate ? amt * rate : 0;
+
+  // Strength comparison: lower units-per-USD = stronger currency.
+  const strength = useMemo(() => {
+    if (!fromPerUsd || !toPerUsd) return null;
+    const fromStrongerPct = ((toPerUsd / fromPerUsd) - 1) * 100; // >0 = from is stronger
+    const stronger = fromStrongerPct >= 0 ? from : to;
+    const weaker = fromStrongerPct >= 0 ? to : from;
+    const magnitude = Math.abs(fromStrongerPct);
+    // Normalize to a 0-100 "strength index" relative to USD baseline (USD = 50)
+    const idx = (v: number) => {
+      if (!v) return 0;
+      // log scale so 1 unit/USD maps high, large units/USD map low
+      const score = 50 - Math.log10(v) * 18;
+      return Math.max(1, Math.min(99, Math.round(score)));
+    };
+    return {
+      fromStrongerPct,
+      stronger,
+      weaker,
+      magnitude,
+      fromIdx: idx(fromPerUsd),
+      toIdx: idx(toPerUsd),
+    };
+  }, [fromPerUsd, toPerUsd, from, to]);
 
   const swap = () => { setFrom(to); setTo(from); };
 
