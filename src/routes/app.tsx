@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatbotFab } from "@/components/ChatbotFab";
 import { CreditsBadge } from "@/components/CreditsBadge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditsProvider } from "@/hooks/use-credits";
 import { Bell, LogOut } from "lucide-react";
 import { Loader2 } from "lucide-react";
@@ -41,6 +42,7 @@ function AppLayout() {
                 <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden sm:inline">// BSPOT.AI v0.1</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
+                <ThemeToggle />
                 <CreditsBadge />
                 <Link to="/app/notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
                   <Bell className="h-4 w-4" />
