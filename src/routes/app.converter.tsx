@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/app/converter")({ component: ConverterPage });
 
 const CURRENCIES = [
-  "USD","EUR","GBP","JPY","CHF","AUD","CAD","CNY","INR","BRL","MXN","ZAR","NGN","EGP","TRY","SEK","NOK","DKK","PLN","CZK","HUF","SGD","HKD","KRW","NZD","AED","SAR","ILS","THB","IDR","MYR","PHP","VND","RUB","UAH",
+  "USD","EUR","GBP","JPY","CHF","AUD","CAD","CNY","INR","PKR","IRR","BRL","MXN","ZAR","NGN","EGP","TRY","SEK","NOK","DKK","PLN","CZK","HUF","SGD","HKD","KRW","NZD","AED","SAR","THB","IDR","MYR","PHP","VND","RUB","UAH",
 ];
 
 async function fetchRate(from: string, to: string): Promise<number> {
