@@ -171,6 +171,68 @@ function ConverterPage() {
           </div>
         </div>
       </div>
+
+      {/* CURRENCY STRENGTH COMPARISON */}
+      {strength && (
+        <div className="panel-neon p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">// CURRENCY STRENGTH</p>
+              <h2 className="mt-1 font-display text-xl">
+                <span className="text-neon">{strength.stronger}</span> is{" "}
+                <span className="text-neon">{strength.magnitude.toFixed(2)}%</span> stronger than {strength.weaker}
+              </h2>
+            </div>
+            {strength.fromStrongerPct >= 0
+              ? <TrendingUp className="h-6 w-6 text-success" />
+              : <TrendingDown className="h-6 w-6 text-destructive" />}
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <StrengthBar code={from} score={strength.fromIdx} perUsd={fromPerUsd!} active={strength.fromStrongerPct >= 0} />
+            <StrengthBar code={to} score={strength.toIdx} perUsd={toPerUsd!} active={strength.fromStrongerPct < 0} />
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-3 pt-2 border-t border-border">
+            <Stat label="1 USD" value={`${fromPerUsd!.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${from}`} />
+            <Stat label="1 USD" value={`${toPerUsd!.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${to}`} />
+            <Stat label={`1 ${from}`} value={`${(toPerUsd! / fromPerUsd!).toLocaleString(undefined, { maximumFractionDigits: 6 })} ${to}`} />
+          </div>
+          <p className="text-[10px] font-mono text-muted-foreground">
+            // Strength index is logarithmic vs. USD baseline (50). Higher = stronger purchasing parity per unit.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StrengthBar({ code, score, perUsd, active }: { code: string; score: number; perUsd: number; active: boolean }) {
+  return (
+    <div className={`panel p-4 ${active ? "border-primary glow-sm" : ""}`}>
+      <div className="flex items-baseline justify-between">
+        <span className="font-display text-lg">{code}</span>
+        <span className="font-mono text-xs text-muted-foreground">{perUsd.toLocaleString(undefined, { maximumFractionDigits: 4 })} / USD</span>
+      </div>
+      <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-[oklch(0.78_0.18_80)]"
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <div className="mt-1 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+        <span>Strength</span>
+        <span className="text-neon">{score}/100</span>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="terminal px-3 py-2">
+      <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">{label}</div>
+      <div className="text-sm truncate">{value}</div>
     </div>
   );
 }
