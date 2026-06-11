@@ -25,7 +25,12 @@ const SYMBOLS: { id: string; name: string }[] = [
   { id: "meta.us", name: "Meta" },
 ];
 
+// Module-level cache to throttle upstream calls (public endpoint, no auth required).
+let _cache: { at: number; data: StockQuote[] } | null = null;
+const TTL_MS = 60_000; // 60s
+
 export const getStocks = createServerFn({ method: "GET" }).handler(async (): Promise<StockQuote[]> => {
+  if (_cache && Date.now() - _cache.at < TTL_MS) return _cache.data;
   const symList = SYMBOLS.map((s) => s.id).join(",");
   const url = `https://stooq.com/q/l/?s=${encodeURIComponent(symList)}&f=snd2t2ohlcp&h&e=csv`;
   try {
