@@ -46,7 +46,7 @@ function Home() {
       const [{ count: cConv }, { data: portfolio }, { count: cWatch }, { count: cNotif }, { data: lastConv }] =
         await Promise.all([
           supabase.from("conversions").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-          supabase.from("investments").select("amount_invested, current_value").eq("user_id", user.id),
+          supabase.from("investments").select("initial_amount, current_value").eq("user_id", user.id),
           supabase.from("watchlists" as never).select("*", { count: "exact", head: true }),
           supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("read", false),
           supabase
@@ -56,8 +56,8 @@ function Home() {
             .order("created_at", { ascending: false })
             .limit(5),
         ]);
-      const invested = (portfolio ?? []).reduce((s, r) => s + Number(r.amount_invested ?? 0), 0);
-      const current = (portfolio ?? []).reduce((s, r) => s + Number(r.current_value ?? r.amount_invested ?? 0), 0);
+      const invested = (portfolio ?? []).reduce((s, r) => s + Number(r.initial_amount ?? 0), 0);
+      const current = (portfolio ?? []).reduce((s, r) => s + Number(r.current_value ?? r.initial_amount ?? 0), 0);
       const pl = invested > 0 ? ((current - invested) / invested) * 100 : 0;
       setStats({
         conversions: cConv ?? 0,
