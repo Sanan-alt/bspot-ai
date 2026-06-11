@@ -320,6 +320,42 @@ export type Database = {
         }
         Relationships: []
       }
+      watchlists: {
+        Row: {
+          alert_above: number | null
+          alert_below: number | null
+          created_at: string
+          id: string
+          kind: string
+          label: string | null
+          symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_above?: number | null
+          alert_below?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_above?: number | null
+          alert_below?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
