@@ -364,3 +364,131 @@ function SectionLoader() {
     </div>
   );
 }
+
+/* ---------- ANALYTICS ---------- */
+function AnalyticsOverview() {
+  const [data, setData] = useState({
+    users: 0,
+    credits_in_circulation: 0,
+    total_granted: 0,
+    total_spent: 0,
+    conversions_24h: 0,
+    top_features: [] as { feature: string; spent: number }[],
+    signups_7d: [] as { day: string; count: number }[],
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const [{ count: users }, { data: credits }, { data: txns }, { count: conv24 }, { data: profiles }] =
+        await Promise.all([
+          supabase.from("profiles").select("*", { count: "exact", head: true }),
+          supabase.from("credits").select("balance"),
+          supabase.from("credit_transactions").select("amount, type, feature, created_at"),
+          supabase
+            .from("conversions")
+            .select("*", { count: "exact", head: true })
+            .gte("created_at", new Date(Date.now() - 86400_000).toISOString()),
+          supabase.from("profiles").select("created_at"),
+        ]);
+
+      const balance = (credits ?? []).reduce((s, c) => s + Number(c.balance ?? 0), 0);
+      const granted = (txns ?? []).filter((t) => Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0);
+      const spent = (txns ?? []).filter((t) => Number(t.amount) < 0).reduce((s, t) => s + Math.abs(Number(t.amount)), 0);
+
+      const byFeature: Record<string, number> = {};
+      for (const t of txns ?? []) {
+        if (Number(t.amount) < 0 && t.feature) {
+          byFeature[t.feature] = (byFeature[t.feature] ?? 0) + Math.abs(Number(t.amount));
+        }
+      }
+      const top_features = Object.entries(byFeature)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([feature, spent]) => ({ feature, spent }));
+
+      const days: { day: string; count: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 86400_000);
+        const key = d.toISOString().slice(0, 10);
+        const count = (profiles ?? []).filter((p) => (p.created_at ?? "").startsWith(key)).length;
+        days.push({ day: key.slice(5), count });
+      }
+
+      setData({
+        users: users ?? 0,
+        credits_in_circulation: balance,
+        total_granted: granted,
+        total_spent: spent,
+        conversions_24h: conv24 ?? 0,
+        top_features,
+        signups_7d: days,
+      });
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) return <SectionLoader />;
+  const maxSpent = Math.max(...data.top_features.map((f) => f.spent), 1);
+  const maxSignup = Math.max(...data.signups_7d.map((d) => d.count), 1);
+
+  const kpis = [
+    { label: "Total Users", value: data.users.toLocaleString(), icon: Users },
+    { label: "Credits Circulating", value: data.credits_in_circulation.toLocaleString(), icon: Coins },
+    { label: "Total Granted", value: data.total_granted.toLocaleString(), icon: Gift },
+    { label: "Total Spent", value: data.total_spent.toLocaleString(), icon: Activity },
+    { label: "Conversions (24h)", value: data.conversions_24h.toLocaleString(), icon: TrendingUp },
+  ];
+
+  return (
+    <section className="panel p-6">
+      <SectionHeader icon={BarChart3} title="Platform Analytics" subtitle="Live usage and credit economy" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
+        {kpis.map((k) => (
+          <div key={k.label} className="panel p-3">
+            <k.icon className="h-4 w-4 text-neon" />
+            <div className="font-display text-xl mt-2">{k.value}</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{k.label}</div>
+          </div>
+        ))}
+      </div>
+      <div className="grid md:grid-cols-2 gap-4 mt-4">
+        <div className="panel p-4">
+          <h3 className="font-display text-sm mb-3">Top Features by Spend</h3>
+          {data.top_features.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No spend yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {data.top_features.map((f) => (
+                <div key={f.feature}>
+                  <div className="flex justify-between text-xs font-mono">
+                    <span>{f.feature}</span>
+                    <span className="text-neon">{f.spent.toLocaleString()}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded overflow-hidden mt-1">
+                    <div className="h-full bg-neon" style={{ width: `${(f.spent / maxSpent) * 100}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="panel p-4">
+          <h3 className="font-display text-sm mb-3">Signups — Last 7 Days</h3>
+          <div className="flex items-end gap-1 h-24">
+            {data.signups_7d.map((d) => (
+              <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
+                <div
+                  className="w-full bg-neon rounded-t transition-all"
+                  style={{ height: `${(d.count / maxSignup) * 100}%`, minHeight: d.count > 0 ? "4px" : "1px" }}
+                  title={`${d.count} signups`}
+                />
+                <div className="font-mono text-[9px] text-muted-foreground">{d.day}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
