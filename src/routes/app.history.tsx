@@ -50,6 +50,7 @@ function HistoryPage() {
     const { data, error } = await supabase
       .from("conversions")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(2000);
     if (error) toast.error(error.message);

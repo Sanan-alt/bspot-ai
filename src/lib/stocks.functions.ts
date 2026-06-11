@@ -25,7 +25,13 @@ const SYMBOLS: { id: string; name: string }[] = [
   { id: "meta.us", name: "Meta" },
 ];
 
+// Module-level cache to throttle upstream calls (public endpoint, no auth required).
+const TTL_MS = 60_000;
+const cacheStore: { current: { at: number; data: StockQuote[] } | null } = { current: null };
+
 export const getStocks = createServerFn({ method: "GET" }).handler(async (): Promise<StockQuote[]> => {
+  const c = cacheStore.current;
+  if (c && Date.now() - c.at < TTL_MS) return c.data;
   const symList = SYMBOLS.map((s) => s.id).join(",");
   const url = `https://stooq.com/q/l/?s=${encodeURIComponent(symList)}&f=snd2t2ohlcp&h&e=csv`;
   try {
@@ -52,6 +58,7 @@ export const getStocks = createServerFn({ method: "GET" }).handler(async (): Pro
         changePct: Number.isFinite(pct) ? pct : 0,
       });
     }
+    cacheStore.current = { at: Date.now(), data: quotes };
     return quotes;
   } catch {
     // Fallback static demo if upstream is unreachable
