@@ -26,7 +26,8 @@ const SYMBOLS: { id: string; name: string }[] = [
 ];
 
 // Module-level cache to throttle upstream calls (public endpoint, no auth required).
-let _cache: { at: number; data: StockQuote[] } | null = null;
+type Cache = { at: number; data: StockQuote[] };
+let _cache: Cache | null = null;
 const TTL_MS = 60_000; // 60s
 
 export const getStocks = createServerFn({ method: "GET" }).handler(async (): Promise<StockQuote[]> => {
