@@ -54,6 +54,7 @@ function AdminPage() {
         </p>
       </motion.div>
 
+      <AnalyticsOverview />
       <CreditPacksEditor />
       <FeatureCostsEditor />
       <UsersManager currentUserId={user?.id} />
