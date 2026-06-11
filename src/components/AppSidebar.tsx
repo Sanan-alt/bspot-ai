@@ -12,6 +12,7 @@ import {
   Coins,
   Receipt,
   Shield,
+  Star,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
 import {
@@ -31,6 +32,7 @@ import { NeonLogo } from "./NeonLogo";
 const items = [
   { title: "Home", url: "/app", icon: Home },
   { title: "Currency Converter", url: "/app/converter", icon: ArrowLeftRight },
+  { title: "Watchlist", url: "/app/watchlist", icon: Star },
   { title: "Business Suggestions", url: "/app/suggestions", icon: Lightbulb },
   { title: "Country Data", url: "/app/countries", icon: Globe2 },
   { title: "Conversion History", url: "/app/history", icon: History },
