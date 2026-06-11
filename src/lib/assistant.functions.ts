@@ -49,7 +49,10 @@ export const sendChatMessage = createServerFn({ method: "POST" })
         content:
           "You are BSpot AI — a concise, friendly investment assistant. Give practical, specific advice on stocks, currencies, country opportunities, reminders, and portfolio decisions. Avoid disclaimers unless legally required. Keep replies short and clear.",
       },
-      ...(history ?? []).reverse().map((m) => ({ role: m.role, content: m.content })),
+      ...(history ?? [])
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .reverse()
+        .map((m) => ({ role: m.role, content: m.content })),
     ];
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
