@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Loader2, Shield, Plus, Trash2, Save, Coins, Users, Gift } from "lucide-react";
+import { Loader2, Shield, Plus, Trash2, Save, Coins, Users, Gift, BarChart3, TrendingUp, Activity } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCredits } from "@/hooks/use-credits";
 import { useAuth } from "@/hooks/use-auth";
