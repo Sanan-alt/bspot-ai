@@ -58,6 +58,7 @@ export const getStocks = createServerFn({ method: "GET" }).handler(async (): Pro
         changePct: Number.isFinite(pct) ? pct : 0,
       });
     }
+    cacheStore.current = { at: Date.now(), data: quotes };
     return quotes;
   } catch {
     // Fallback static demo if upstream is unreachable
