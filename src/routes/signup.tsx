@@ -47,8 +47,8 @@ function SignUp() {
       else setErr(error.message);
       return;
     }
-    toast.success("Account created — entering grid…");
-    navigate({ to: "/app" });
+    toast.success("Account created — let's set up your profile");
+    navigate({ to: "/onboarding" });
   }
 
   async function google() {
