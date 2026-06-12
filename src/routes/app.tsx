@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, Link, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -7,6 +7,7 @@ import { ChatbotFab } from "@/components/ChatbotFab";
 import { CreditsBadge } from "@/components/CreditsBadge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditsProvider } from "@/hooks/use-credits";
+import { supabase } from "@/integrations/supabase/client";
 import { Bell, LogOut } from "lucide-react";
 import { Loader2 } from "lucide-react";
 
@@ -17,10 +18,27 @@ export const Route = createFileRoute("/app")({
 function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/signin" });
   }, [loading, user, navigate]);
+
+  // Auto-redirect to onboarding if profile isn't completed
+  useEffect(() => {
+    if (!user) return;
+    if (location.pathname.startsWith("/onboarding")) return;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("onboarded_at, is_demo")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data && !data.onboarded_at && !data.is_demo) {
+        navigate({ to: "/onboarding" });
+      }
+    })();
+  }, [user, location.pathname, navigate]);
 
   if (loading || !user) {
     return (

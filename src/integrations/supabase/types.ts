@@ -243,28 +243,52 @@ export type Database = {
         Row: {
           accepted_terms: boolean
           avatar_url: string | null
+          business_interests: string[] | null
           created_at: string
           display_name: string | null
+          experience_level: string | null
+          home_country: string | null
           id: string
+          investment_budget_usd: number | null
+          is_demo: boolean
           language: string
+          onboarded_at: string | null
+          target_country: string | null
+          timeline: string | null
           updated_at: string
         }
         Insert: {
           accepted_terms?: boolean
           avatar_url?: string | null
+          business_interests?: string[] | null
           created_at?: string
           display_name?: string | null
+          experience_level?: string | null
+          home_country?: string | null
           id: string
+          investment_budget_usd?: number | null
+          is_demo?: boolean
           language?: string
+          onboarded_at?: string | null
+          target_country?: string | null
+          timeline?: string | null
           updated_at?: string
         }
         Update: {
           accepted_terms?: boolean
           avatar_url?: string | null
+          business_interests?: string[] | null
           created_at?: string
           display_name?: string | null
+          experience_level?: string | null
+          home_country?: string | null
           id?: string
+          investment_budget_usd?: number | null
+          is_demo?: boolean
           language?: string
+          onboarded_at?: string | null
+          target_country?: string | null
+          timeline?: string | null
           updated_at?: string
         }
         Relationships: []
