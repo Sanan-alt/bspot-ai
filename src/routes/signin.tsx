@@ -15,6 +15,7 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   async function handle(e: FormEvent) {
@@ -33,6 +34,18 @@ function SignIn() {
     if (r.error) toast.error(r.error.message);
   }
 
+  async function demo() {
+    setErr(null);
+    setDemoLoading(true);
+    const { error } = await supabase.auth.signInAnonymously({
+      options: { data: { display_name: "Demo Guest" } },
+    });
+    setDemoLoading(false);
+    if (error) return setErr(error.message);
+    toast.success("Demo session started — explore freely");
+    navigate({ to: "/onboarding" });
+  }
+
   return (
     <AuthShell title="Sign In" subtitle="Authenticate to continue">
       <form onSubmit={handle} className="space-y-4">
@@ -44,12 +57,22 @@ function SignIn() {
         </button>
       </form>
       <Divider />
-      <button onClick={google} className="w-full border border-border py-3 rounded-md font-mono uppercase text-xs tracking-widest hover:border-primary hover:text-neon">
-        Continue with Google
-      </button>
+      <div className="space-y-2">
+        <button onClick={google} className="w-full border border-border py-3 rounded-md font-mono uppercase text-xs tracking-widest hover:border-primary hover:text-neon">
+          Continue with Google
+        </button>
+        <button
+          onClick={demo}
+          disabled={demoLoading}
+          className="w-full border border-primary/50 bg-primary/5 py-3 rounded-md font-mono uppercase text-xs tracking-widest hover:bg-primary/10 hover:text-neon inline-flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {demoLoading && <Loader2 className="h-4 w-4 animate-spin" />} Try Demo (no signup)
+        </button>
+      </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         New here? <Link to="/signup" className="text-neon hover:underline">Create an account</Link>
       </p>
     </AuthShell>
   );
 }
+
