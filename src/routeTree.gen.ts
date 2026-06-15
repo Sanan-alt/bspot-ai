@@ -20,6 +20,8 @@ import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
 import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSuggestionsRouteImport } from './routes/app.suggestions'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppRoadmapRouteImport } from './routes/app.roadmap'
+import { Route as AppReadinessRouteImport } from './routes/app.readiness'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppHistoryCreditsRouteImport } from './routes/app.history-credits'
@@ -84,6 +86,16 @@ const AppSuggestionsRoute = AppSuggestionsRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRoadmapRoute = AppRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReadinessRoute = AppReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioRoute = AppPortfolioRouteImport.update({
@@ -154,6 +166,8 @@ export interface FileRoutesByFullPath {
   '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/readiness': typeof AppReadinessRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/suggestions': typeof AppSuggestionsRoute
   '/app/visa': typeof AppVisaRoute
@@ -176,6 +190,8 @@ export interface FileRoutesByTo {
   '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/readiness': typeof AppReadinessRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/suggestions': typeof AppSuggestionsRoute
   '/app/visa': typeof AppVisaRoute
@@ -200,6 +216,8 @@ export interface FileRoutesById {
   '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/readiness': typeof AppReadinessRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/suggestions': typeof AppSuggestionsRoute
   '/app/visa': typeof AppVisaRoute
@@ -225,6 +243,8 @@ export interface FileRouteTypes {
     | '/app/history-credits'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/readiness'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/suggestions'
     | '/app/visa'
@@ -247,6 +267,8 @@ export interface FileRouteTypes {
     | '/app/history-credits'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/readiness'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/suggestions'
     | '/app/visa'
@@ -270,6 +292,8 @@ export interface FileRouteTypes {
     | '/app/history-credits'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/readiness'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/suggestions'
     | '/app/visa'
@@ -365,6 +389,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/roadmap': {
+      id: '/app/roadmap'
+      path: '/roadmap'
+      fullPath: '/app/roadmap'
+      preLoaderRoute: typeof AppRoadmapRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/readiness': {
+      id: '/app/readiness'
+      path: '/readiness'
+      fullPath: '/app/readiness'
+      preLoaderRoute: typeof AppReadinessRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/portfolio': {
       id: '/app/portfolio'
       path: '/portfolio'
@@ -449,6 +487,8 @@ interface AppRouteChildren {
   AppHistoryCreditsRoute: typeof AppHistoryCreditsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
+  AppReadinessRoute: typeof AppReadinessRoute
+  AppRoadmapRoute: typeof AppRoadmapRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSuggestionsRoute: typeof AppSuggestionsRoute
   AppVisaRoute: typeof AppVisaRoute
@@ -467,6 +507,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppHistoryCreditsRoute: AppHistoryCreditsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
+  AppReadinessRoute: AppReadinessRoute,
+  AppRoadmapRoute: AppRoadmapRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSuggestionsRoute: AppSuggestionsRoute,
   AppVisaRoute: AppVisaRoute,
