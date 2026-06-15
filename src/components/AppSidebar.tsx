@@ -15,6 +15,8 @@ import {
   Star,
   Calculator,
   Plane,
+  Map,
+  Gauge,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
 import {
@@ -36,6 +38,8 @@ const items = [
   { title: "Currency Converter", url: "/app/converter", icon: ArrowLeftRight },
   { title: "Cost Calculator", url: "/app/calculator", icon: Calculator },
   { title: "Visa Guide", url: "/app/visa", icon: Plane },
+  { title: "Readiness Score", url: "/app/readiness", icon: Gauge },
+  { title: "Roadmap", url: "/app/roadmap", icon: Map },
   { title: "Watchlist", url: "/app/watchlist", icon: Star },
   { title: "Business Suggestions", url: "/app/suggestions", icon: Lightbulb },
   { title: "Country Data", url: "/app/countries", icon: Globe2 },
