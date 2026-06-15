@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Passport, ChevronRight, CheckCircle2, XCircle } from "lucide-react";
+import { Plane, ChevronRight, CheckCircle2, XCircle } from "lucide-react";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 
 export const Route = createFileRoute("/app/visa")({ component: VisaGuide });
@@ -28,7 +28,7 @@ function VisaGuide() {
   return (
     <div className="space-y-6">
       <header className="flex items-center gap-3">
-        <ChevronRight className="h-6 w-6 text-neon" />
+        <Plane className="h-6 w-6 text-neon" />
         <div>
           <h1 className="font-display text-3xl">Visa & Residency Guide</h1>
           <p className="text-sm text-muted-foreground">Investor, founder, and residency routes for the world's top business destinations.</p>

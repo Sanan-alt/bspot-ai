@@ -91,7 +91,7 @@ export const COSTS: Record<BusinessType, Record<CostCountry, CostBreakdown>> = {
     AE: { license: 4500, visa: 1800, office: 2400, staff: 24000, inventory: 2000, marketing: 8000, legal: 4000, bank_deposit: 13700, contingency: 0 },
     GB: { license: 200, visa: 2500, office: 3600, staff: 40000, inventory: 1500, marketing: 8000, legal: 5500, bank_deposit: 5000, contingency: 0 },
     CA: { license: 400, visa: 1800, office: 4200, staff: 45000, inventory: 1500, marketing: 7500, legal: 6000, bank_deposit: 7500, contingency: 0 },
-    SG: { league: 0, license: 400, visa: 2000, office: 4200, staff: 48000, inventory: 1500, marketing: 7500, legal: 6000, bank_deposit: 37000, contingency: 0 } as unknown as CostBreakdown,
+    SG: { license: 400, visa: 2000, office: 4200, staff: 48000, inventory: 1500, marketing: 7500, legal: 6000, bank_deposit: 37000, contingency: 0 },
     US: { license: 700, visa: 6000, office: 6000, staff: 60000, inventory: 2000, marketing: 9000, legal: 7500, bank_deposit: 10000, contingency: 0 },
   },
   real_estate_investment: {
