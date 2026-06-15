@@ -253,6 +253,7 @@ export type Database = {
           is_demo: boolean
           language: string
           onboarded_at: string | null
+          readiness_score: number | null
           target_country: string | null
           timeline: string | null
           updated_at: string
@@ -270,6 +271,7 @@ export type Database = {
           is_demo?: boolean
           language?: string
           onboarded_at?: string | null
+          readiness_score?: number | null
           target_country?: string | null
           timeline?: string | null
           updated_at?: string
@@ -287,6 +289,7 @@ export type Database = {
           is_demo?: boolean
           language?: string
           onboarded_at?: string | null
+          readiness_score?: number | null
           target_country?: string | null
           timeline?: string | null
           updated_at?: string
@@ -319,6 +322,57 @@ export type Database = {
           id?: string
           remind_at?: string | null
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      roadmap_steps: {
+        Row: {
+          business_type: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          phase: string
+          status: string
+          step_index: number
+          target_country: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_type?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          phase: string
+          status?: string
+          step_index: number
+          target_country?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_type?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          phase?: string
+          status?: string
+          step_index?: number
+          target_country?: string | null
+          title?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
