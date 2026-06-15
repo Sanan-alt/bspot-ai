@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plane, ChevronRight, CheckCircle2, XCircle } from "lucide-react";
+import { Plane, CheckCircle2, XCircle } from "lucide-react";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 
 export const Route = createFileRoute("/app/visa")({ component: VisaGuide });
