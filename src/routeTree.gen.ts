@@ -17,6 +17,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
+import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSuggestionsRouteImport } from './routes/app.suggestions'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
@@ -25,6 +26,7 @@ import { Route as AppHistoryCreditsRouteImport } from './routes/app.history-cred
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppCountriesRouteImport } from './routes/app.countries'
 import { Route as AppConverterRouteImport } from './routes/app.converter'
+import { Route as AppCalculatorRouteImport } from './routes/app.calculator'
 import { Route as AppBuyCreditsRouteImport } from './routes/app.buy-credits'
 import { Route as AppAssistantRouteImport } from './routes/app.assistant'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
@@ -69,6 +71,11 @@ const AppWatchlistRoute = AppWatchlistRouteImport.update({
   path: '/watchlist',
   getParentRoute: () => AppRoute,
 } as any)
+const AppVisaRoute = AppVisaRouteImport.update({
+  id: '/visa',
+  path: '/visa',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSuggestionsRoute = AppSuggestionsRouteImport.update({
   id: '/suggestions',
   path: '/suggestions',
@@ -109,6 +116,11 @@ const AppConverterRoute = AppConverterRouteImport.update({
   path: '/converter',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCalculatorRoute = AppCalculatorRouteImport.update({
+  id: '/calculator',
+  path: '/calculator',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppBuyCreditsRoute = AppBuyCreditsRouteImport.update({
   id: '/buy-credits',
   path: '/buy-credits',
@@ -135,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
+  '/app/calculator': typeof AppCalculatorRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
   '/app/history': typeof AppHistoryRoute
@@ -143,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/suggestions': typeof AppSuggestionsRoute
+  '/app/visa': typeof AppVisaRoute
   '/app/watchlist': typeof AppWatchlistRoute
   '/app/': typeof AppIndexRoute
 }
@@ -155,6 +169,7 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
+  '/app/calculator': typeof AppCalculatorRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
   '/app/history': typeof AppHistoryRoute
@@ -163,6 +178,7 @@ export interface FileRoutesByTo {
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/suggestions': typeof AppSuggestionsRoute
+  '/app/visa': typeof AppVisaRoute
   '/app/watchlist': typeof AppWatchlistRoute
   '/app': typeof AppIndexRoute
 }
@@ -177,6 +193,7 @@ export interface FileRoutesById {
   '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
+  '/app/calculator': typeof AppCalculatorRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
   '/app/history': typeof AppHistoryRoute
@@ -185,6 +202,7 @@ export interface FileRoutesById {
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/suggestions': typeof AppSuggestionsRoute
+  '/app/visa': typeof AppVisaRoute
   '/app/watchlist': typeof AppWatchlistRoute
   '/app/': typeof AppIndexRoute
 }
@@ -200,6 +218,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/assistant'
     | '/app/buy-credits'
+    | '/app/calculator'
     | '/app/converter'
     | '/app/countries'
     | '/app/history'
@@ -208,6 +227,7 @@ export interface FileRouteTypes {
     | '/app/portfolio'
     | '/app/settings'
     | '/app/suggestions'
+    | '/app/visa'
     | '/app/watchlist'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -220,6 +240,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/assistant'
     | '/app/buy-credits'
+    | '/app/calculator'
     | '/app/converter'
     | '/app/countries'
     | '/app/history'
@@ -228,6 +249,7 @@ export interface FileRouteTypes {
     | '/app/portfolio'
     | '/app/settings'
     | '/app/suggestions'
+    | '/app/visa'
     | '/app/watchlist'
     | '/app'
   id:
@@ -241,6 +263,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/assistant'
     | '/app/buy-credits'
+    | '/app/calculator'
     | '/app/converter'
     | '/app/countries'
     | '/app/history'
@@ -249,6 +272,7 @@ export interface FileRouteTypes {
     | '/app/portfolio'
     | '/app/settings'
     | '/app/suggestions'
+    | '/app/visa'
     | '/app/watchlist'
     | '/app/'
   fileRoutesById: FileRoutesById
@@ -320,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWatchlistRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/visa': {
+      id: '/app/visa'
+      path: '/visa'
+      fullPath: '/app/visa'
+      preLoaderRoute: typeof AppVisaRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/suggestions': {
       id: '/app/suggestions'
       path: '/suggestions'
@@ -376,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConverterRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/calculator': {
+      id: '/app/calculator'
+      path: '/calculator'
+      fullPath: '/app/calculator'
+      preLoaderRoute: typeof AppCalculatorRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/buy-credits': {
       id: '/app/buy-credits'
       path: '/buy-credits'
@@ -404,6 +442,7 @@ interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppAssistantRoute: typeof AppAssistantRoute
   AppBuyCreditsRoute: typeof AppBuyCreditsRoute
+  AppCalculatorRoute: typeof AppCalculatorRoute
   AppConverterRoute: typeof AppConverterRoute
   AppCountriesRoute: typeof AppCountriesRoute
   AppHistoryRoute: typeof AppHistoryRoute
@@ -412,6 +451,7 @@ interface AppRouteChildren {
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSuggestionsRoute: typeof AppSuggestionsRoute
+  AppVisaRoute: typeof AppVisaRoute
   AppWatchlistRoute: typeof AppWatchlistRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -420,6 +460,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppAssistantRoute: AppAssistantRoute,
   AppBuyCreditsRoute: AppBuyCreditsRoute,
+  AppCalculatorRoute: AppCalculatorRoute,
   AppConverterRoute: AppConverterRoute,
   AppCountriesRoute: AppCountriesRoute,
   AppHistoryRoute: AppHistoryRoute,
@@ -428,6 +469,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioRoute: AppPortfolioRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSuggestionsRoute: AppSuggestionsRoute,
+  AppVisaRoute: AppVisaRoute,
   AppWatchlistRoute: AppWatchlistRoute,
   AppIndexRoute: AppIndexRoute,
 }

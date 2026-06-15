@@ -13,6 +13,8 @@ import {
   Receipt,
   Shield,
   Star,
+  Calculator,
+  Plane,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
 import {
@@ -32,6 +34,8 @@ import { NeonLogo } from "./NeonLogo";
 const items = [
   { title: "Home", url: "/app", icon: Home },
   { title: "Currency Converter", url: "/app/converter", icon: ArrowLeftRight },
+  { title: "Cost Calculator", url: "/app/calculator", icon: Calculator },
+  { title: "Visa Guide", url: "/app/visa", icon: Plane },
   { title: "Watchlist", url: "/app/watchlist", icon: Star },
   { title: "Business Suggestions", url: "/app/suggestions", icon: Lightbulb },
   { title: "Country Data", url: "/app/countries", icon: Globe2 },
