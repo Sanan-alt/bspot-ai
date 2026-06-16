@@ -131,7 +131,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
             aria-expanded={!!search}
             aria-controls="map-search-list"
             aria-activedescendant={visible[highlight] ? `map-opt-${visible[highlight].code}` : undefined}
-            className="w-full h-8 pl-8 pr-2 rounded-md bg-background/60 border border-border text-xs font-mono focus:outline-none focus:border-primary"
+            className="w-full h-8 pl-8 pr-2 rounded-md bg-background/60 border border-border text-xs font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
           />
           {search && visible.length > 0 && (
             <ul
