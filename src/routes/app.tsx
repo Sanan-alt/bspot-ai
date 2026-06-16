@@ -19,12 +19,12 @@ function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const isDemo = typeof window !== "undefined" && localStorage.getItem("bspot.demo_mode") === "true";
+  // Demo is a real (anonymous) Supabase session — gate cannot be bypassed via localStorage.
+  const isDemo = !!user?.is_anonymous;
 
   useEffect(() => {
-    if (isDemo) return;
     if (!loading && !user) navigate({ to: "/signin" });
-  }, [loading, user, navigate, isDemo]);
+  }, [loading, user, navigate]);
 
   // Auto-redirect to onboarding if profile isn't completed
   useEffect(() => {
@@ -42,7 +42,7 @@ function AppLayout() {
     })();
   }, [user, location.pathname, navigate, isDemo]);
 
-  if (!isDemo && (loading || !user)) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen grid place-items-center">
         <Loader2 className="h-6 w-6 animate-spin text-neon" />
@@ -70,8 +70,10 @@ function AppLayout() {
                 <span className="hidden lg:block font-mono text-xs text-muted-foreground truncate max-w-[160px]">{user?.email ?? "demo@bspot.ai"}</span>
                 <button
                   onClick={async () => {
-                    localStorage.removeItem("bspot.demo_mode");
-                    localStorage.removeItem("bspot.demo_profile");
+                    try {
+                      localStorage.removeItem("bspot.demo_mode");
+                      localStorage.removeItem("bspot.demo_profile");
+                    } catch {}
                     if (user) await signOut();
                     navigate({ to: "/" });
                   }}
@@ -82,7 +84,7 @@ function AppLayout() {
                 </button>
               </div>
             </header>
-            <DemoBanner />
+            <DemoBanner isDemo={isDemo} signOut={signOut} navigate={navigate} />
             <main className="flex-1 p-4 md:p-8">
               <Outlet />
             </main>
@@ -94,18 +96,32 @@ function AppLayout() {
   );
 }
 
-function DemoBanner() {
-  const isDemo = typeof window !== "undefined" && localStorage.getItem("bspot.demo_mode") === "true";
+function DemoBanner({
+  isDemo,
+  signOut,
+  navigate,
+}: {
+  isDemo: boolean;
+  signOut: () => Promise<void>;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
   if (!isDemo) return null;
   return (
     <div className="bg-primary/15 border-b border-primary/40 px-4 py-2 flex items-center justify-between gap-3 text-xs">
       <span className="font-mono">
-        ⚡ <span className="text-neon uppercase tracking-widest">Demo Mode</span> — you're exploring as Ahmed from Karachi. Create a free account to save your progress.
+        ⚡ <span className="text-neon uppercase tracking-widest">Demo Mode</span> — you're exploring as a guest. Create a free account to save your progress.
       </span>
       <div className="flex items-center gap-2">
         <Link to="/signup" className="px-3 py-1 rounded bg-primary text-primary-foreground font-mono uppercase tracking-widest text-[10px]">Sign up</Link>
         <button
-          onClick={() => { localStorage.removeItem("bspot.demo_mode"); localStorage.removeItem("bspot.demo_profile"); window.location.href = "/"; }}
+          onClick={async () => {
+            try {
+              localStorage.removeItem("bspot.demo_mode");
+              localStorage.removeItem("bspot.demo_profile");
+            } catch {}
+            await signOut();
+            navigate({ to: "/" });
+          }}
           className="px-3 py-1 rounded border border-border font-mono uppercase tracking-widest text-[10px] hover:border-primary"
         >
           Exit

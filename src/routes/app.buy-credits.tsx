@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, Coins, Loader2, Sparkles, Zap } from "lucide-react";
+import { Check, Coins, Sparkles, Zap } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCredits } from "@/hooks/use-credits";
-import { purchaseCreditsMock } from "@/lib/credits";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/buy-credits")({ component: BuyCreditsPage });
@@ -43,22 +42,12 @@ const PACKS = [
 function BuyCreditsPage() {
   const { user } = useAuth();
   const { balance, isOwner } = useCredits();
-  const [busy, setBusy] = useState<string | null>(null);
 
-  const buy = async (pack: (typeof PACKS)[number]) => {
+  const buy = async (_pack: (typeof PACKS)[number]) => {
     if (!user) return;
-    setBusy(pack.id);
-    try {
-      // PHASE A: mock purchase. PHASE B will replace with Stripe checkout (USD equivalent).
-      await purchaseCreditsMock(user.id, pack.credits, pack.label);
-      toast.success(`+${pack.credits} credits added!`, {
-        description: `${pack.label} pack purchased (demo mode — no charge).`,
-      });
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setBusy(null);
-    }
+    toast.info("Purchases are temporarily disabled", {
+      description: "Stripe checkout will be enabled before launch.",
+    });
   };
 
   return (
@@ -125,17 +114,12 @@ function BuyCreditsPage() {
 
             <Button
               onClick={() => buy(p)}
-              disabled={busy !== null || isOwner}
+              disabled
               className={`mt-6 w-full ${p.highlight ? "glow" : ""}`}
               variant={p.highlight ? "default" : "outline"}
+              title="Stripe checkout will be enabled before launch"
             >
-              {busy === p.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isOwner ? (
-                "Owner — unlimited"
-              ) : (
-                `Buy ${p.label}`
-              )}
+              {isOwner ? "Owner — unlimited" : "Coming soon"}
             </Button>
           </motion.div>
         ))}

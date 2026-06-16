@@ -60,23 +60,30 @@ function Landing() {
                 {t("hero.cta_start")} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <button
-                onClick={() => {
+                onClick={async () => {
                   try {
-                    localStorage.setItem("bspot.demo_mode", "true");
-                    localStorage.setItem(
-                      "bspot.demo_profile",
-                      JSON.stringify({
-                        name: "Ahmed (Demo)",
-                        home_country: "Pakistan",
-                        target_country: "UAE",
-                        business_type: "Trading LLC",
-                        budget: "PKR 3,000,000",
-                        timeline: "6 months",
-                        readiness_score: 54,
-                      }),
-                    );
-                  } catch {}
-                  window.location.href = "/app";
+                    const { supabase } = await import("@/integrations/supabase/client");
+                    const { error } = await supabase.auth.signInAnonymously();
+                    if (error) throw error;
+                    try {
+                      localStorage.setItem(
+                        "bspot.demo_profile",
+                        JSON.stringify({
+                          name: "Ahmed (Demo)",
+                          home_country: "Pakistan",
+                          target_country: "UAE",
+                          business_type: "Trading LLC",
+                          budget: "PKR 3,000,000",
+                          timeline: "6 months",
+                          readiness_score: 54,
+                        }),
+                      );
+                    } catch {}
+                    window.location.href = "/app";
+                  } catch (e) {
+                    console.error("Demo sign-in failed", e);
+                    window.location.href = "/signup";
+                  }
                 }}
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-md border-2 border-primary text-neon font-mono uppercase tracking-widest text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
               >

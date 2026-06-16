@@ -3,25 +3,17 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-// Mock purchase — until real Stripe is wired up. Capped server-side.
-const PurchaseInput = z.object({
-  amount: z.number().int().min(1).max(10_000),
-  pack_label: z.string().min(1).max(80),
-});
-
+// Mock purchase DISABLED — would allow any authenticated user to self-grant unlimited credits.
+// Re-enable only after wiring a verified Stripe payment_intent.
 export const purchaseCreditsMockFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => PurchaseInput.parse(i))
-  .handler(async ({ data, context }) => {
-    // TODO: replace with verified Stripe checkout session before going live.
-    const { error } = await supabaseAdmin.rpc("grant_credits", {
-      p_user: context.userId,
-      p_amount: data.amount,
-      p_type: "purchase",
-      p_description: `Mock purchase: ${data.pack_label}`,
-    });
-    if (error) throw new Error(error.message);
-    return { ok: true };
+  .inputValidator((i) =>
+    z.object({ amount: z.number().int(), pack_label: z.string() }).parse(i),
+  )
+  .handler(async () => {
+    throw new Error(
+      "Credit purchases are temporarily disabled. Stripe checkout will be enabled before launch.",
+    );
   });
 
 // Admin/Owner grant to another user. Role verified server-side.
@@ -35,7 +27,6 @@ export const adminGrantCreditsFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => AdminGrantInput.parse(i))
   .handler(async ({ data, context }) => {
-    // Verify role server-side using the user-authenticated client (RLS-aware).
     const { data: roles, error: roleErr } = await context.supabase
       .from("user_roles")
       .select("role")
@@ -52,4 +43,18 @@ export const adminGrantCreditsFn = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// Server-side owner/admin verification used to gate the admin UI.
+export const verifyOwnerFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: roles, error } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    if (error) throw new Error(error.message);
+    const isOwner = (roles ?? []).some((r) => r.role === "owner");
+    if (!isOwner) throw new Error("Forbidden");
+    return { ok: true as const };
   });
