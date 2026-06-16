@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "countries": "Countries",
+    "features": "Features",
+    "success": "Success",
+    "contact": "Contact",
+    "terms": "Terms",
+    "signin": "Sign In",
+    "launch": "Launch →"
+  },
+  "hero": {
+    "badge": "AI-driven · Real-time",
+    "headline_a": "Your business guide for investing in",
+    "headline_b": "UAE, UK & Canada",
+    "headline_c": "— built for",
+    "headline_d": "South Asian & African",
+    "headline_e": "investors.",
+    "subhead": "Tell us where you're from and where you want to invest. Get real costs, real laws, a step-by-step roadmap, and an AI advisor that remembers your profile.",
+    "cta_start": "Get started",
+    "cta_demo": "Try Demo — No Signup",
+    "cta_signin": "Sign in"
+  },
+  "stats": {
+    "countries": "Countries",
+    "countries_d": "Full guides with laws & costs",
+    "roadmaps": "Roadmaps",
+    "roadmaps_d": "Step-by-step for top routes",
+    "fx": "FX pairs",
+    "fx_d": "Live real-time rates",
+    "ai": "AI Advisor",
+    "ai_d": "Trained for business investment"
+  },
+  "features": {
+    "title_a": "Built for",
+    "title_b": "global investors"
+  },
+  "footer": {
+    "support": "SUPPORT",
+    "links": "LINKS",
+    "tagline": "Futuristic full-stack investment intelligence — currency, countries, portfolios, and AI insights.",
+    "language": "Language"
+  },
+  "map": {
+    "title": "Investment World Map",
+    "subtitle": "Click any highlighted country to open its deep profile",
+    "unlocked": "Full data available",
+    "locked": "Coming soon",
+    "score": "BSpot Score",
+    "calculate": "Calculate my setup cost"
+  },
+  "demo": {
+    "banner": "Demo Mode — you're exploring as Ahmed from Karachi. Create a free account to save your progress.",
+    "signup": "Sign up",
+    "exit": "Exit"
+  }
+}
