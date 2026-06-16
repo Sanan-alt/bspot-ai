@@ -10,6 +10,7 @@ import { scoreCountry } from "@/lib/countries.functions";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { WorldMap } from "@/components/WorldMap";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
+import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { Plane, CheckCircle2, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
@@ -118,6 +119,11 @@ function CountriesPage() {
               </SheetHeader>
 
               <div className="mt-6 space-y-5">
+                {/* DEEP COUNTRY PROFILE — when curated data exists */}
+                {COUNTRY_DEEP[selected.code] && (
+                  <DeepProfile data={COUNTRY_DEEP[selected.code]} name={selected.name} />
+                )}
+
                 {isFetching && (
                   <div className="terminal p-6 text-center">
                     <Loader2 className="h-5 w-5 animate-spin mx-auto text-neon" />
