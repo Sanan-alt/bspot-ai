@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Bot, Briefcase, Globe2, Mail, Sparkles, TrendingUp, Zap, Plane, Building2, Award } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
@@ -13,8 +14,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen">
+
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
           <NeonLogo />
