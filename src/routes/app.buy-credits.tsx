@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCredits } from "@/hooks/use-credits";
-import { purchaseCreditsMock } from "@/lib/credits";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/buy-credits")({ component: BuyCreditsPage });
