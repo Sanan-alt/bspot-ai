@@ -57,7 +57,14 @@
     "tier_basic": "Basic profile",
     "basic": "Basic",
     "basic_profile": "Basic profile · deep data coming soon",
-    "loading": "Loading map…"
+    "loading": "Loading map…",
+    "error_title": "Couldn’t load the world map",
+    "error_hint": "Network or CDN issue. Use the country list below.",
+    "retry": "Retry",
+    "fallback_list": "Country list",
+    "kbd_navigate": "navigate",
+    "kbd_select": "select",
+    "kbd_clear": "clear"
   },
   "demo": {
     "banner": "Demo Mode — you're exploring as Ahmed from Karachi. Create a free account to save your progress.",
