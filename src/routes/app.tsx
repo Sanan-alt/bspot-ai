@@ -86,3 +86,24 @@ function AppLayout() {
     </CreditsProvider>
   );
 }
+
+function DemoBanner() {
+  const isDemo = typeof window !== "undefined" && localStorage.getItem("bspot.demo_mode") === "true";
+  if (!isDemo) return null;
+  return (
+    <div className="bg-primary/15 border-b border-primary/40 px-4 py-2 flex items-center justify-between gap-3 text-xs">
+      <span className="font-mono">
+        ⚡ <span className="text-neon uppercase tracking-widest">Demo Mode</span> — you're exploring as Ahmed from Karachi. Create a free account to save your progress.
+      </span>
+      <div className="flex items-center gap-2">
+        <Link to="/signup" className="px-3 py-1 rounded bg-primary text-primary-foreground font-mono uppercase tracking-widest text-[10px]">Sign up</Link>
+        <button
+          onClick={() => { localStorage.removeItem("bspot.demo_mode"); localStorage.removeItem("bspot.demo_profile"); window.location.href = "/"; }}
+          className="px-3 py-1 rounded border border-border font-mono uppercase tracking-widest text-[10px] hover:border-primary"
+        >
+          Exit
+        </button>
+      </div>
+    </div>
+  );
+}
