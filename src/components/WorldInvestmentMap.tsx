@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { useTranslation } from "react-i18next";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, AlertTriangle, Keyboard } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { COUNTRY_BY_CODE, NUM_TO_ISO2, COUNTRIES } from "@/lib/countries-data";
 
@@ -37,7 +38,26 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
   const [search, setSearch] = useState("");
   const [highlight, setHighlight] = useState(0);
   const [mapLoading, setMapLoading] = useState(true);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Preflight: ensure topojson is reachable; surface a clear error panel if not.
+  useEffect(() => {
+    let cancelled = false;
+    setMapLoading(true);
+    setMapError(null);
+    fetch(GEO_URL, { method: "GET" })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      })
+      .catch((e) => {
+        if (!cancelled) setMapError(String(e?.message ?? e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   // All countries available in the catalogue, sorted by score (deep first) then name.
   const catalogue = useMemo(
@@ -111,7 +131,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
             aria-expanded={!!search}
             aria-controls="map-search-list"
             aria-activedescendant={visible[highlight] ? `map-opt-${visible[highlight].code}` : undefined}
-            className="w-full h-8 pl-8 pr-2 rounded-md bg-background/60 border border-border text-xs font-mono focus:outline-none focus:border-primary"
+            className="w-full h-8 pl-8 pr-2 rounded-md bg-background/60 border border-border text-xs font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
           />
           {search && visible.length > 0 && (
             <ul
@@ -152,79 +172,132 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
               {t("map.no_results_detailed", { q: search })}
             </div>
           )}
+          <p className="mt-1 flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
+            <Keyboard className="h-3 w-3" /> ↑ ↓ {t("map.kbd_navigate") ?? "navigate"} · ↵ {t("map.kbd_select") ?? "select"} · esc {t("map.kbd_clear") ?? "clear"}
+          </p>
         </div>
       </div>
 
-      <div className="relative rounded-lg border border-border bg-background/40 overflow-hidden">
-        {mapLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 bg-background/60 backdrop-blur-sm font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin" /> {t("map.loading")}
+
+
+      <div className="relative rounded-lg border border-border bg-background/40 overflow-hidden min-h-[280px]">
+        {mapError && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-6 text-center bg-background/80">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
+            <div>
+              <p className="font-display text-sm">{t("map.error_title") ?? "Couldn’t load the world map"}</p>
+              <p className="font-mono text-[10px] text-muted-foreground mt-1">
+                {t("map.error_hint") ?? "Network or CDN issue. Use the country list below."}
+              </p>
+            </div>
+            <button
+              onClick={() => setReloadKey((k) => k + 1)}
+              className="px-3 h-7 rounded-md border border-border bg-background hover:bg-accent text-xs font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {t("map.retry") ?? "Retry"}
+            </button>
           </div>
         )}
-        <ComposableMap
-          projection="geoEqualEarth"
-          projectionConfig={{ scale: 155 }}
-          style={{ width: "100%", height: "auto" }}
-        >
-          <ZoomableGroup center={[20, 10]} zoom={1} maxZoom={5}>
-            <Geographies geography={GEO_URL}>
-              {({ geographies }) => {
-                if (geographies.length && mapLoading) {
-                  // schedule out of render
-                  queueMicrotask(() => setMapLoading(false));
-                }
-                return geographies.map((geo) => {
-                  const isoNum = String(geo.id).padStart(3, "0");
-                  const alpha2 = NUM_TO_ISO2[isoNum] ?? NUM_TO_ISO2[String(geo.id)];
-                  const known = !!(alpha2 && COUNTRY_BY_CODE[alpha2]);
-                  const alpha3 = alpha2 ? ALPHA2_TO_ALPHA3[alpha2] : undefined;
-                  const deep = alpha3 ? COUNTRY_DEEP[alpha3] : null;
-                  const isSelected = !!alpha2 && alpha2 === selectedCode;
-                  const isHover = !!alpha2 && alpha2 === hovered;
-                  const baseFill = deep
-                    ? scoreColor(deep.bspot_score)
-                    : known
-                    ? KNOWN_FILL
-                    : UNKNOWN_FILL;
-                  const fill = isSelected
-                    ? "oklch(0.92 0.19 95)"
-                    : isHover && known
-                    ? "oklch(0.85 0.18 95)"
-                    : baseFill;
-                  return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      onMouseEnter={() => alpha2 && setHovered(alpha2)}
-                      onMouseLeave={() => setHovered(null)}
-                      onClick={() => {
-                        if (known && alpha2) onSelect(alpha2);
-                      }}
-                      style={{
-                        default: {
-                          fill,
-                          stroke: "oklch(0.12 0.005 95)",
-                          strokeWidth: 0.5,
-                          outline: "none",
-                          cursor: known ? "pointer" : "default",
-                        },
-                        hover: {
-                          fill,
-                          stroke: "oklch(0.12 0.005 95)",
-                          strokeWidth: 0.5,
-                          outline: "none",
-                          cursor: known ? "pointer" : "default",
-                        },
-                        pressed: { fill, outline: "none" },
-                      }}
-                    />
-                  );
-                });
-              }}
-            </Geographies>
-          </ZoomableGroup>
-        </ComposableMap>
+        {mapLoading && !mapError && (
+          <div className="absolute inset-0 z-10 flex flex-col gap-2 p-4 bg-background/70 backdrop-blur-sm">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" /> {t("map.loading")}
+            </div>
+            <Skeleton className="h-3 w-1/3" />
+            <Skeleton className="flex-1 w-full" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+        )}
+        {!mapError && (
+          <ComposableMap
+            projection="geoEqualEarth"
+            projectionConfig={{ scale: 155 }}
+            style={{ width: "100%", height: "auto" }}
+          >
+            <ZoomableGroup center={[20, 10]} zoom={1} maxZoom={5}>
+              <Geographies geography={GEO_URL}>
+                {({ geographies }) => {
+                  if (geographies.length && mapLoading) {
+                    queueMicrotask(() => setMapLoading(false));
+                  }
+                  return geographies.map((geo) => {
+                    const isoNum = String(geo.id).padStart(3, "0");
+                    const alpha2 = NUM_TO_ISO2[isoNum] ?? NUM_TO_ISO2[String(geo.id)];
+                    const known = !!(alpha2 && COUNTRY_BY_CODE[alpha2]);
+                    const alpha3 = alpha2 ? ALPHA2_TO_ALPHA3[alpha2] : undefined;
+                    const deep = alpha3 ? COUNTRY_DEEP[alpha3] : null;
+                    const isSelected = !!alpha2 && alpha2 === selectedCode;
+                    const isHover = !!alpha2 && alpha2 === hovered;
+                    const baseFill = deep
+                      ? scoreColor(deep.bspot_score)
+                      : known
+                      ? KNOWN_FILL
+                      : UNKNOWN_FILL;
+                    const fill = isSelected
+                      ? "oklch(0.92 0.19 95)"
+                      : isHover && known
+                      ? "oklch(0.85 0.18 95)"
+                      : baseFill;
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        onMouseEnter={() => alpha2 && setHovered(alpha2)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => {
+                          if (known && alpha2) onSelect(alpha2);
+                        }}
+                        style={{
+                          default: {
+                            fill,
+                            stroke: "oklch(0.12 0.005 95)",
+                            strokeWidth: 0.5,
+                            outline: "none",
+                            cursor: known ? "pointer" : "default",
+                          },
+                          hover: {
+                            fill,
+                            stroke: "oklch(0.12 0.005 95)",
+                            strokeWidth: 0.5,
+                            outline: "none",
+                            cursor: known ? "pointer" : "default",
+                          },
+                          pressed: { fill, outline: "none" },
+                        }}
+                      />
+                    );
+                  });
+                }}
+              </Geographies>
+            </ZoomableGroup>
+          </ComposableMap>
+        )}
       </div>
+
+      {/* Fallback list — visible when the map fails so users can still navigate */}
+      {mapError && (
+        <div className="mt-3 panel p-3">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
+            // {t("map.fallback_list") ?? "Country list"}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 max-h-64 overflow-auto">
+            {catalogue.map((u) => (
+              <button
+                key={u.code}
+                onClick={() => onSelect(u.code)}
+                className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-md border border-border bg-background/40 hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <span className="flex items-center gap-1.5 text-xs">
+                  <span>{u.flag}</span>
+                  <span className="truncate">{u.name}</span>
+                </span>
+                {u.hasDeep && <span className="font-mono text-[10px] text-neon">{u.score}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
 
       {/* Legend */}
       <div className="mt-3 panel p-3">

@@ -17,7 +17,8 @@ export function LanguageSync() {
   const lastSyncedUser = useRef<string | null>(null);
   const remoteApplied = useRef<string | null>(null);
 
-  // Restore on login
+  // Restore on login & after refresh (runs whenever the user identity changes,
+  // including the first resolved session after a hard reload).
   useEffect(() => {
     if (!user) {
       lastSyncedUser.current = null;
@@ -27,15 +28,25 @@ export function LanguageSync() {
     if (lastSyncedUser.current === user.id) return;
     lastSyncedUser.current = user.id;
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("language")
         .eq("id", user.id)
         .maybeSingle();
+      if (error) {
+        if (import.meta.env.DEV) console.warn("[LanguageSync] profile read failed", error.message);
+        return;
+      }
       const lang = data?.language;
+      if (import.meta.env.DEV) {
+        console.info("[LanguageSync] restored", { profile: lang, current: i18n.language });
+      }
       if (lang && I18N_LANGS.has(lang) && lang !== i18n.language) {
         remoteApplied.current = lang;
         await i18n.changeLanguage(lang);
+      } else if (!lang && I18N_LANGS.has(i18n.language)) {
+        // Persist current UI language to profile so future devices restore correctly.
+        void supabase.from("profiles").update({ language: i18n.language }).eq("id", user.id);
       }
     })();
   }, [user, i18n]);
