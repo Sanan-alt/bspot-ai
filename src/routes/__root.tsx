@@ -13,6 +13,7 @@ import "@/i18n";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageSync } from "@/components/LanguageSync";
 
 function NotFoundComponent() {
   return (
@@ -121,6 +122,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
+          <LanguageSync />
           <Outlet />
           <Toaster />
         </AuthProvider>
