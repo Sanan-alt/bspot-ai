@@ -38,7 +38,26 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
   const [search, setSearch] = useState("");
   const [highlight, setHighlight] = useState(0);
   const [mapLoading, setMapLoading] = useState(true);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Preflight: ensure topojson is reachable; surface a clear error panel if not.
+  useEffect(() => {
+    let cancelled = false;
+    setMapLoading(true);
+    setMapError(null);
+    fetch(GEO_URL, { method: "GET" })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      })
+      .catch((e) => {
+        if (!cancelled) setMapError(String(e?.message ?? e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   // All countries available in the catalogue, sorted by score (deep first) then name.
   const catalogue = useMemo(
