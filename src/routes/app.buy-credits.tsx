@@ -49,11 +49,6 @@ function BuyCreditsPage() {
       description: "Stripe checkout will be enabled before launch.",
     });
   };
-    if (!user) return;
-    toast.info("Purchases are temporarily disabled", {
-      description: "Stripe checkout will be enabled before launch.",
-    });
-  };
 
   return (
     <div className="space-y-8">
