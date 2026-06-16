@@ -172,8 +172,13 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
               {t("map.no_results_detailed", { q: search })}
             </div>
           )}
+          <p className="mt-1 flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
+            <Keyboard className="h-3 w-3" /> ↑ ↓ {t("map.kbd_navigate") ?? "navigate"} · ↵ {t("map.kbd_select") ?? "select"} · esc {t("map.kbd_clear") ?? "clear"}
+          </p>
         </div>
       </div>
+
+
 
       <div className="relative rounded-lg border border-border bg-background/40 overflow-hidden">
         {mapLoading && (
