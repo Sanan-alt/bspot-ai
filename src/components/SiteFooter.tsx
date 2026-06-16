@@ -36,9 +36,10 @@ export function SiteFooter() {
           <div className="panel p-5">
             <div className="font-mono text-xs text-muted-foreground">LINKS</div>
             <ul className="mt-2 space-y-1">
-              <li><Link to="/" className="hover:text-neon">About</Link></li>
-              <li><Link to="/" className="hover:text-neon">Contact</Link></li>
-              <li><Link to="/" className="hover:text-neon">Support</Link></li>
+              <li><Link to="/app/countries" className="hover:text-neon">Investment Map</Link></li>
+              <li><Link to="/app/calculator" className="hover:text-neon">Cost Calculator</Link></li>
+              <li><Link to="/app/roadmap" className="hover:text-neon">Business Roadmap</Link></li>
+              <li><Link to="/app/visa" className="hover:text-neon">Visa Guide</Link></li>
               <li><Link to="/terms" className="hover:text-neon">Terms and Conditions</Link></li>
             </ul>
           </div>
@@ -49,7 +50,7 @@ export function SiteFooter() {
         </div>
         <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground font-mono">
           <span>© {new Date().getFullYear()} BSpot AI · Team ApexMinds</span>
-          <span>v0.1 · Built on Lovable Cloud</span>
+          <span>Beta v1.0 · Built on Lovable Cloud</span>
         </div>
       </div>
     </footer>
