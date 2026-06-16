@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { TrendingUp, TrendingDown, Loader2 } from "lucide-react";
-import { getMarketData, type MarketTick } from "@/lib/market.functions";
+import { useTranslation } from "react-i18next";
+import { TrendingUp, TrendingDown, Loader2, AlertTriangle, RefreshCw } from "lucide-react";
+import { getMarketData, type MarketTick, type MarketResponse } from "@/lib/market.functions";
 
 function categoryColor(cat: MarketTick["category"]) {
   switch (cat) {
@@ -19,12 +20,14 @@ function formatPrice(p: number, cat: MarketTick["category"]) {
 }
 
 export function StockTicker() {
+  const { t } = useTranslation();
   const fetchMarket = useServerFn(getMarketData);
-  const { data, isLoading, dataUpdatedAt } = useQuery<MarketTick[]>({
+  const { data, isLoading, isError, dataUpdatedAt, refetch, isRefetching } = useQuery<MarketResponse>({
     queryKey: ["market-ticker"],
     queryFn: () => fetchMarket(),
     refetchInterval: 60_000,
     staleTime: 30_000,
+    retry: 2,
   });
 
   const [secondsAgo, setSecondsAgo] = useState(0);
@@ -39,24 +42,43 @@ export function StockTicker() {
   if (isLoading) {
     return (
       <div className="panel-neon p-4 flex items-center justify-center gap-2 text-xs font-mono text-muted-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" /> Loading live market…
+        <Loader2 className="h-3 w-3 animate-spin" /> {t("ticker.loading")}
       </div>
     );
   }
 
-  const quotes = (data ?? []).filter((q) => Number.isFinite(q.price));
+  const quotes = (data?.ticks ?? []).filter((q) => Number.isFinite(q.price));
+  const errors = data?.errors ?? [];
+
+  if (isError || (!quotes.length && errors.length)) {
+    return (
+      <div className="panel-neon p-4 flex flex-wrap items-center gap-3 text-xs font-mono">
+        <AlertTriangle className="h-4 w-4 text-destructive" />
+        <span className="text-muted-foreground">{t("ticker.error")}</span>
+        <button
+          onClick={() => refetch()}
+          className="ml-auto inline-flex items-center gap-1 text-neon hover:underline disabled:opacity-50"
+          disabled={isRefetching}
+        >
+          <RefreshCw className={`h-3 w-3 ${isRefetching ? "animate-spin" : ""}`} /> {t("ticker.retry")}
+        </button>
+      </div>
+    );
+  }
+
   if (!quotes.length) return null;
   const loop = [...quotes, ...quotes];
+  const partial = errors.length > 0;
 
   return (
     <div className="panel-neon overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-2 border-b border-border bg-card/40">
-        <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+        <span className={`h-2 w-2 rounded-full animate-pulse ${partial ? "bg-yellow-500" : "bg-success"}`} />
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          // LIVE · forex · crypto · stocks
+          // {partial ? t("ticker.partial") : "LIVE · forex · crypto · stocks"}
         </span>
         <span className="ml-auto font-mono text-[10px] text-muted-foreground">
-          updated {secondsAgo}s ago
+          {t("ticker.updated", { s: secondsAgo })}
         </span>
       </div>
       <div className="relative overflow-hidden">
