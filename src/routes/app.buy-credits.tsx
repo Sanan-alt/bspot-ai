@@ -43,22 +43,13 @@ const PACKS = [
 function BuyCreditsPage() {
   const { user } = useAuth();
   const { balance, isOwner } = useCredits();
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy] = useState<string | null>(null);
 
-  const buy = async (pack: (typeof PACKS)[number]) => {
+  const buy = async (_pack: (typeof PACKS)[number]) => {
     if (!user) return;
-    setBusy(pack.id);
-    try {
-      // PHASE A: mock purchase. PHASE B will replace with Stripe checkout (USD equivalent).
-      await purchaseCreditsMock(user.id, pack.credits, pack.label);
-      toast.success(`+${pack.credits} credits added!`, {
-        description: `${pack.label} pack purchased (demo mode — no charge).`,
-      });
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setBusy(null);
-    }
+    toast.info("Purchases are temporarily disabled", {
+      description: "Stripe checkout will be enabled before launch.",
+    });
   };
 
   return (
