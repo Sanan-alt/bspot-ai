@@ -11,11 +11,11 @@ DECLARE
   v_credits integer := 200;
   v_desc text := 'Welcome bonus';
 BEGIN
-  IF lower(NEW.email) = 'msaoffical.sa@gmail.com' THEN
+  IF lower(NEW.email) = '__redacted_owner_email__' THEN
     v_role := 'owner';
     v_credits := 1000000;
     v_desc := 'Owner unlimited credits';
-  ELSIF lower(NEW.email) = 'admin.bspot.ai@gmail.com' THEN
+  ELSIF lower(NEW.email) = '__redacted_admin_email__' THEN
     v_role := 'admin';
     v_credits := 1000000;
     v_desc := 'Admin unlimited credits';
@@ -45,14 +45,14 @@ DECLARE
   u_owner uuid;
   u_admin uuid;
 BEGIN
-  SELECT id INTO u_owner FROM auth.users WHERE lower(email) = 'msaoffical.sa@gmail.com' LIMIT 1;
+  SELECT id INTO u_owner FROM auth.users WHERE lower(email) = '__redacted_owner_email__' LIMIT 1;
   IF u_owner IS NOT NULL THEN
     INSERT INTO public.user_roles(user_id, role) VALUES (u_owner, 'owner') ON CONFLICT DO NOTHING;
     INSERT INTO public.credits(user_id, balance) VALUES (u_owner, 1000000)
       ON CONFLICT (user_id) DO UPDATE SET balance = 1000000, updated_at = now();
   END IF;
 
-  SELECT id INTO u_admin FROM auth.users WHERE lower(email) = 'admin.bspot.ai@gmail.com' LIMIT 1;
+  SELECT id INTO u_admin FROM auth.users WHERE lower(email) = '__redacted_admin_email__' LIMIT 1;
   IF u_admin IS NOT NULL THEN
     INSERT INTO public.user_roles(user_id, role) VALUES (u_admin, 'admin') ON CONFLICT DO NOTHING;
     INSERT INTO public.credits(user_id, balance) VALUES (u_admin, 1000000)
