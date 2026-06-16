@@ -19,14 +19,16 @@ function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isDemo = typeof window !== "undefined" && localStorage.getItem("bspot.demo_mode") === "true";
 
   useEffect(() => {
+    if (isDemo) return;
     if (!loading && !user) navigate({ to: "/signin" });
-  }, [loading, user, navigate]);
+  }, [loading, user, navigate, isDemo]);
 
   // Auto-redirect to onboarding if profile isn't completed
   useEffect(() => {
-    if (!user) return;
+    if (!user || isDemo) return;
     if (location.pathname.startsWith("/onboarding")) return;
     (async () => {
       const { data } = await supabase
@@ -38,9 +40,9 @@ function AppLayout() {
         navigate({ to: "/onboarding" });
       }
     })();
-  }, [user, location.pathname, navigate]);
+  }, [user, location.pathname, navigate, isDemo]);
 
-  if (loading || !user) {
+  if (!isDemo && (loading || !user)) {
     return (
       <div className="min-h-screen grid place-items-center">
         <Loader2 className="h-6 w-6 animate-spin text-neon" />
@@ -57,7 +59,7 @@ function AppLayout() {
             <header className="h-14 border-b border-border bg-card/30 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-30">
               <div className="flex items-center gap-2">
                 <SidebarTrigger />
-                <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden sm:inline">// BSPOT.AI v0.1</span>
+                <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden sm:inline">// BSPOT.AI Beta v1.0</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 <ThemeToggle />
@@ -65,9 +67,14 @@ function AppLayout() {
                 <Link to="/app/notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
                   <Bell className="h-4 w-4" />
                 </Link>
-                <span className="hidden lg:block font-mono text-xs text-muted-foreground truncate max-w-[160px]">{user.email}</span>
+                <span className="hidden lg:block font-mono text-xs text-muted-foreground truncate max-w-[160px]">{user?.email ?? "demo@bspot.ai"}</span>
                 <button
-                  onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+                  onClick={async () => {
+                    localStorage.removeItem("bspot.demo_mode");
+                    localStorage.removeItem("bspot.demo_profile");
+                    if (user) await signOut();
+                    navigate({ to: "/" });
+                  }}
                   className="h-9 w-9 grid place-items-center rounded-md hover:bg-accent text-destructive"
                   aria-label="Sign out"
                 >
@@ -75,6 +82,7 @@ function AppLayout() {
                 </button>
               </div>
             </header>
+            <DemoBanner />
             <main className="flex-1 p-4 md:p-8">
               <Outlet />
             </main>
@@ -83,5 +91,26 @@ function AppLayout() {
         </div>
       </SidebarProvider>
     </CreditsProvider>
+  );
+}
+
+function DemoBanner() {
+  const isDemo = typeof window !== "undefined" && localStorage.getItem("bspot.demo_mode") === "true";
+  if (!isDemo) return null;
+  return (
+    <div className="bg-primary/15 border-b border-primary/40 px-4 py-2 flex items-center justify-between gap-3 text-xs">
+      <span className="font-mono">
+        ⚡ <span className="text-neon uppercase tracking-widest">Demo Mode</span> — you're exploring as Ahmed from Karachi. Create a free account to save your progress.
+      </span>
+      <div className="flex items-center gap-2">
+        <Link to="/signup" className="px-3 py-1 rounded bg-primary text-primary-foreground font-mono uppercase tracking-widest text-[10px]">Sign up</Link>
+        <button
+          onClick={() => { localStorage.removeItem("bspot.demo_mode"); localStorage.removeItem("bspot.demo_profile"); window.location.href = "/"; }}
+          className="px-3 py-1 rounded border border-border font-mono uppercase tracking-widest text-[10px] hover:border-primary"
+        >
+          Exit
+        </button>
+      </div>
+    </div>
   );
 }

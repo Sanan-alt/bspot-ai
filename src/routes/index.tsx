@@ -46,30 +46,54 @@ function Landing() {
             <div className="inline-flex items-center gap-2 panel-neon px-3 py-1 text-xs font-mono uppercase tracking-widest">
               <Sparkles className="h-3 w-3 text-neon" /> AI-driven · Real-time
             </div>
-            <h1 className="mt-6 font-display text-5xl md:text-7xl leading-[0.95]">
-              Invest <span className="text-neon">smarter</span><br/>
-              across <span className="text-neon">borders</span>.
+            <h1 className="mt-6 font-display text-4xl md:text-6xl leading-[1.0]">
+              Your business guide for investing in <span className="text-neon">UAE, UK & Canada</span> — built for <span className="text-neon">South Asian & African</span> investors.
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl">
-              BSpot AI is your futuristic command center for currency, country intelligence, AI business recommendations, and live portfolio tracking.
+              Tell us where you're from and where you want to invest. Get real costs, real laws, a step-by-step roadmap, and an AI advisor that remembers your profile.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link to="/signup" className="group inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-mono uppercase tracking-widest text-sm glow hover:scale-105 transition-transform">
                 Get started <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.setItem("bspot.demo_mode", "true");
+                    localStorage.setItem(
+                      "bspot.demo_profile",
+                      JSON.stringify({
+                        name: "Ahmed (Demo)",
+                        home_country: "Pakistan",
+                        target_country: "UAE",
+                        business_type: "Trading LLC",
+                        budget: "PKR 3,000,000",
+                        timeline: "6 months",
+                        readiness_score: 54,
+                      }),
+                    );
+                  } catch {}
+                  window.location.href = "/app";
+                }}
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-md border-2 border-primary text-neon font-mono uppercase tracking-widest text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                <Zap className="h-4 w-4" /> Try Demo — No Signup
+              </button>
               <Link to="/signin" className="px-6 py-3 rounded-md border border-border font-mono uppercase tracking-widest text-sm hover:border-primary hover:text-neon">
                 Sign in
               </Link>
             </div>
-            <div className="mt-12 grid grid-cols-3 gap-6 max-w-md">
+            <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
               {[
-                { k: "180+", v: "Currencies" },
-                { k: "200+", v: "Countries" },
-                { k: "AI", v: "Optimizer" },
+                { k: "10", v: "Countries", d: "Full guides with laws & costs" },
+                { k: "📋", v: "Roadmaps", d: "Step-by-step for top routes" },
+                { k: "180+", v: "FX pairs", d: "Live real-time rates" },
+                { k: "🤖", v: "AI Advisor", d: "Trained for business investment" },
               ].map((s) => (
-                <div key={s.v}>
-                  <div className="font-display text-3xl text-neon">{s.k}</div>
+                <div key={s.v} className="panel p-3">
+                  <div className="font-display text-2xl text-neon">{s.k}</div>
                   <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{s.v}</div>
+                  <div className="mt-1 text-[11px] text-muted-foreground leading-tight">{s.d}</div>
                 </div>
               ))}
             </div>
