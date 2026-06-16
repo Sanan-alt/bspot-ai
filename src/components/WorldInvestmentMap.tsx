@@ -24,6 +24,9 @@ const ALPHA3_TO_ALPHA2: Record<string, string> = {
   ARE: "AE", GBR: "GB", CAN: "CA", SGP: "SG", SAU: "SA",
   DEU: "DE", USA: "US", TUR: "TR", PRT: "PT", AUS: "AU",
 };
+const ALPHA2_TO_ALPHA3: Record<string, string> = Object.fromEntries(
+  Object.entries(ALPHA3_TO_ALPHA2).map(([a3, a2]) => [a2, a3]),
+);
 
 function scoreColor(score: number) {
   if (score >= 9) return "oklch(0.78 0.19 145)"; // green
