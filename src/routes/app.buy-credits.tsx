@@ -42,9 +42,13 @@ const PACKS = [
 function BuyCreditsPage() {
   const { user } = useAuth();
   const { balance, isOwner } = useCredits();
-  const [busy] = useState<string | null>(null);
 
   const buy = async (_pack: (typeof PACKS)[number]) => {
+    if (!user) return;
+    toast.info("Purchases are temporarily disabled", {
+      description: "Stripe checkout will be enabled before launch.",
+    });
+  };
     if (!user) return;
     toast.info("Purchases are temporarily disabled", {
       description: "Stripe checkout will be enabled before launch.",
