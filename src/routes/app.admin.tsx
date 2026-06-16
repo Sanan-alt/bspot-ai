@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCredits } from "@/hooks/use-credits";
 import { useAuth } from "@/hooks/use-auth";
 import { adminGrantCredits } from "@/lib/credits";
+import { verifyOwnerFn } from "@/lib/credits.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,21 +27,35 @@ function AdminPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isOwner, loading: credLoading } = useCredits();
+  const [serverVerified, setServerVerified] = useState<"pending" | "ok" | "denied">("pending");
 
+  // Server-side authoritative owner check. Client-side `isOwner` is just a hint.
   useEffect(() => {
-    if (!credLoading && !isOwner) {
-      toast.error("Owner access only");
-      navigate({ to: "/app" });
-    }
-  }, [credLoading, isOwner, navigate]);
+    let cancelled = false;
+    (async () => {
+      try {
+        await verifyOwnerFn();
+        if (!cancelled) setServerVerified("ok");
+      } catch {
+        if (cancelled) return;
+        setServerVerified("denied");
+        toast.error("Owner access only");
+        navigate({ to: "/app" });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
-  if (credLoading || !isOwner) {
+  if (credLoading || serverVerified !== "ok" || !isOwner) {
     return (
       <div className="grid place-items-center h-64">
         <Loader2 className="h-6 w-6 animate-spin text-neon" />
       </div>
     );
   }
+
 
   return (
     <div className="space-y-8">
