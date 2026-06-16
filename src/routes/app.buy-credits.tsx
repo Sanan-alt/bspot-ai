@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, Coins, Loader2, Sparkles, Zap } from "lucide-react";
+import { Check, Coins, Sparkles, Zap } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
