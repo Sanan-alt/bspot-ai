@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const team = [
   { name: "M. Sanan Abid", role: "Team Leader" },
