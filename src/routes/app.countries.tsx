@@ -2,9 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Loader2, Search, Sparkles, TrendingUp, ShieldAlert, Activity, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { scoreCountry } from "@/lib/countries.functions";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
@@ -15,6 +15,12 @@ import { Plane, CheckCircle2, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
 
+// Countries page selects with ISO alpha-2 codes. COUNTRY_DEEP is keyed by alpha-3.
+const ALPHA2_TO_ALPHA3: Record<string, string> = {
+  AE: "ARE", GB: "GBR", CA: "CAN", SG: "SGP", SA: "SAU",
+  DE: "DEU", US: "USA", TR: "TUR", PT: "PRT", AU: "AUS",
+};
+
 type Score = {
   overall: number; stability: number; growth: number; risk: number;
   currency: string; summary: string;
@@ -23,12 +29,15 @@ type Score = {
 };
 
 function CountriesPage() {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [region, setRegion] = useState<string>("All");
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const score = useServerFn(scoreCountry);
   const qc = useQueryClient();
   const selected = selectedCode ? COUNTRY_BY_CODE[selectedCode] : null;
+  const deepKey = selected ? ALPHA2_TO_ALPHA3[selected.code] : null;
+  const deep = deepKey ? COUNTRY_DEEP[deepKey] : null;
 
   const regions = useMemo(() => ["All", ...Array.from(new Set(COUNTRIES.map(c => c.region)))], []);
   const filtered = useMemo(
@@ -41,10 +50,7 @@ function CountriesPage() {
 
   const { data, isFetching, error, refetch } = useQuery<Score>({
     queryKey: ["country-score", selectedCode],
-    queryFn: async () => {
-      // Server function atomically charges credits on cache miss; cached reads are free.
-      return await score({ data: { code: selected!.code, name: selected!.name } });
-    },
+    queryFn: async () => await score({ data: { code: selected!.code, name: selected!.name } }),
     enabled: !!selected,
     staleTime: 1000 * 60 * 60 * 24,
   });
@@ -59,9 +65,9 @@ function CountriesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">// COUNTRY DATA</p>
-        <h1 className="mt-2 font-display text-3xl md:text-4xl">Investment Atlas</h1>
-        <p className="text-sm text-muted-foreground mt-1">AI-scored country profiles · click any highlighted country</p>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">// {t("countries.kicker")}</p>
+        <h1 className="mt-2 font-display text-3xl md:text-4xl">{t("countries.title")}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{t("countries.subtitle")}</p>
       </div>
 
       <div className="panel-neon p-3">
@@ -71,7 +77,7 @@ function CountriesPage() {
       <div className="panel-neon p-4 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search country or ISO code…" className="pl-9" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("countries.search_placeholder")} className="pl-9" />
         </div>
         <div className="flex flex-wrap gap-1">
           {regions.map(r => (
@@ -79,7 +85,7 @@ function CountriesPage() {
               onClick={() => setRegion(r)}
               className={`px-3 h-8 rounded-md text-xs font-mono uppercase tracking-widest border ${
                 region === r ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-neon"
-              }`}>{r}</button>
+              }`}>{r === "All" ? t("countries.region_all") : r}</button>
           ))}
         </div>
       </div>
@@ -97,7 +103,7 @@ function CountriesPage() {
           </button>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full text-center text-sm text-muted-foreground py-10">No matches.</div>
+          <div className="col-span-full text-center text-sm text-muted-foreground py-10">{t("countries.no_matches")}</div>
         )}
       </div>
 
@@ -114,34 +120,33 @@ function CountriesPage() {
               </SheetHeader>
 
               <div className="mt-6 space-y-5">
-                {/* DEEP COUNTRY PROFILE — when curated data exists */}
-                {COUNTRY_DEEP[selected.code] && (
-                  <DeepProfile data={COUNTRY_DEEP[selected.code]} name={selected.name} />
-                )}
+                {deep && <DeepProfile data={deep} name={selected.name} />}
 
                 {isFetching && (
                   <div className="terminal p-6 text-center">
                     <Loader2 className="h-5 w-5 animate-spin mx-auto text-neon" />
-                    <p className="mt-2 text-xs">// AI scoring in progress…</p>
+                    <p className="mt-2 text-xs">// {t("countries.scoring")}</p>
                   </div>
                 )}
                 {error && <div className="text-sm text-destructive">{(error as Error).message}</div>}
 
-                {/* VISA & IMMIGRATION PROGRAMS — always shown */}
                 {(() => {
                   const programs = VISA_PROGRAMS[selected.code] ?? [];
                   if (!programs.length) {
                     return (
                       <div className="panel p-4">
-                        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">// Visa & Immigration</p>
-                        <p className="text-xs text-muted-foreground">No curated visa programs yet for {selected.name}. Email us suggestions at <a href="mailto:bspot.ai.official@gmail.com" className="text-neon">bspot.ai.official@gmail.com</a>.</p>
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">// {t("countries.visa_title")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("countries.visa_none", { name: selected.name })}{" "}
+                          <a href="mailto:bspot.ai.official@gmail.com" className="text-neon">bspot.ai.official@gmail.com</a>.
+                        </p>
                       </div>
                     );
                   }
                   return (
                     <div className="panel p-4">
                       <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
-                        <Plane className="h-3 w-3 text-neon" /> Visa & Immigration Programs
+                        <Plane className="h-3 w-3 text-neon" /> {t("countries.visa_title")}
                       </p>
                       <ul className="space-y-3">
                         {programs.map((p) => (
@@ -150,7 +155,7 @@ function CountriesPage() {
                               <span className="font-display text-sm">{p.name}</span>
                               {p.pathToPR && (
                                 <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-widest text-neon">
-                                  <CheckCircle2 className="h-3 w-3" /> PR
+                                  <CheckCircle2 className="h-3 w-3" /> {t("countries.pr_badge")}
                                 </span>
                               )}
                             </div>
@@ -165,47 +170,46 @@ function CountriesPage() {
                         href="mailto:bspot.ai.official@gmail.com"
                         className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-neon"
                       >
-                        <Mail className="h-3 w-3" /> Suggest a program
+                        <Mail className="h-3 w-3" /> {t("countries.suggest")}
                       </a>
                     </div>
                   );
                 })()}
 
-
                 {data && (
                   <>
                     <div className="panel-neon p-5 text-center relative">
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Overall Score</p>
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// {t("countries.overall_score")}</p>
                       <p className="mt-2 font-display text-6xl text-neon">{data.overall}</p>
                       <p className="mt-1 text-xs text-muted-foreground">/ 100</p>
                       {data._cached && (
                         <button
                           onClick={refresh}
                           className="absolute top-3 right-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-neon flex items-center gap-1"
-                          title="Refresh AI score"
+                          title={t("countries.refresh")}
                         >
-                          <RefreshCw className="h-3 w-3" /> Cached {data._age_hours}h
+                          <RefreshCw className="h-3 w-3" /> {t("countries.cached", { h: data._age_hours })}
                         </button>
                       )}
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
-                      <Metric icon={<Activity className="h-4 w-4" />} label="Stability" value={data.stability} />
-                      <Metric icon={<TrendingUp className="h-4 w-4" />} label="Growth" value={data.growth} />
-                      <Metric icon={<ShieldAlert className="h-4 w-4" />} label="Risk" value={data.risk} />
+                      <Metric icon={<Activity className="h-4 w-4" />} label={t("countries.stability")} value={data.stability} />
+                      <Metric icon={<TrendingUp className="h-4 w-4" />} label={t("countries.growth")} value={data.growth} />
+                      <Metric icon={<ShieldAlert className="h-4 w-4" />} label={t("countries.risk")} value={data.risk} />
                     </div>
 
                     <div className="panel p-4">
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">// Summary</p>
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">// {t("countries.summary")}</p>
                       <p className="text-sm">{data.summary}</p>
                     </div>
 
-                    <Section title="Opportunities" items={data.opportunities} accent />
-                    <Section title="Risks" items={data.risks} />
-                    <Section title="Top Sectors" items={data.top_sectors} />
+                    <Section title={t("countries.opportunities")} items={data.opportunities} accent />
+                    <Section title={t("countries.risks")} items={data.risks} />
+                    <Section title={t("countries.top_sectors")} items={data.top_sectors} />
 
                     <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
-                      <Sparkles className="h-3 w-3 text-neon" /> Powered by Lovable AI · cached 24h
+                      <Sparkles className="h-3 w-3 text-neon" /> {t("countries.powered_by")}
                     </div>
                   </>
                 )}
@@ -246,34 +250,48 @@ function Section({ title, items, accent }: { title: string; items: string[]; acc
 }
 
 function DeepProfile({ data, name }: { data: import("@/lib/country-deep").CountryDeep; name: string }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"overview" | "visa" | "laws" | "zones">("overview");
   const tabs: { id: typeof tab; label: string }[] = [
-    { id: "overview", label: "Overview" },
-    { id: "visa", label: "Visa" },
-    { id: "laws", label: "Laws" },
-    ...(data.zones ? [{ id: "zones" as const, label: "Zones" }] : []),
+    { id: "overview", label: t("deep.tab_overview") },
+    { id: "visa", label: t("deep.tab_visa") },
+    { id: "laws", label: t("deep.tab_laws") },
+    ...(data.zones ? [{ id: "zones" as const, label: t("deep.tab_zones") }] : []),
+  ];
+
+  const overviewRows: [string, string][] = [
+    [`💰 ${t("deep.setup_cost")}`, data.setup_cost_range],
+    [`🇵🇰 ${t("deep.in_pkr")}`, data.setup_cost_pkr],
+    [`⏱ ${t("deep.setup_time")}`, data.setup_time],
+    [`🏢 ${t("deep.corp_tax")}`, data.corporate_tax],
+    [`👤 ${t("deep.income_tax")}`, data.personal_income_tax],
+    [`🧾 ${t("deep.vat")}`, data.vat],
+    [`🌍 ${t("deep.foreign_own")}`, data.foreign_ownership],
+    [`🏛 ${t("deep.stability")}`, data.political_stability],
+    [`📊 ${t("deep.ease_rank")}`, data.ease_of_business_rank],
+    [`👥 ${t("deep.best_for")}`, data.recommended_for],
   ];
 
   return (
     <div className="panel-neon p-4">
       <div className="flex items-center justify-between">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// BSPOT Deep Profile</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// {t("deep.title")}</p>
         <div className="text-right">
           <div className="font-display text-2xl text-neon">{data.bspot_score}</div>
-          <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">BSpot Score</div>
+          <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{t("map.score")}</div>
         </div>
       </div>
 
       <div className="mt-3 flex border-b border-border">
-        {tabs.map((t) => (
+        {tabs.map((tb) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
             className={`flex-1 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors ${
-              tab === t.id ? "text-neon border-b-2 border-primary" : "text-muted-foreground hover:text-neon"
+              tab === tb.id ? "text-neon border-b-2 border-primary" : "text-muted-foreground hover:text-neon"
             }`}
           >
-            {t.label}
+            {tb.label}
           </button>
         ))}
       </div>
@@ -281,18 +299,7 @@ function DeepProfile({ data, name }: { data: import("@/lib/country-deep").Countr
       <div className="mt-4 space-y-2">
         {tab === "overview" && (
           <>
-            {[
-              ["💰 Setup Cost (Year 1)", data.setup_cost_range],
-              ["🇵🇰 In PKR", data.setup_cost_pkr],
-              ["⏱ Setup Time", data.setup_time],
-              ["🏢 Corporate Tax", data.corporate_tax],
-              ["👤 Income Tax", data.personal_income_tax],
-              ["🧾 VAT / Sales Tax", data.vat],
-              ["🌍 Foreign Ownership", data.foreign_ownership],
-              ["🏛 Political Stability", data.political_stability],
-              ["📊 Business Ease Rank", data.ease_of_business_rank],
-              ["👥 Best For", data.recommended_for],
-            ].map(([label, value]) => (
+            {overviewRows.map(([label, value]) => (
               <div key={label} className="grid grid-cols-[140px_1fr] gap-2 text-xs">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
                 <div>{value}</div>
@@ -300,7 +307,7 @@ function DeepProfile({ data, name }: { data: import("@/lib/country-deep").Countr
             ))}
             {data.pro_tip && (
               <div className="mt-4 panel p-3 border-l-2 border-primary">
-                <p className="font-mono text-[10px] uppercase tracking-widest text-neon">⭐ BSpot Pro Tip</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-neon">⭐ {t("deep.pro_tip")}</p>
                 <p className="text-xs mt-1">{data.pro_tip}</p>
               </div>
             )}
@@ -315,7 +322,7 @@ function DeepProfile({ data, name }: { data: import("@/lib/country-deep").Countr
                 <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">
                   {v.type} · {v.duration}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Min investment: {v.min_investment}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("deep.min_investment")}: {v.min_investment}</p>
               </li>
             ))}
           </ul>
@@ -324,11 +331,11 @@ function DeepProfile({ data, name }: { data: import("@/lib/country-deep").Countr
         {tab === "laws" && (
           <div className="space-y-3">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Laws for foreigners</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// {t("deep.laws_heading")}</p>
               <p className="text-xs mt-1 leading-relaxed">{data.laws_for_foreigners}</p>
             </div>
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Banking</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// {t("deep.banking_heading")}</p>
               <p className="text-xs mt-1 leading-relaxed">{data.banking}</p>
             </div>
           </div>
@@ -343,7 +350,7 @@ function DeepProfile({ data, name }: { data: import("@/lib/country-deep").Countr
                   <span className="font-mono text-[10px] text-neon">{z.score}/10</span>
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  {z.cost} · <span className="text-foreground">Best for:</span> {z.best_for}
+                  {z.cost} · <span className="text-foreground">{t("deep.best_for")}:</span> {z.best_for}
                 </div>
               </li>
             ))}
@@ -355,7 +362,7 @@ function DeepProfile({ data, name }: { data: import("@/lib/country-deep").Countr
         to="/app/calculator"
         className="mt-4 w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-mono uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-transform"
       >
-        💼 Calculate my setup cost for {name}
+        💼 {t("deep.calculate_for", { name })}
       </Link>
     </div>
   );
