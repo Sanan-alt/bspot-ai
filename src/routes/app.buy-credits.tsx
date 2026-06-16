@@ -116,17 +116,12 @@ function BuyCreditsPage() {
 
             <Button
               onClick={() => buy(p)}
-              disabled={busy !== null || isOwner}
+              disabled
               className={`mt-6 w-full ${p.highlight ? "glow" : ""}`}
               variant={p.highlight ? "default" : "outline"}
+              title="Stripe checkout will be enabled before launch"
             >
-              {busy === p.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isOwner ? (
-                "Owner — unlimited"
-              ) : (
-                `Buy ${p.label}`
-              )}
+              {isOwner ? "Owner — unlimited" : "Coming soon"}
             </Button>
           </motion.div>
         ))}
