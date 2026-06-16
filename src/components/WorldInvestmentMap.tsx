@@ -83,7 +83,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                 <button
                   key={u.a3}
                   onClick={() => {
-                    onSelect(u.a3);
+                    onSelect(ALPHA3_TO_ALPHA2[u.a3] ?? u.a3);
                     setSearch("");
                   }}
                   className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-accent text-left"
@@ -119,7 +119,8 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                   const alpha3 = ISO_NUM_TO_ALPHA3[isoNum];
                   const deep = alpha3 ? COUNTRY_DEEP[alpha3] : null;
                   const isUnlocked = !!deep;
-                  const isSelected = !!alpha3 && alpha3 === selectedCode;
+                  const selectedA3 = selectedCode ? ALPHA2_TO_ALPHA3[selectedCode] : null;
+                  const isSelected = !!alpha3 && alpha3 === selectedA3;
                   const isHover = !!alpha3 && alpha3 === hovered;
                   const baseFill = deep ? scoreColor(deep.bspot_score) : "oklch(0.20 0.01 95)";
                   const fill = isSelected
@@ -134,7 +135,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                       onMouseEnter={() => alpha3 && setHovered(alpha3)}
                       onMouseLeave={() => setHovered(null)}
                       onClick={() => {
-                        if (isUnlocked) onSelect(alpha3);
+                        if (isUnlocked) onSelect(ALPHA3_TO_ALPHA2[alpha3] ?? alpha3);
                       }}
                       style={{
                         default: {
