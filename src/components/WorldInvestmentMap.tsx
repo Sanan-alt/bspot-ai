@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { useTranslation } from "react-i18next";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, AlertTriangle, Keyboard } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { COUNTRY_BY_CODE, NUM_TO_ISO2, COUNTRIES } from "@/lib/countries-data";
 
