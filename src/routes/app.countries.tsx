@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { scoreCountry } from "@/lib/countries.functions";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
-import { WorldMap } from "@/components/WorldMap";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
+import { WorldInvestmentMap } from "@/components/WorldInvestmentMap";
 import { Plane, CheckCircle2, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
@@ -65,12 +65,7 @@ function CountriesPage() {
       </div>
 
       <div className="panel-neon p-3">
-        <WorldMap onSelect={setSelectedCode} highlight={selectedCode} />
-        <div className="mt-2 flex items-center justify-center gap-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-[oklch(0.30_0.08_95)]" /> Investable</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-[oklch(0.18_0.01_95)]" /> Not tracked</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-[oklch(0.88_0.19_95)]" /> Selected</span>
-        </div>
+        <WorldInvestmentMap selectedCode={selectedCode} onSelect={setSelectedCode} />
       </div>
 
       <div className="panel-neon p-4 flex flex-wrap items-center gap-3">
