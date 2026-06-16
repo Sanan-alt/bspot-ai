@@ -19,14 +19,16 @@ function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isDemo = typeof window !== "undefined" && localStorage.getItem("bspot.demo_mode") === "true";
 
   useEffect(() => {
+    if (isDemo) return;
     if (!loading && !user) navigate({ to: "/signin" });
-  }, [loading, user, navigate]);
+  }, [loading, user, navigate, isDemo]);
 
   // Auto-redirect to onboarding if profile isn't completed
   useEffect(() => {
-    if (!user) return;
+    if (!user || isDemo) return;
     if (location.pathname.startsWith("/onboarding")) return;
     (async () => {
       const { data } = await supabase
@@ -38,9 +40,9 @@ function AppLayout() {
         navigate({ to: "/onboarding" });
       }
     })();
-  }, [user, location.pathname, navigate]);
+  }, [user, location.pathname, navigate, isDemo]);
 
-  if (loading || !user) {
+  if (!isDemo && (loading || !user)) {
     return (
       <div className="min-h-screen grid place-items-center">
         <Loader2 className="h-6 w-6 animate-spin text-neon" />
