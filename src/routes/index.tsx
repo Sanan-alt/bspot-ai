@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Bot, Briefcase, Globe2, Mail, Sparkles, TrendingUp, Zap, Plane, Building2, Award } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
@@ -13,24 +14,26 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen">
+
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
           <NeonLogo />
           <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            <a href="#top-countries" className="hover:text-neon">Countries</a>
-            <a href="#features" className="hover:text-neon">Features</a>
-            <a href="#success" className="hover:text-neon">Success</a>
-            <a href="#contact" className="hover:text-neon">Contact</a>
-            <Link to="/terms" className="hover:text-neon">Terms</Link>
+            <a href="#top-countries" className="hover:text-neon">{t("nav.countries")}</a>
+            <a href="#features" className="hover:text-neon">{t("nav.features")}</a>
+            <a href="#success" className="hover:text-neon">{t("nav.success")}</a>
+            <a href="#contact" className="hover:text-neon">{t("nav.contact")}</a>
+            <Link to="/terms" className="hover:text-neon">{t("nav.terms")}</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <LanguageSelector compact />
-            <Link to="/signin" className="text-sm font-mono uppercase tracking-widest hover:text-neon">Sign In</Link>
+            <Link to="/signin" className="text-sm font-mono uppercase tracking-widest hover:text-neon">{t("nav.signin")}</Link>
             <Link to="/signup" className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-mono text-xs uppercase tracking-widest glow-sm hover:scale-105 transition-transform">
-              Launch →
+              {t("nav.launch")}
             </Link>
           </div>
         </div>
@@ -44,17 +47,17 @@ function Landing() {
         <div className="mx-auto max-w-7xl px-6 pt-24 pb-32 grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-2 panel-neon px-3 py-1 text-xs font-mono uppercase tracking-widest">
-              <Sparkles className="h-3 w-3 text-neon" /> AI-driven · Real-time
+              <Sparkles className="h-3 w-3 text-neon" /> {t("hero.badge")}
             </div>
             <h1 className="mt-6 font-display text-4xl md:text-6xl leading-[1.0]">
-              Your business guide for investing in <span className="text-neon">UAE, UK & Canada</span> — built for <span className="text-neon">South Asian & African</span> investors.
+              {t("hero.headline_a")} <span className="text-neon">{t("hero.headline_b")}</span> {t("hero.headline_c")} <span className="text-neon">{t("hero.headline_d")}</span> {t("hero.headline_e")}
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl">
-              Tell us where you're from and where you want to invest. Get real costs, real laws, a step-by-step roadmap, and an AI advisor that remembers your profile.
+              {t("hero.subhead")}
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link to="/signup" className="group inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md font-mono uppercase tracking-widest text-sm glow hover:scale-105 transition-transform">
-                Get started <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                {t("hero.cta_start")} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <button
                 onClick={() => {
@@ -77,18 +80,18 @@ function Landing() {
                 }}
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-md border-2 border-primary text-neon font-mono uppercase tracking-widest text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
               >
-                <Zap className="h-4 w-4" /> Try Demo — No Signup
+                <Zap className="h-4 w-4" /> {t("hero.cta_demo")}
               </button>
               <Link to="/signin" className="px-6 py-3 rounded-md border border-border font-mono uppercase tracking-widest text-sm hover:border-primary hover:text-neon">
-                Sign in
+                {t("hero.cta_signin")}
               </Link>
             </div>
             <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
               {[
-                { k: "10", v: "Countries", d: "Full guides with laws & costs" },
-                { k: "📋", v: "Roadmaps", d: "Step-by-step for top routes" },
-                { k: "180+", v: "FX pairs", d: "Live real-time rates" },
-                { k: "🤖", v: "AI Advisor", d: "Trained for business investment" },
+                { k: "10", v: t("stats.countries"), d: t("stats.countries_d") },
+                { k: "📋", v: t("stats.roadmaps"), d: t("stats.roadmaps_d") },
+                { k: "180+", v: t("stats.fx"), d: t("stats.fx_d") },
+                { k: "🤖", v: t("stats.ai"), d: t("stats.ai_d") },
               ].map((s) => (
                 <div key={s.v} className="panel p-3">
                   <div className="font-display text-2xl text-neon">{s.k}</div>

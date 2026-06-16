@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
 import {
   Select,
@@ -101,21 +102,27 @@ const GROUPS: { label: string; langs: Lang[] }[] = [
 
 const STORAGE_KEY = "bspot.lang";
 
+// Languages with full translations wired through i18next.
+const I18N_LANGS = new Set(["en", "ur", "ar", "hi"]);
+
 export function LanguageSelector({ compact = false }: { compact?: boolean }) {
-  const [value, setValue] = useState<string>("en");
+  const { i18n } = useTranslation();
+  const [value, setValue] = useState<string>(i18n.language || "en");
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setValue(saved);
-    } catch {}
-  }, []);
+    setValue(i18n.language || "en");
+  }, [i18n.language]);
 
   const onChange = (v: string) => {
     setValue(v);
     try {
       localStorage.setItem(STORAGE_KEY, v);
     } catch {}
+    // Only ask i18next to load locales we actually ship; otherwise just
+    // persist the preference for future i18n expansion.
+    if (I18N_LANGS.has(v)) {
+      void i18n.changeLanguage(v);
+    }
   };
 
   return (
