@@ -49,9 +49,12 @@ export function SiteFooter() {
             <p className="mt-2 text-muted-foreground">Futuristic full-stack investment intelligence — currency, countries, portfolios, and AI insights.</p>
           </div>
         </div>
-        <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground font-mono">
+        <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground font-mono">
           <span>© {new Date().getFullYear()} BSpot AI · Team ApexMinds</span>
-          <span>Beta v1.0 · Built on Lovable Cloud</span>
+          <div className="flex items-center gap-4">
+            <LanguageSelector compact />
+            <span>Beta v1.0 · Built on Lovable Cloud</span>
+          </div>
         </div>
       </div>
     </footer>
