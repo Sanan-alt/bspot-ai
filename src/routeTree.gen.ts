@@ -26,6 +26,7 @@ import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppHistoryCreditsRouteImport } from './routes/app.history-credits'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
+import { Route as AppDocumentsRouteImport } from './routes/app.documents'
 import { Route as AppCountriesRouteImport } from './routes/app.countries'
 import { Route as AppConverterRouteImport } from './routes/app.converter'
 import { Route as AppCalculatorRouteImport } from './routes/app.calculator'
@@ -118,6 +119,11 @@ const AppHistoryRoute = AppHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDocumentsRoute = AppDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCountriesRoute = AppCountriesRouteImport.update({
   id: '/countries',
   path: '/countries',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/app/calculator': typeof AppCalculatorRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
+  '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/app/calculator': typeof AppCalculatorRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
+  '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/app/calculator': typeof AppCalculatorRoute
   '/app/converter': typeof AppConverterRoute
   '/app/countries': typeof AppCountriesRoute
+  '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/notifications': typeof AppNotificationsRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/app/calculator'
     | '/app/converter'
     | '/app/countries'
+    | '/app/documents'
     | '/app/history'
     | '/app/history-credits'
     | '/app/notifications'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/app/calculator'
     | '/app/converter'
     | '/app/countries'
+    | '/app/documents'
     | '/app/history'
     | '/app/history-credits'
     | '/app/notifications'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/app/calculator'
     | '/app/converter'
     | '/app/countries'
+    | '/app/documents'
     | '/app/history'
     | '/app/history-credits'
     | '/app/notifications'
@@ -431,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/documents': {
+      id: '/app/documents'
+      path: '/documents'
+      fullPath: '/app/documents'
+      preLoaderRoute: typeof AppDocumentsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/countries': {
       id: '/app/countries'
       path: '/countries'
@@ -483,6 +502,7 @@ interface AppRouteChildren {
   AppCalculatorRoute: typeof AppCalculatorRoute
   AppConverterRoute: typeof AppConverterRoute
   AppCountriesRoute: typeof AppCountriesRoute
+  AppDocumentsRoute: typeof AppDocumentsRoute
   AppHistoryRoute: typeof AppHistoryRoute
   AppHistoryCreditsRoute: typeof AppHistoryCreditsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
@@ -503,6 +523,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCalculatorRoute: AppCalculatorRoute,
   AppConverterRoute: AppConverterRoute,
   AppCountriesRoute: AppCountriesRoute,
+  AppDocumentsRoute: AppDocumentsRoute,
   AppHistoryRoute: AppHistoryRoute,
   AppHistoryCreditsRoute: AppHistoryCreditsRoute,
   AppNotificationsRoute: AppNotificationsRoute,

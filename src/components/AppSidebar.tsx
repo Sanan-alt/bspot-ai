@@ -17,6 +17,7 @@ import {
   Plane,
   Map,
   Gauge,
+  FolderLock,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
 import {
@@ -40,6 +41,7 @@ const items = [
   { title: "Visa Guide", url: "/app/visa", icon: Plane },
   { title: "Readiness Score", url: "/app/readiness", icon: Gauge },
   { title: "Roadmap", url: "/app/roadmap", icon: Map },
+  { title: "Document Vault", url: "/app/documents", icon: FolderLock },
   { title: "Watchlist", url: "/app/watchlist", icon: Star },
   { title: "Business Suggestions", url: "/app/suggestions", icon: Lightbulb },
   { title: "Country Data", url: "/app/countries", icon: Globe2 },
