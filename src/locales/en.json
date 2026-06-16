@@ -42,17 +42,22 @@
   },
   "map": {
     "title": "Investment World Map",
-    "subtitle": "Click any highlighted country to open its deep profile",
+    "subtitle": "Click any highlighted country to open its profile",
     "unlocked": "Full data available",
-    "locked": "Coming soon",
+    "locked": "Not in catalogue",
     "score": "BSpot Score",
     "calculate": "Calculate my setup cost",
     "search_placeholder": "Search a country…",
     "no_results": "No matching country",
+    "no_results_detailed": "No country matches \"{{q}}\". Try the ISO code (e.g. AE, GB).",
     "legend": "Legend",
     "tier_excellent": "Excellent",
     "tier_strong": "Strong",
-    "tier_moderate": "Moderate"
+    "tier_moderate": "Moderate",
+    "tier_basic": "Basic profile",
+    "basic": "Basic",
+    "basic_profile": "Basic profile · deep data coming soon",
+    "loading": "Loading map…"
   },
   "demo": {
     "banner": "Demo Mode — you're exploring as Ahmed from Karachi. Create a free account to save your progress.",
@@ -62,9 +67,16 @@
   "ticker": {
     "loading": "Loading live market…",
     "updated": "updated {{s}}s ago",
+    "valid_for": "valid {{s}}s",
     "error": "Live market data is temporarily unavailable.",
     "partial": "LIVE · partial data (some feeds delayed)",
-    "retry": "Retry"
+    "retry": "Retry",
+    "retrying": "Retrying… ({{n}})",
+    "feed_forex": "Forex",
+    "feed_crypto": "Crypto",
+    "feed_stock": "Stocks",
+    "failed": "failed",
+    "delayed": "delayed"
   },
   "countries": {
     "kicker": "COUNTRY DATA",

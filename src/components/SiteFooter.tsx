@@ -8,7 +8,6 @@ const team = [
   { name: "Mahraj", role: "CSS Programmer" },
   { name: "Ebad", role: "HTML Programmer" },
   { name: "Khizer Siddique", role: "AI Expert" },
-  { name: "Tayyab Afridi", role: "Presentation Maker" },
 ];
 
 export function SiteFooter() {
