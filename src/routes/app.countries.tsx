@@ -249,3 +249,119 @@ function Section({ title, items, accent }: { title: string; items: string[]; acc
     </div>
   );
 }
+
+function DeepProfile({ data, name }: { data: import("@/lib/country-deep").CountryDeep; name: string }) {
+  const [tab, setTab] = useState<"overview" | "visa" | "laws" | "zones">("overview");
+  const tabs: { id: typeof tab; label: string }[] = [
+    { id: "overview", label: "Overview" },
+    { id: "visa", label: "Visa" },
+    { id: "laws", label: "Laws" },
+    ...(data.zones ? [{ id: "zones" as const, label: "Zones" }] : []),
+  ];
+
+  return (
+    <div className="panel-neon p-4">
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// BSPOT Deep Profile</p>
+        <div className="text-right">
+          <div className="font-display text-2xl text-neon">{data.bspot_score}</div>
+          <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">BSpot Score</div>
+        </div>
+      </div>
+
+      <div className="mt-3 flex border-b border-border">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex-1 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+              tab === t.id ? "text-neon border-b-2 border-primary" : "text-muted-foreground hover:text-neon"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {tab === "overview" && (
+          <>
+            {[
+              ["💰 Setup Cost (Year 1)", data.setup_cost_range],
+              ["🇵🇰 In PKR", data.setup_cost_pkr],
+              ["⏱ Setup Time", data.setup_time],
+              ["🏢 Corporate Tax", data.corporate_tax],
+              ["👤 Income Tax", data.personal_income_tax],
+              ["🧾 VAT / Sales Tax", data.vat],
+              ["🌍 Foreign Ownership", data.foreign_ownership],
+              ["🏛 Political Stability", data.political_stability],
+              ["📊 Business Ease Rank", data.ease_of_business_rank],
+              ["👥 Best For", data.recommended_for],
+            ].map(([label, value]) => (
+              <div key={label} className="grid grid-cols-[140px_1fr] gap-2 text-xs">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+                <div>{value}</div>
+              </div>
+            ))}
+            {data.pro_tip && (
+              <div className="mt-4 panel p-3 border-l-2 border-primary">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-neon">⭐ BSpot Pro Tip</p>
+                <p className="text-xs mt-1">{data.pro_tip}</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {tab === "visa" && (
+          <ul className="space-y-3">
+            {data.visa_programs.map((v) => (
+              <li key={v.name} className="border-l-2 border-primary/40 pl-3">
+                <div className="font-display text-sm">{v.name}</div>
+                <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">
+                  {v.type} · {v.duration}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Min investment: {v.min_investment}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {tab === "laws" && (
+          <div className="space-y-3">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Laws for foreigners</p>
+              <p className="text-xs mt-1 leading-relaxed">{data.laws_for_foreigners}</p>
+            </div>
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Banking</p>
+              <p className="text-xs mt-1 leading-relaxed">{data.banking}</p>
+            </div>
+          </div>
+        )}
+
+        {tab === "zones" && data.zones && (
+          <ul className="space-y-2">
+            {data.zones.map((z) => (
+              <li key={z.name} className="panel p-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-sm">{z.name}</span>
+                  <span className="font-mono text-[10px] text-neon">{z.score}/10</span>
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {z.cost} · <span className="text-foreground">Best for:</span> {z.best_for}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <Link
+        to="/app/calculator"
+        className="mt-4 w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-mono uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-transform"
+      >
+        💼 Calculate my setup cost for {name}
+      </Link>
+    </div>
+  );
+}
