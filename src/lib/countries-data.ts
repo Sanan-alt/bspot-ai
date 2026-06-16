@@ -8,6 +8,9 @@ export const NUM_TO_ISO2: Record<string, string> = {
   "344": "HK", "360": "ID", "764": "TH", "704": "VN", "784": "AE", "682": "SA",
   "818": "EG", "710": "ZA", "566": "NG", "404": "KE", "036": "AU",
   "554": "NZ", "586": "PK", "364": "IR",
+  "056": "BE", "040": "AT", "372": "IE", "620": "PT", "208": "DK", "246": "FI",
+  "203": "CZ", "300": "GR", "348": "HU", "642": "RO",
+  "458": "MY", "608": "PH", "050": "BD", "144": "LK", "398": "KZ", "158": "TW",
 };
 
 export type Country = { code: string; name: string; region: string; flag: string; currency: string };
