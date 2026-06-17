@@ -10,6 +10,7 @@ import { CreditsProvider } from "@/hooks/use-credits";
 import { supabase } from "@/integrations/supabase/client";
 import { Bell, LogOut } from "lucide-react";
 import { Loader2 } from "lucide-react";
+import { useIdleTimeout } from "@/hooks/use-idle-timeout";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -25,6 +26,9 @@ function AppLayout() {
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/signin" });
   }, [loading, user, navigate]);
+
+  // Idle timeout (30min) — auto sign-out for security
+  useIdleTimeout(!!user && !isDemo, () => navigate({ to: "/signin" }));
 
   // Auto-redirect to onboarding if profile isn't completed
   useEffect(() => {

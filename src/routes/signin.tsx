@@ -18,13 +18,33 @@ function SignIn() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  async function hashEmail(email: string): Promise<string> {
+    const buf = new TextEncoder().encode(email.trim().toLowerCase());
+    const digest = await crypto.subtle.digest("SHA-256", buf);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
   async function handle(e: FormEvent) {
     e.preventDefault();
     setErr(null);
     setLoading(true);
+    const emailHash = await hashEmail(email);
+    // Check lockout first
+    const { data: lock } = await supabase.rpc("check_login_lockout", { p_email_hash: emailHash });
+    if (lock && (lock as { locked: boolean }).locked) {
+      setLoading(false);
+      return setErr("Too many failed attempts. Please wait 15 minutes before trying again.");
+    }
     const { error } = await supabase.auth.signInWithPassword({ email, password: pw });
+    // Record attempt regardless of outcome
+    const { data: rec } = await supabase.rpc("record_login_attempt", { p_email_hash: emailHash, p_success: !error });
     setLoading(false);
-    if (error) return setErr(error.message);
+    if (error) {
+      const r = rec as { locked?: boolean; fail_count?: number } | null;
+      if (r?.locked) return setErr("Too many failed attempts. Account locked for 15 minutes.");
+      const remaining = 5 - (r?.fail_count ?? 0);
+      return setErr(`${error.message}${remaining > 0 && remaining < 5 ? ` (${remaining} attempt${remaining === 1 ? "" : "s"} left)` : ""}`);
+    }
     toast.success("Welcome back to the grid");
     navigate({ to: "/app" });
   }

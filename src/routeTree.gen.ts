@@ -26,6 +26,7 @@ import { Route as AppRoadmapRouteImport } from './routes/app.roadmap'
 import { Route as AppReadinessRouteImport } from './routes/app.readiness'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
+import { Route as AppMarketsRouteImport } from './routes/app.markets'
 import { Route as AppHistoryCreditsRouteImport } from './routes/app.history-credits'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppDocumentsRouteImport } from './routes/app.documents'
@@ -121,6 +122,11 @@ const AppNotificationsRoute = AppNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMarketsRoute = AppMarketsRouteImport.update({
+  id: '/markets',
+  path: '/markets',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHistoryCreditsRoute = AppHistoryCreditsRouteImport.update({
   id: '/history-credits',
   path: '/history-credits',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/history-credits': typeof AppHistoryCreditsRoute
+  '/app/markets': typeof AppMarketsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/readiness': typeof AppReadinessRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/history-credits': typeof AppHistoryCreditsRoute
+  '/app/markets': typeof AppMarketsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/readiness': typeof AppReadinessRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/history-credits': typeof AppHistoryCreditsRoute
+  '/app/markets': typeof AppMarketsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/readiness': typeof AppReadinessRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/history-credits'
+    | '/app/markets'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/readiness'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/history-credits'
+    | '/app/markets'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/readiness'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/history-credits'
+    | '/app/markets'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/readiness'
@@ -469,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotificationsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/markets': {
+      id: '/app/markets'
+      path: '/markets'
+      fullPath: '/app/markets'
+      preLoaderRoute: typeof AppMarketsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/history-credits': {
       id: '/app/history-credits'
       path: '/history-credits'
@@ -545,6 +564,7 @@ interface AppRouteChildren {
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppHistoryRoute: typeof AppHistoryRoute
   AppHistoryCreditsRoute: typeof AppHistoryCreditsRoute
+  AppMarketsRoute: typeof AppMarketsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppReadinessRoute: typeof AppReadinessRoute
@@ -566,6 +586,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDocumentsRoute: AppDocumentsRoute,
   AppHistoryRoute: AppHistoryRoute,
   AppHistoryCreditsRoute: AppHistoryCreditsRoute,
+  AppMarketsRoute: AppMarketsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppReadinessRoute: AppReadinessRoute,
