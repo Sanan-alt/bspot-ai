@@ -10,7 +10,18 @@ import { getQuotes, getCandles, type FinnhubQuote, type Candle } from "@/lib/mar
 import { sma, rsi, bollinger } from "@/lib/indicators";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { toast } from "sonner";
+
+function chartPalette(isDark: boolean) {
+  return {
+    text: isDark ? "#cbd5e1" : "#475569",
+    grid: isDark ? "rgba(148,163,184,0.08)" : "rgba(100,116,139,0.12)",
+    border: isDark ? "rgba(148,163,184,0.2)" : "rgba(100,116,139,0.25)",
+    up: isDark ? "#34d399" : "#10b981",
+    down: isDark ? "#f87171" : "#dc2626",
+  };
+}
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
