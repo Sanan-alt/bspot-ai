@@ -11,7 +11,8 @@ import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { WorldInvestmentMap } from "@/components/WorldInvestmentMap";
-import { Plane, CheckCircle2, Mail } from "lucide-react";
+import { Plane, CheckCircle2, Mail, Clock } from "lucide-react";
+import { getCountryLive } from "@/lib/country-live.functions";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
 
@@ -120,6 +121,7 @@ function CountriesPage() {
               </SheetHeader>
 
               <div className="mt-6 space-y-5">
+                <LiveDataPanel code={selected.code} />
                 {deep && <DeepProfile data={deep} name={selected.name} />}
 
                 {isFetching && (
@@ -218,6 +220,44 @@ function CountriesPage() {
           )}
         </SheetContent>
       </Sheet>
+    </div>
+  );
+}
+
+function LiveDataPanel({ code }: { code: string }) {
+  const fn = useServerFn(getCountryLive);
+  const { data } = useQuery({
+    queryKey: ["country-live", code],
+    queryFn: async () => await fn({ data: { country_code: code } }),
+    staleTime: 60 * 60_000,
+  });
+  if (!data) return null;
+  const age = Date.now() - new Date(data.fetched_at).getTime();
+  const hours = Math.round(age / 3600000);
+  const fresh = hours < 36;
+  return (
+    <div className="panel p-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// LIVE INDICATORS</p>
+        <span className={`inline-flex items-center gap-1 text-[10px] font-mono ${fresh ? "text-emerald-400" : "text-amber-500"}`}>
+          <Clock className="h-3 w-3" /> updated {hours}h ago
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div>
+          <div className="font-display text-lg text-neon">{data.fx_rate_usd?.toFixed(2) ?? "—"}</div>
+          <div className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">USD/{data.currency_code}</div>
+        </div>
+        <div>
+          <div className="font-display text-lg text-neon">{data.inflation_pct != null ? `${data.inflation_pct.toFixed(1)}%` : "—"}</div>
+          <div className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">Inflation</div>
+        </div>
+        <div>
+          <div className="font-display text-lg text-neon">{data.policy_rate_pct != null ? `${data.policy_rate_pct.toFixed(2)}%` : "—"}</div>
+          <div className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">Policy rate</div>
+        </div>
+      </div>
+      {data.source && <div className="mt-2 text-[10px] font-mono text-muted-foreground text-center">Source: {data.source}</div>}
     </div>
   );
 }
