@@ -360,7 +360,7 @@ function RsiChart({ candles }: { candles: Candle[] }) {
     const onResize = () => ref.current && chart.applyOptions({ width: ref.current.clientWidth });
     window.addEventListener("resize", onResize);
     return () => { window.removeEventListener("resize", onResize); chart.remove(); };
-  }, [candles]);
+  }, [candles, theme]);
   return (
     <div className="mt-3">
       <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">// RSI 14</p>
