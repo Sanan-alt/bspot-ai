@@ -269,6 +269,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mfa_recovery_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -543,6 +567,7 @@ export type Database = {
         Args: { p_amount: number; p_description?: string; p_feature: string }
         Returns: number
       }
+      consume_mfa_recovery_code: { Args: { p_code: string }; Returns: boolean }
       grant_credits: {
         Args: {
           p_amount: number
@@ -563,6 +588,7 @@ export type Database = {
         Args: { p_email_hash: string; p_success: boolean }
         Returns: Json
       }
+      regenerate_mfa_recovery_codes: { Args: never; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "user" | "owner"
