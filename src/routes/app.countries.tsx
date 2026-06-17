@@ -13,6 +13,7 @@ import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { WorldInvestmentMap } from "@/components/WorldInvestmentMap";
 import { Plane, CheckCircle2, Mail, Clock } from "lucide-react";
 import { getCountryLive } from "@/lib/country-live.functions";
+import { SectorBenchmarks } from "@/components/SectorBenchmarks";
 
 export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
 
@@ -122,6 +123,7 @@ function CountriesPage() {
 
               <div className="mt-6 space-y-5">
                 <LiveDataPanel code={selected.code} />
+                <SectorBenchmarks code={selected.code} />
                 {deep && <DeepProfile data={deep} name={selected.name} />}
 
                 {isFetching && (
