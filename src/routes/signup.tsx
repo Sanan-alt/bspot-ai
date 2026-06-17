@@ -56,7 +56,7 @@ function SignUp() {
     if (r.error) toast.error(r.error.message);
   }
 
-  return <AuthShell title="Create access key" subtitle="Join the BSpot AI grid">
+  return <AuthShell title="Create your free account" subtitle="Join the BSpot AI grid">
     <form onSubmit={handle} className="space-y-4">
       <Field label="Email" type="email" value={email} onChange={setEmail} required />
       <div>
