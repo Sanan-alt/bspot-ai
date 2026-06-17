@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { MfaEnrollment } from "@/components/MfaEnrollment";
 
 export const Route = createFileRoute("/app/settings")({ component: SettingsPage });
 
@@ -97,6 +98,14 @@ function SettingsPage() {
         <div className="flex gap-2 items-end">
           <div className="flex-1"><Label>New password</Label><Input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Min 8 characters" /></div>
           <Button variant="outline" onClick={changePassword}>Update</Button>
+        </div>
+        <div className="pt-4 border-t border-border">
+          <h3 className="text-sm font-medium mb-1">Two-factor authentication</h3>
+          <p className="text-xs text-muted-foreground mb-3">Add a second verification step at sign-in for stronger account security.</p>
+          <MfaEnrollment />
+        </div>
+        <div className="pt-3 border-t border-border text-xs text-muted-foreground">
+          <strong className="text-foreground">Session timeout:</strong> you'll be automatically signed out after 30 minutes of inactivity.
         </div>
       </section>
 

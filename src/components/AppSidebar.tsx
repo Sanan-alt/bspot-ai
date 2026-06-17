@@ -18,6 +18,7 @@ import {
   Map,
   Gauge,
   FolderLock,
+  LineChart,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
 import {
@@ -36,6 +37,7 @@ import { NeonLogo } from "./NeonLogo";
 
 const items = [
   { title: "Home", url: "/app", icon: Home },
+  { title: "Markets", url: "/app/markets", icon: LineChart },
   { title: "Currency Converter", url: "/app/converter", icon: ArrowLeftRight },
   { title: "Cost Calculator", url: "/app/calculator", icon: Calculator },
   { title: "Visa Guide", url: "/app/visa", icon: Plane },

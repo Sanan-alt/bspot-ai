@@ -95,6 +95,42 @@ export type Database = {
         }
         Relationships: []
       }
+      country_live_data: {
+        Row: {
+          country_code: string
+          created_at: string
+          currency_code: string
+          fetched_at: string
+          fx_rate_usd: number | null
+          inflation_pct: number | null
+          policy_rate_pct: number | null
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          currency_code: string
+          fetched_at?: string
+          fx_rate_usd?: number | null
+          inflation_pct?: number | null
+          policy_rate_pct?: number | null
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          currency_code?: string
+          fetched_at?: string
+          fx_rate_usd?: number | null
+          inflation_pct?: number | null
+          policy_rate_pct?: number | null
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       country_scores: {
         Row: {
           code: string
@@ -206,6 +242,30 @@ export type Database = {
           notes?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      login_attempts: {
+        Row: {
+          attempted_at: string
+          email_hash: string
+          id: string
+          ip: string | null
+          success: boolean
+        }
+        Insert: {
+          attempted_at?: string
+          email_hash: string
+          id?: string
+          ip?: string | null
+          success?: boolean
+        }
+        Update: {
+          attempted_at?: string
+          email_hash?: string
+          id?: string
+          ip?: string | null
+          success?: boolean
         }
         Relationships: []
       }
@@ -478,6 +538,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_login_lockout: { Args: { p_email_hash: string }; Returns: Json }
       consume_credits: {
         Args: { p_amount: number; p_description?: string; p_feature: string }
         Returns: number
@@ -497,6 +558,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_login_attempt: {
+        Args: { p_email_hash: string; p_success: boolean }
+        Returns: Json
       }
     }
     Enums: {
