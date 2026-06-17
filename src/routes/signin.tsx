@@ -47,7 +47,7 @@ function SignIn() {
   }
 
   return (
-    <AuthShell title="Sign In" subtitle="Authenticate to continue">
+    <AuthShell title="Welcome back" subtitle="Sign in to your BSpot account">
       <form onSubmit={handle} className="space-y-4">
         <Field label="Email" type="email" value={email} onChange={setEmail} required />
         <Field label="Password" type="password" value={pw} onChange={setPw} required />
