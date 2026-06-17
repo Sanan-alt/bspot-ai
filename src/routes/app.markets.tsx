@@ -290,20 +290,23 @@ function CandleChart({ candles, indicators }: { candles: Candle[]; indicators: I
     return { sma20: pt(s20), sma50: pt(s50), bbUp: pt(bb.upper), bbLo: pt(bb.lower), bbMid: pt(bb.mid) };
   }, [candles]);
 
+  const { theme } = useTheme();
+
   useEffect(() => {
     if (!ref.current || candles.length === 0) return;
+    const pal = chartPalette(theme === "dark");
     const chart: IChartApi = createChart(ref.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#94a3b8" },
-      grid: { vertLines: { color: "rgba(148, 163, 184, 0.08)" }, horzLines: { color: "rgba(148, 163, 184, 0.08)" } },
-      rightPriceScale: { borderColor: "rgba(148, 163, 184, 0.2)" },
-      timeScale: { borderColor: "rgba(148, 163, 184, 0.2)", timeVisible: true },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: pal.text },
+      grid: { vertLines: { color: pal.grid }, horzLines: { color: pal.grid } },
+      rightPriceScale: { borderColor: pal.border },
+      timeScale: { borderColor: pal.border, timeVisible: true },
       width: ref.current.clientWidth,
       height: 400,
     });
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "#34d399", downColor: "#f87171",
-      borderUpColor: "#34d399", borderDownColor: "#f87171",
-      wickUpColor: "#34d399", wickDownColor: "#f87171",
+      upColor: pal.up, downColor: pal.down,
+      borderUpColor: pal.up, borderDownColor: pal.down,
+      wickUpColor: pal.up, wickDownColor: pal.down,
     });
     candleSeries.setData(candles.map((c) => ({ time: c.time as never, open: c.open, high: c.high, low: c.low, close: c.close })));
 
@@ -325,7 +328,7 @@ function CandleChart({ candles, indicators }: { candles: Candle[]; indicators: I
     const onResize = () => ref.current && chart.applyOptions({ width: ref.current.clientWidth });
     window.addEventListener("resize", onResize);
     return () => { window.removeEventListener("resize", onResize); chart.remove(); };
-  }, [candles, overlays, indicators]);
+  }, [candles, overlays, indicators, theme]);
 
   if (candles.length === 0) return <div className="h-[400px] grid place-items-center text-sm text-muted-foreground">No candle data</div>;
   return <div ref={ref} className="w-full" />;
@@ -333,13 +336,15 @@ function CandleChart({ candles, indicators }: { candles: Candle[]; indicators: I
 
 function RsiChart({ candles }: { candles: Candle[] }) {
   const ref = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
   useEffect(() => {
     if (!ref.current || candles.length === 0) return;
+    const pal = chartPalette(theme === "dark");
     const chart = createChart(ref.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#94a3b8" },
-      grid: { vertLines: { color: "rgba(148,163,184,0.06)" }, horzLines: { color: "rgba(148,163,184,0.06)" } },
-      rightPriceScale: { borderColor: "rgba(148,163,184,0.2)" },
-      timeScale: { borderColor: "rgba(148,163,184,0.2)", timeVisible: true },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: pal.text },
+      grid: { vertLines: { color: pal.grid }, horzLines: { color: pal.grid } },
+      rightPriceScale: { borderColor: pal.border },
+      timeScale: { borderColor: pal.border, timeVisible: true },
       width: ref.current.clientWidth,
       height: 140,
     });
