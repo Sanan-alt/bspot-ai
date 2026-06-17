@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { MfaEnrollment } from "@/components/MfaEnrollment";
+import { RecoveryCodes } from "@/components/RecoveryCodes";
 
 export const Route = createFileRoute("/app/settings")({ component: SettingsPage });
 
@@ -103,6 +104,9 @@ function SettingsPage() {
           <h3 className="text-sm font-medium mb-1">Two-factor authentication</h3>
           <p className="text-xs text-muted-foreground mb-3">Add a second verification step at sign-in for stronger account security.</p>
           <MfaEnrollment />
+        </div>
+        <div className="pt-4 border-t border-border">
+          <RecoveryCodes />
         </div>
         <div className="pt-3 border-t border-border text-xs text-muted-foreground">
           <strong className="text-foreground">Session timeout:</strong> you'll be automatically signed out after 30 minutes of inactivity.
