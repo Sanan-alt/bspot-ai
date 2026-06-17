@@ -123,9 +123,14 @@
 }
 
 .dark {
-  /* Project is dark by default — keep same tokens */
+  /* Project is dark by default — tuned for WCAG AA contrast */
   --background: oklch(0.12 0.01 95);
-  --foreground: oklch(0.96 0.02 95);
+  --foreground: oklch(0.97 0.02 95);
+  --card: oklch(0.17 0.012 95);
+  --card-foreground: oklch(0.97 0.02 95);
+  --muted-foreground: oklch(0.74 0.02 95);
+  --border: oklch(0.32 0.02 95 / 60%);
+  --primary-foreground: oklch(0.08 0.005 95);
 }
 
 /* Light mode overrides — clean editorial whites with the same neon accent */
