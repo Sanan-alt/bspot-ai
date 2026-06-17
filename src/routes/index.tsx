@@ -49,8 +49,8 @@ function Landing() {
             <div className="inline-flex items-center gap-2 panel-neon px-3 py-1 text-xs font-mono uppercase tracking-widest">
               <Sparkles className="h-3 w-3 text-neon" /> {t("hero.badge")}
             </div>
-            <h1 className="mt-6 font-display text-4xl md:text-6xl leading-[1.0]">
-              {t("hero.headline_a")} <span className="text-neon">{t("hero.headline_b")}</span> {t("hero.headline_c")} <span className="text-neon">{t("hero.headline_d")}</span> {t("hero.headline_e")}
+            <h1 className="mt-6 font-display text-4xl md:text-6xl leading-[1.05]">
+              {t("hero.headline_a")} <span className="text-neon">{t("hero.headline_b")}</span> {t("hero.headline_d")}
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl">
               {t("hero.subhead")}
