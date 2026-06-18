@@ -191,16 +191,19 @@ export type Database = {
       credits: {
         Row: {
           balance: number
+          last_free_grant_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           balance?: number
+          last_free_grant_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           balance?: number
+          last_free_grant_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -563,6 +566,7 @@ export type Database = {
     }
     Functions: {
       check_login_lockout: { Args: { p_email_hash: string }; Returns: Json }
+      claim_daily_free_credits: { Args: never; Returns: Json }
       consume_credits: {
         Args: { p_amount: number; p_description?: string; p_feature: string }
         Returns: number
