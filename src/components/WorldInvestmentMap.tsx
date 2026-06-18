@@ -41,6 +41,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
   const [mapLoading, setMapLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [zoom, setZoom] = useState(1);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Preflight: ensure topojson is reachable; surface a clear error panel if not.
