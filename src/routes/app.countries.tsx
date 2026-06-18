@@ -11,6 +11,7 @@ import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { WorldInvestmentMap } from "@/components/WorldInvestmentMap";
+import { CountryDossierPanel } from "@/components/CountryDossierPanel";
 import { Plane, CheckCircle2, Mail, Clock } from "lucide-react";
 import { getCountryLive } from "@/lib/country-live.functions";
 import { SectorBenchmarks } from "@/components/SectorBenchmarks";
