@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import { ComposableMap, Geographies, Geography, ZoomableGroup, Marker } from "react-simple-maps";
+import { geoCentroid } from "d3-geo";
 import { useTranslation } from "react-i18next";
 import { Search, Loader2, AlertTriangle, Keyboard } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,6 +41,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
   const [mapLoading, setMapLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [zoom, setZoom] = useState(1);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Preflight: ensure topojson is reachable; surface a clear error panel if not.
@@ -214,13 +216,14 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
             projectionConfig={{ scale: 155 }}
             style={{ width: "100%", height: "auto" }}
           >
-            <ZoomableGroup center={[20, 10]} zoom={1} maxZoom={5}>
+            <ZoomableGroup center={[20, 10]} zoom={1} maxZoom={8} onMoveEnd={(p) => setZoom(p.zoom)}>
               <Geographies geography={GEO_URL}>
                 {({ geographies }) => {
                   if (geographies.length && mapLoading) {
                     queueMicrotask(() => setMapLoading(false));
                   }
-                  return geographies.map((geo) => {
+                  const labels: { code: string; name: string; coords: [number, number]; deep: boolean }[] = [];
+                  const shapes = geographies.map((geo) => {
                     const isoNum = String(geo.id).padStart(3, "0");
                     const alpha2 = NUM_TO_ISO2[isoNum] ?? NUM_TO_ISO2[String(geo.id)];
                     const known = !!(alpha2 && COUNTRY_BY_CODE[alpha2]);
@@ -238,6 +241,19 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                       : isHover && known
                       ? "oklch(0.85 0.18 95)"
                       : baseFill;
+                    if (known && alpha2) {
+                      try {
+                        const c = geoCentroid(geo) as [number, number];
+                        if (Number.isFinite(c[0]) && Number.isFinite(c[1])) {
+                          labels.push({
+                            code: alpha2,
+                            name: COUNTRY_BY_CODE[alpha2].name,
+                            coords: c,
+                            deep: !!deep,
+                          });
+                        }
+                      } catch { /* ignore */ }
+                    }
                     return (
                       <Geography
                         key={geo.rsmKey}
@@ -267,6 +283,34 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                       />
                     );
                   });
+                  // Show labels: deep-profile countries always; others only when zoomed in
+                  const visibleLabels = labels.filter((l) => l.deep || zoom >= 2);
+                  return (
+                    <>
+                      {shapes}
+                      {visibleLabels.map((l) => (
+                        <Marker key={`label-${l.code}`} coordinates={l.coords}>
+                          <text
+                            textAnchor="middle"
+                            style={{
+                              fontFamily: "ui-sans-serif, system-ui, sans-serif",
+                              fontSize: zoom >= 3 ? 7 : zoom >= 2 ? 8 : 9,
+                              fontWeight: 600,
+                              fill: "oklch(0.12 0.005 95)",
+                              paintOrder: "stroke",
+                              stroke: "oklch(1 0 0 / 0.85)",
+                              strokeWidth: 2,
+                              strokeLinejoin: "round",
+                              pointerEvents: "none",
+                              userSelect: "none",
+                            }}
+                          >
+                            {l.name}
+                          </text>
+                        </Marker>
+                      ))}
+                    </>
+                  );
                 }}
               </Geographies>
             </ZoomableGroup>
