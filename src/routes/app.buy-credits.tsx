@@ -125,12 +125,12 @@ function BuyCreditsPage() {
 
             <Button
               onClick={() => buy(p)}
-              disabled
+              disabled={isOwner}
               className={`mt-6 w-full ${p.highlight ? "glow" : ""}`}
               variant={p.highlight ? "default" : "outline"}
-              title="Stripe checkout will be enabled before launch"
+              title={isOwner ? "Owner — unlimited credits" : `Buy ${p.label} pack`}
             >
-              {isOwner ? "Owner — unlimited" : "Coming soon"}
+              {isOwner ? "Owner — unlimited" : `Buy ${p.label}`}
             </Button>
           </motion.div>
         ))}
