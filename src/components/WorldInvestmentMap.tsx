@@ -221,7 +221,8 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                   if (geographies.length && mapLoading) {
                     queueMicrotask(() => setMapLoading(false));
                   }
-                  return geographies.map((geo) => {
+                  const labels: { code: string; name: string; coords: [number, number]; deep: boolean }[] = [];
+                  const shapes = geographies.map((geo) => {
                     const isoNum = String(geo.id).padStart(3, "0");
                     const alpha2 = NUM_TO_ISO2[isoNum] ?? NUM_TO_ISO2[String(geo.id)];
                     const known = !!(alpha2 && COUNTRY_BY_CODE[alpha2]);
@@ -239,6 +240,19 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                       : isHover && known
                       ? "oklch(0.85 0.18 95)"
                       : baseFill;
+                    if (known && alpha2) {
+                      try {
+                        const c = geoCentroid(geo) as [number, number];
+                        if (Number.isFinite(c[0]) && Number.isFinite(c[1])) {
+                          labels.push({
+                            code: alpha2,
+                            name: COUNTRY_BY_CODE[alpha2].name,
+                            coords: c,
+                            deep: !!deep,
+                          });
+                        }
+                      } catch { /* ignore */ }
+                    }
                     return (
                       <Geography
                         key={geo.rsmKey}
@@ -268,6 +282,34 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
                       />
                     );
                   });
+                  // Show labels: deep-profile countries always; others only when zoomed in
+                  const visibleLabels = labels.filter((l) => l.deep || zoom >= 2);
+                  return (
+                    <>
+                      {shapes}
+                      {visibleLabels.map((l) => (
+                        <Marker key={`label-${l.code}`} coordinates={l.coords}>
+                          <text
+                            textAnchor="middle"
+                            style={{
+                              fontFamily: "ui-sans-serif, system-ui, sans-serif",
+                              fontSize: zoom >= 3 ? 7 : zoom >= 2 ? 8 : 9,
+                              fontWeight: 600,
+                              fill: "oklch(0.12 0.005 95)",
+                              paintOrder: "stroke",
+                              stroke: "oklch(1 0 0 / 0.85)",
+                              strokeWidth: 2,
+                              strokeLinejoin: "round",
+                              pointerEvents: "none",
+                              userSelect: "none",
+                            }}
+                          >
+                            {l.name}
+                          </text>
+                        </Marker>
+                      ))}
+                    </>
+                  );
                 }}
               </Geographies>
             </ZoomableGroup>
