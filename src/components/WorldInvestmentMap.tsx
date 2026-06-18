@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import { ComposableMap, Geographies, Geography, ZoomableGroup, Marker } from "react-simple-maps";
+import { geoCentroid } from "d3-geo";
 import { useTranslation } from "react-i18next";
 import { Search, Loader2, AlertTriangle, Keyboard } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
