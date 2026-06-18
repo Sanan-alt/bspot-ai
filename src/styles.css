@@ -142,38 +142,29 @@
 
 
 @layer utilities {
-  .text-neon { color: var(--neon); text-shadow: 0 0 12px var(--neon-soft); }
+  .text-neon { color: var(--neon); }
   .glow { box-shadow: var(--shadow-neon); }
   .glow-sm { box-shadow: var(--shadow-neon-sm); }
   .panel {
-    background: var(--gradient-panel);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    backdrop-filter: blur(8px);
   }
   .panel-neon {
-    background: var(--gradient-panel);
-    border: 1px solid oklch(0.88 0.19 95 / 35%);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 0 0 1px oklch(0.88 0.19 95 / 10%) inset, var(--shadow-neon-sm);
+    box-shadow: var(--shadow-neon-sm);
   }
-  .scanline { position: relative; overflow: hidden; }
-  .scanline::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: repeating-linear-gradient(180deg, transparent 0 3px, oklch(0 0 0 / 20%) 3px 4px);
-    mix-blend-mode: overlay;
-  }
-  .neon-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--neon), transparent); }
+  .scanline { position: relative; }
+  .neon-divider { height: 1px; background: var(--border); }
   .terminal {
     font-family: var(--font-mono);
-    background: oklch(0.08 0.005 95);
+    background: var(--secondary);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    color: var(--neon);
+    color: var(--foreground);
   }
-  @keyframes pulse-neon {
-    0%, 100% { box-shadow: 0 0 0 0 oklch(0.88 0.19 95 / 60%); }
-    50% { box-shadow: 0 0 24px 6px oklch(0.88 0.19 95 / 30%); }
-  }
-  .pulse-neon { animation: pulse-neon 2.4s ease-in-out infinite; }
+  .pulse-neon { /* disabled in professional theme */ }
 }
+
