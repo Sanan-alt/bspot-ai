@@ -3,17 +3,25 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-// Mock purchase DISABLED — would allow any authenticated user to self-grant unlimited credits.
-// Re-enable only after wiring a verified Stripe payment_intent.
+// Mock purchase — grants the chosen pack to the authenticated user.
+// Capped server-side; replace with a verified Stripe payment_intent before launch.
+const MockPurchaseInput = z.object({
+  amount: z.number().int().min(1).max(10_000),
+  pack_label: z.string().min(1).max(64),
+});
+
 export const purchaseCreditsMockFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
-    z.object({ amount: z.number().int(), pack_label: z.string() }).parse(i),
-  )
-  .handler(async () => {
-    throw new Error(
-      "Credit purchases are temporarily disabled. Stripe checkout will be enabled before launch.",
-    );
+  .inputValidator((i) => MockPurchaseInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await supabaseAdmin.rpc("grant_credits", {
+      p_user: context.userId,
+      p_amount: data.amount,
+      p_type: "purchase",
+      p_description: `Mock purchase — ${data.pack_label}`,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 // Admin/Owner grant to another user. Role verified server-side.
