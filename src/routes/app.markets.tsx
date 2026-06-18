@@ -294,7 +294,7 @@ function CandleChart({ candles, indicators }: { candles: Candle[]; indicators: I
 
   useEffect(() => {
     if (!ref.current || candles.length === 0) return;
-    const pal = chartPalette(theme === "dark");
+    const pal = chartPalette(false);
     const chart: IChartApi = createChart(ref.current, {
       layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: pal.text },
       grid: { vertLines: { color: pal.grid }, horzLines: { color: pal.grid } },
@@ -339,7 +339,7 @@ function RsiChart({ candles }: { candles: Candle[] }) {
   const { theme } = useTheme();
   useEffect(() => {
     if (!ref.current || candles.length === 0) return;
-    const pal = chartPalette(theme === "dark");
+    const pal = chartPalette(false);
     const chart = createChart(ref.current, {
       layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: pal.text },
       grid: { vertLines: { color: pal.grid }, horzLines: { color: pal.grid } },
