@@ -216,7 +216,7 @@ export function WorldInvestmentMap({ selectedCode, onSelect }: WorldInvestmentMa
             projectionConfig={{ scale: 155 }}
             style={{ width: "100%", height: "auto" }}
           >
-            <ZoomableGroup center={[20, 10]} zoom={1} maxZoom={5}>
+            <ZoomableGroup center={[20, 10]} zoom={1} maxZoom={8} onMoveEnd={(p) => setZoom(p.zoom)}>
               <Geographies geography={GEO_URL}>
                 {({ geographies }) => {
                   if (geographies.length && mapLoading) {
