@@ -34,6 +34,12 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       return;
     }
     setLoading(true);
+    // Try to claim the daily free 5-credit top-up (no-op if balance > 5 or within 24h cooldown).
+    try {
+      await supabase.rpc("claim_daily_free_credits");
+    } catch {
+      // ignore — cooldown / not-eligible is not an error
+    }
     const [{ data: cr }, { data: roles }] = await Promise.all([
       supabase.from("credits").select("balance").eq("user_id", user.id).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
