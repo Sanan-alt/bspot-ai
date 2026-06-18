@@ -41,13 +41,24 @@ const PACKS = [
 
 function BuyCreditsPage() {
   const { user } = useAuth();
-  const { balance, isOwner } = useCredits();
+  const { balance, isOwner, refresh } = useCredits();
 
-  const buy = async (_pack: (typeof PACKS)[number]) => {
+  const buy = async (pack: (typeof PACKS)[number]) => {
     if (!user) return;
-    toast.info("Purchases are temporarily disabled", {
-      description: "Stripe checkout will be enabled before launch.",
-    });
+    if (isOwner) {
+      toast.info("You're the owner — credits are unlimited.");
+      return;
+    }
+    try {
+      const { purchaseCreditsMock } = await import("@/lib/credits");
+      await purchaseCreditsMock(user.id, pack.credits, pack.label);
+      await refresh();
+      toast.success(`+${pack.credits.toLocaleString()} credits added`, {
+        description: `${pack.label} pack — demo grant (real Stripe checkout coming soon).`,
+      });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Could not complete purchase");
+    }
   };
 
   return (
