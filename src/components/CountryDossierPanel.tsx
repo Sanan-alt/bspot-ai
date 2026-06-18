@@ -231,11 +231,15 @@ export function CountryDossierPanel({
                     <span className="font-display text-3xl text-neon">{deep.bspot_score}</span>
                     <span className="text-xs text-muted-foreground">BSpot Score / 10</span>
                   </div>
-                  <p className="text-sm mt-2 text-muted-foreground">{deep.summary}</p>
+                  <p className="text-sm mt-2 text-muted-foreground">{deep.recommended_for}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="panel p-3"><span className="text-xs text-muted-foreground">Currency</span><p className="font-mono">{deep.currency}</p></div>
-                  <div className="panel p-3"><span className="text-xs text-muted-foreground">Time zone</span><p className="font-mono">{deep.timezone}</p></div>
+                  <div className="panel p-3"><span className="text-xs text-muted-foreground">Corporate tax</span><p className="font-mono">{deep.corporate_tax}</p></div>
+                  <div className="panel p-3"><span className="text-xs text-muted-foreground">Personal tax</span><p className="font-mono">{deep.personal_income_tax}</p></div>
+                  <div className="panel p-3"><span className="text-xs text-muted-foreground">VAT</span><p className="font-mono">{deep.vat}</p></div>
+                  <div className="panel p-3"><span className="text-xs text-muted-foreground">Foreign ownership</span><p className="font-mono">{deep.foreign_ownership}</p></div>
+                  <div className="panel p-3 col-span-2"><span className="text-xs text-muted-foreground">Political stability</span><p className="font-mono">{deep.political_stability}</p></div>
+                  <div className="panel p-3 col-span-2"><span className="text-xs text-muted-foreground">Setup</span><p className="font-mono">{deep.setup_cost_range} · {deep.setup_time}</p></div>
                 </div>
               </>
             ) : (
