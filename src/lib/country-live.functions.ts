@@ -17,6 +17,7 @@ export type CountryLive = {
 };
 
 export const getCountryLive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data }): Promise<CountryLive | null> => {
     const supabase = createClient<Database>(
