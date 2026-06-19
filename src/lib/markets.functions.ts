@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type FinnhubQuote = {
   symbol: string;
@@ -24,6 +25,7 @@ async function fetchFinnhub(path: string): Promise<Response> {
 }
 
 export const getQuotes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => QuoteInput.parse(d))
   .handler(async ({ data }): Promise<{ quotes: FinnhubQuote[]; errors: string[] }> => {
     const errors: string[] = [];
@@ -102,6 +104,7 @@ async function fetchYahooCandles(symbol: string, days: number): Promise<{ candle
 }
 
 export const getCandles = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => CandleInput.parse(d))
   .handler(async ({ data }): Promise<{ candles: Candle[]; error?: string; source?: string }> => {
     // Finnhub free plan blocks /stock/candle (401/403). Use Yahoo Finance as primary free source.
