@@ -34,15 +34,18 @@ export function SiteFooter() {
             <div className="mt-1">Leading Support: <span className="text-neon">Hackroid</span></div>
           </div>
           <div className="panel p-5">
-            <div className="font-mono text-xs text-muted-foreground">LINKS</div>
+            <div className="font-mono text-xs text-muted-foreground">COMPANY</div>
             <ul className="mt-2 space-y-1">
-              <li><Link to="/app/countries" className="hover:text-neon">Investment Map</Link></li>
-              <li><Link to="/app/calculator" className="hover:text-neon">Cost Calculator</Link></li>
-              <li><Link to="/app/roadmap" className="hover:text-neon">Business Roadmap</Link></li>
-              <li><Link to="/app/visa" className="hover:text-neon">Visa Guide</Link></li>
-              <li><Link to="/terms" className="hover:text-neon">Terms and Conditions</Link></li>
+              <li><Link to="/about" className="hover:text-neon">About</Link></li>
+              <li><Link to="/contact" className="hover:text-neon">Contact</Link></li>
+              <li><Link to="/faq" className="hover:text-neon">FAQ</Link></li>
+              <li><Link to="/refund" className="hover:text-neon">Refund Policy</Link></li>
+              <li><Link to="/privacy" className="hover:text-neon">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-neon">Terms &amp; Conditions</Link></li>
+              <li><Link to="/community-guidelines" className="hover:text-neon">Community Guidelines</Link></li>
             </ul>
           </div>
+
           <div className="panel p-5">
             <div className="font-mono text-xs text-muted-foreground">BSPOT AI</div>
             <p className="mt-2 text-muted-foreground">Futuristic full-stack investment intelligence — currency, countries, portfolios, and AI insights.</p>
