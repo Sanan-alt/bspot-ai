@@ -4,4 +4,4 @@ Disallow: /app/
 Disallow: /signin
 Disallow: /signup
 
-Sitemap: https://bspot-ai.lovable.app/sitemap.xml
+Sitemap: https://bspot.info/sitemap.xml

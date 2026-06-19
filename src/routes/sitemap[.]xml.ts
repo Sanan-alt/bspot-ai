@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-const BASE_URL = "https://bspot-ai.lovable.app";
+const BASE_URL = "https://bspot.info";
 
 interface SitemapEntry {
   path: string;

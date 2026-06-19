@@ -16,7 +16,18 @@ import { Plane, CheckCircle2, Mail, Clock } from "lucide-react";
 import { getCountryLive } from "@/lib/country-live.functions";
 import { SectorBenchmarks } from "@/components/SectorBenchmarks";
 
-export const Route = createFileRoute("/app/countries")({ component: CountriesPage });
+export const Route = createFileRoute("/app/countries")({
+  head: () => ({
+    meta: [
+      { title: "Country Intelligence — BSpot AI" },
+      { name: "description", content: "Compare countries on stability, growth, risk, taxes, and visa pathways with AI-powered scoring." },
+      { property: "og:title", content: "Country Intelligence — BSpot AI" },
+      { property: "og:description", content: "AI-powered country scoring for cross-border investors and founders." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  component: CountriesPage,
+});
 
 // Countries page selects with ISO alpha-2 codes. COUNTRY_DEEP is keyed by alpha-3.
 const ALPHA2_TO_ALPHA3: Record<string, string> = {

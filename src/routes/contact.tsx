@@ -9,9 +9,28 @@ export const Route = createFileRoute("/contact")({
       { title: "Contact BSpot AI — Support, Partnerships, Press" },
       { name: "description", content: "Get in touch with the BSpot AI team for support, partnerships, press, or security reports." },
       { property: "og:title", content: "Contact BSpot AI" },
-      { property: "og:url", content: "https://bspot-ai.lovable.app/contact" },
+      { property: "og:description", content: "Reach support, partnerships, press, privacy, or security at BSpot AI." },
+      { property: "og:url", content: "https://bspot.info/contact" },
     ],
-    links: [{ rel: "canonical", href: "https://bspot-ai.lovable.app/contact" }],
+    links: [{ rel: "canonical", href: "https://bspot.info/contact" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: "BSpot AI",
+          url: "https://bspot.info/contact",
+          email: "bspot.ai.official@gmail.com",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Karachi",
+            addressCountry: "PK",
+          },
+          areaServed: "Worldwide",
+        }),
+      },
+    ],
   }),
   component: ContactPage,
 });

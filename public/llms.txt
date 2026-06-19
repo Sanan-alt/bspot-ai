@@ -1,0 +1,15 @@
+# BSpot AI
+
+> Cross-border investment intelligence for South Asian and African investors — real costs, real laws, real-time markets, and AI-powered roadmaps for setting up businesses in UAE, UK, Canada, Singapore, KSA, Germany, and more.
+
+BSpot AI helps founders and investors compare countries, model setup costs, watch live markets, and get tailored relocation/business roadmaps.
+
+## Pages
+
+- [Home](/): What BSpot AI does and who it's for.
+- [About](/about): Mission, team, and the story behind BSpot AI.
+- [Contact](/contact): Support, partnerships, press, and security contacts.
+- [FAQ](/faq): Common questions about features, pricing, credits, and supported countries.
+- [Refund Policy](/refund): How refunds work for credit purchases.
+- [Privacy Policy](/privacy): What data we collect and how we use it.
+- [Terms of Service](/terms): The terms governing use of BSpot AI.
