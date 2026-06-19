@@ -12,6 +12,13 @@ import { Loader2 } from "lucide-react";
 import { useIdleTimeout } from "@/hooks/use-idle-timeout";
 
 export const Route = createFileRoute("/app")({
+  head: () => ({
+    meta: [
+      { title: "BSpot AI Dashboard" },
+      { name: "description", content: "Your BSpot AI workspace — markets, country roadmaps, calculators, and AI tools." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AppLayout,
 });
 
