@@ -139,7 +139,13 @@ function ConverterPage() {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{CURRENCIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
-            <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="font-mono text-lg" />
+            <Input type="number" inputMode="decimal" min={0} max={1e12} value={amount} onChange={(e) => {
+              const v = e.target.value;
+              if (v.length > 15) return;
+              const n = parseFloat(v);
+              if (!isNaN(n) && n > 1e12) return;
+              setAmount(v);
+            }} className="font-mono text-lg" />
           </div>
           <Button variant="outline" size="icon" onClick={swap} className="mb-1 hover:text-neon" aria-label="Swap">
             <ArrowLeftRight className="h-4 w-4" />
