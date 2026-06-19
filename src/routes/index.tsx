@@ -21,12 +21,12 @@ function Landing() {
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
           <NeonLogo />
-          <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            <a href="#top-countries" className="hover:text-neon">{t("nav.countries")}</a>
+          <nav className="hidden md:flex items-center gap-7 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
             <a href="#features" className="hover:text-neon">{t("nav.features")}</a>
-            <a href="#success" className="hover:text-neon">{t("nav.success")}</a>
-            <a href="#contact" className="hover:text-neon">{t("nav.contact")}</a>
-            <Link to="/terms" className="hover:text-neon">{t("nav.terms")}</Link>
+            <a href="#top-countries" className="hover:text-neon">{t("nav.countries")}</a>
+            <Link to="/about" className="hover:text-neon">About</Link>
+            <Link to="/faq" className="hover:text-neon">FAQ</Link>
+            <Link to="/contact" className="hover:text-neon">{t("nav.contact")}</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             
