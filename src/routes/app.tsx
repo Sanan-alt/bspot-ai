@@ -63,7 +63,7 @@ function AppLayout() {
             <header className="h-14 border-b border-border bg-card/30 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-30">
               <div className="flex items-center gap-2">
                 <SidebarTrigger />
-                <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden sm:inline">// BSPOT.AI Beta v1.0</span>
+                <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden sm:inline">// BSPOT.AI</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 
