@@ -1,10 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Check, Coins, Sparkles, Zap } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Check, Coins, Sparkles, Zap, Lock, CreditCard } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
 import { useCredits } from "@/hooks/use-credits";
-
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/buy-credits")({ component: BuyCreditsPage });
@@ -40,25 +38,12 @@ const PACKS = [
 ];
 
 function BuyCreditsPage() {
-  const { user } = useAuth();
-  const { balance, isOwner, refresh } = useCredits();
+  const { balance, isOwner } = useCredits();
 
-  const buy = async (pack: (typeof PACKS)[number]) => {
-    if (!user) return;
-    if (isOwner) {
-      toast.info("You're the owner — credits are unlimited.");
-      return;
-    }
-    try {
-      const { purchaseCreditsMock } = await import("@/lib/credits");
-      await purchaseCreditsMock(user.id, pack.credits, pack.label);
-      await refresh();
-      toast.success(`+${pack.credits.toLocaleString()} credits added`, {
-        description: `${pack.label} pack — demo grant (real Stripe checkout coming soon).`,
-      });
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Could not complete purchase");
-    }
+  const notify = (label: string) => {
+    toast.info("Card checkout is launching soon", {
+      description: `${label} pack will be available once secure checkout goes live in the next release.`,
+    });
   };
 
   return (
@@ -67,8 +52,8 @@ function BuyCreditsPage() {
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">// BUY CREDITS</p>
           <h1 className="mt-2 font-display text-3xl md:text-4xl">Power up your grid</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Pricing in PKR. Real Stripe checkout (USD equivalent) coming next phase — purchases here are demo grants.
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+            Secure card checkout (Visa, Mastercard, UnionPay, PayPal, Apple Pay, Google Pay) is integrating now. In the meantime, you keep earning 5 free credits every 24 hours automatically.
           </p>
         </div>
         <div className="panel p-4 text-right">
@@ -78,6 +63,23 @@ function BuyCreditsPage() {
             {isOwner ? "∞" : balance.toLocaleString()}
           </div>
         </div>
+      </div>
+
+      <div className="panel-neon p-5 flex flex-col md:flex-row md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 grid place-items-center rounded-md bg-primary/15 text-neon">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="font-display text-lg">Card checkout — coming soon</div>
+            <p className="text-xs text-muted-foreground max-w-xl">
+              Real payments aren't live yet. The buttons below are placeholders. We will notify you the moment checkout opens.
+            </p>
+          </div>
+        </div>
+        <Link to="/app/history-credits" className="md:ml-auto px-4 py-2 rounded-md border border-border font-mono text-xs uppercase tracking-widest hover:border-primary hover:text-neon text-center">
+          View credit history
+        </Link>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
@@ -124,13 +126,20 @@ function BuyCreditsPage() {
             </ul>
 
             <Button
-              onClick={() => buy(p)}
+              onClick={() => notify(p.label)}
               disabled={isOwner}
               className={`mt-6 w-full ${p.highlight ? "glow" : ""}`}
               variant={p.highlight ? "default" : "outline"}
-              title={isOwner ? "Owner — unlimited credits" : `Buy ${p.label} pack`}
+              title={isOwner ? "Owner — unlimited credits" : "Card checkout launching soon"}
             >
-              {isOwner ? "Owner — unlimited" : `Buy ${p.label}`}
+              {isOwner ? (
+                "Owner — unlimited"
+              ) : (
+                <>
+                  <Lock className="h-3.5 w-3.5 mr-2" />
+                  Notify me when live
+                </>
+              )}
             </Button>
           </motion.div>
         ))}
@@ -156,7 +165,7 @@ function BuyCreditsPage() {
       </div>
 
       <p className="text-center text-xs font-mono text-muted-foreground">
-        Secure payment integration (Stripe) ready to wire — switch from demo mode in Phase B.
+        Payments will be processed by certified partners — your card details never touch our servers.
       </p>
     </div>
   );
