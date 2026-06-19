@@ -27,24 +27,41 @@ export const getQuotes = createServerFn({ method: "POST" })
   .inputValidator((d) => QuoteInput.parse(d))
   .handler(async ({ data }): Promise<{ quotes: FinnhubQuote[]; errors: string[] }> => {
     const errors: string[] = [];
+    async function yahooQuote(sym: string): Promise<FinnhubQuote | null> {
+      try {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=5d`;
+        const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 BSpotAI/1.0" } });
+        if (!r.ok) return null;
+        const j = (await r.json()) as {
+          chart?: { result?: Array<{ meta?: { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number; regularMarketTime?: number } }> };
+        };
+        const m = j.chart?.result?.[0]?.meta;
+        const c = m?.regularMarketPrice;
+        const pc = m?.previousClose ?? m?.chartPreviousClose;
+        if (!Number.isFinite(c) || !c) return null;
+        const prev = Number.isFinite(pc) && pc ? (pc as number) : c;
+        const d = c - prev;
+        const dp = prev ? (d / prev) * 100 : 0;
+        return { symbol: sym, c, d, dp, h: c, l: c, o: prev, pc: prev, t: m?.regularMarketTime ?? Math.floor(Date.now() / 1000) };
+      } catch {
+        return null;
+      }
+    }
     const results = await Promise.all(
       data.symbols.map(async (sym): Promise<FinnhubQuote | null> => {
+        // Try Finnhub first (real-time, when key is valid)
         try {
           const res = await fetchFinnhub(`/quote?symbol=${encodeURIComponent(sym)}`);
-          if (!res.ok) {
-            errors.push(`${sym}: HTTP ${res.status}`);
-            return null;
+          if (res.ok) {
+            const j = (await res.json()) as Omit<FinnhubQuote, "symbol">;
+            if (Number.isFinite(j.c) && j.c !== 0) return { symbol: sym, ...j };
           }
-          const j = (await res.json()) as Omit<FinnhubQuote, "symbol">;
-          if (!Number.isFinite(j.c) || j.c === 0) {
-            errors.push(`${sym}: no data`);
-            return null;
-          }
-          return { symbol: sym, ...j };
-        } catch (e) {
-          errors.push(`${sym}: ${(e as Error).message}`);
-          return null;
-        }
+        } catch { /* fallthrough */ }
+        // Fallback to Yahoo (free, ~15min delayed)
+        const y = await yahooQuote(sym);
+        if (y) return y;
+        errors.push(`${sym}: unavailable`);
+        return null;
       }),
     );
     return { quotes: results.filter((q): q is FinnhubQuote => q !== null), errors };
