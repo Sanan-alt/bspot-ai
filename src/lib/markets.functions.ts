@@ -58,30 +58,54 @@ const CandleInput = z.object({
 
 export type Candle = { time: number; open: number; high: number; low: number; close: number };
 
+async function fetchYahooCandles(symbol: string, days: number): Promise<{ candles: Candle[]; error?: string }> {
+  const range = days <= 7 ? "5d" : days <= 31 ? "1mo" : days <= 95 ? "3mo" : days <= 190 ? "6mo" : "1y";
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=${range}`;
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 BSpotAI/1.0" } });
+    if (!res.ok) return { candles: [], error: `Historical data unavailable (HTTP ${res.status}).` };
+    const j = (await res.json()) as {
+      chart?: { result?: Array<{ timestamp?: number[]; indicators?: { quote?: Array<{ open?: (number | null)[]; high?: (number | null)[]; low?: (number | null)[]; close?: (number | null)[] }> } }> };
+    };
+    const r = j.chart?.result?.[0];
+    const q = r?.indicators?.quote?.[0];
+    const t = r?.timestamp;
+    if (!t || !q?.close) return { candles: [], error: "No historical data available for this symbol." };
+    const candles: Candle[] = [];
+    for (let i = 0; i < t.length; i++) {
+      const o = q.open?.[i], h = q.high?.[i], l = q.low?.[i], c = q.close?.[i];
+      if (o == null || h == null || l == null || c == null) continue;
+      candles.push({ time: t[i], open: o, high: h, low: l, close: c });
+    }
+    if (!candles.length) return { candles: [], error: "No historical data available for this symbol." };
+    return { candles };
+  } catch (e) {
+    return { candles: [], error: (e as Error).message };
+  }
+}
+
 export const getCandles = createServerFn({ method: "POST" })
   .inputValidator((d) => CandleInput.parse(d))
-  .handler(async ({ data }): Promise<{ candles: Candle[]; error?: string }> => {
+  .handler(async ({ data }): Promise<{ candles: Candle[]; error?: string; source?: string }> => {
+    // Finnhub free plan blocks /stock/candle (401/403). Use Yahoo Finance as primary free source.
+    const yahoo = await fetchYahooCandles(data.symbol, data.days);
+    if (yahoo.candles.length) return { ...yahoo, source: "yahoo" };
+
+    // Fallback to Finnhub (paid plans only)
     const to = Math.floor(Date.now() / 1000);
     const from = to - data.days * 86400;
-    const path = `/stock/candle?symbol=${encodeURIComponent(data.symbol)}&resolution=${data.resolution}&from=${from}&to=${to}`;
     try {
-      const res = await fetchFinnhub(path);
-      if (!res.ok) {
-        return { candles: [], error: `Candles unavailable (HTTP ${res.status}). Free plan may restrict historical data.` };
+      const res = await fetchFinnhub(`/stock/candle?symbol=${encodeURIComponent(data.symbol)}&resolution=${data.resolution}&from=${from}&to=${to}`);
+      if (res.ok) {
+        const j = (await res.json()) as { s: string; t: number[]; o: number[]; h: number[]; l: number[]; c: number[] };
+        if (j.s === "ok" && j.t?.length) {
+          return {
+            candles: j.t.map((time, i) => ({ time, open: j.o[i], high: j.h[i], low: j.l[i], close: j.c[i] })),
+            source: "finnhub",
+          };
+        }
       }
-      const j = (await res.json()) as { s: string; t: number[]; o: number[]; h: number[]; l: number[]; c: number[] };
-      if (j.s !== "ok" || !Array.isArray(j.t) || j.t.length === 0) {
-        return { candles: [], error: "No historical candles available for this symbol on the current plan." };
-      }
-      const candles: Candle[] = j.t.map((time, i) => ({
-        time,
-        open: j.o[i],
-        high: j.h[i],
-        low: j.l[i],
-        close: j.c[i],
-      }));
-      return { candles };
-    } catch (e) {
-      return { candles: [], error: (e as Error).message };
-    }
+    } catch { /* ignore */ }
+
+    return { candles: [], error: yahoo.error ?? "No historical data available." };
   });
