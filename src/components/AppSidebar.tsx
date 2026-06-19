@@ -3,7 +3,6 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home,
   ArrowLeftRight,
-  Lightbulb,
   Globe2,
   History,
   Briefcase,
@@ -11,13 +10,8 @@ import {
   Bot,
   Settings,
   Coins,
-  Receipt,
-  Shield,
-  Star,
   Calculator,
   Plane,
-  Map,
-  Gauge,
   FolderLock,
   LineChart,
   ChevronDown,
@@ -52,18 +46,13 @@ const primary = [
 // secondary — collapsed by default
 const more = [
   { title: "Cost Calculator", url: "/app/calculator", icon: Calculator },
-  { title: "Readiness Score", url: "/app/readiness", icon: Gauge },
-  { title: "Roadmap", url: "/app/roadmap", icon: Map },
   { title: "Document Vault", url: "/app/documents", icon: FolderLock },
-  { title: "Watchlist", url: "/app/watchlist", icon: Star },
-  { title: "Business Suggestions", url: "/app/suggestions", icon: Lightbulb },
-  { title: "Conversion History", url: "/app/history", icon: History },
+  { title: "Activity & Credits", url: "/app/history", icon: History },
   { title: "Notifications", url: "/app/notifications", icon: Bell },
 ];
 
 const billing = [
   { title: "Buy Credits", url: "/app/buy-credits", icon: Coins },
-  { title: "Credit History", url: "/app/history-credits", icon: Receipt },
   { title: "Settings", url: "/app/settings", icon: Settings },
 ];
 
