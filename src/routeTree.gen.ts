@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as RefundRouteImport } from './routes/refund'
@@ -42,6 +43,11 @@ import { Route as AppAdminRouteImport } from './routes/app.admin'
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/refund': typeof RefundRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/refund': typeof RefundRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/refund': typeof RefundRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/app/admin': typeof AppAdminRoute
   '/app/assistant': typeof AppAssistantRoute
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/refund'
     | '/signin'
     | '/signup'
+    | '/sitemap.xml'
     | '/terms'
     | '/app/admin'
     | '/app/assistant'
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/refund'
     | '/signin'
     | '/signup'
+    | '/sitemap.xml'
     | '/terms'
     | '/app/admin'
     | '/app/assistant'
@@ -351,6 +362,7 @@ export interface FileRouteTypes {
     | '/refund'
     | '/signin'
     | '/signup'
+    | '/sitemap.xml'
     | '/terms'
     | '/app/admin'
     | '/app/assistant'
@@ -383,6 +395,7 @@ export interface RootRouteChildren {
   RefundRoute: typeof RefundRoute
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
 }
 
@@ -393,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -650,18 +670,9 @@ const rootRouteChildren: RootRouteChildren = {
   RefundRoute: RefundRoute,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
