@@ -19,7 +19,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OnboardingBanner } from "@/components/OnboardingBanner";
 
-export const Route = createFileRoute("/app/")({ component: Home });
+export const Route = createFileRoute("/app/")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — BSpot AI" },
+      { name: "description", content: "Your BSpot AI command center: portfolio, watchlist, country roadmaps, and recent activity." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  component: Home,
+});
 
 const quick = [
   { to: "/app/converter", title: "Convert Currency", body: "Live FX, save to history.", icon: ArrowLeftRight },
