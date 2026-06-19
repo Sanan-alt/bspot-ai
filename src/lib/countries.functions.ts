@@ -106,7 +106,7 @@ export const scoreCountry = createServerFn({ method: "POST" })
       if (cached) {
         const age = Date.now() - new Date(cached.updated_at).getTime();
         if (age < TTL_MS) {
-          const base = cached.data as Omit<CountryScore, "_cached" | "_age_hours">;
+          const base = normalizeScores(cached.data as Omit<CountryScore, "_cached" | "_age_hours">);
           return { ...base, _cached: true, _age_hours: Math.round(age / 3600000) };
         }
       }
