@@ -77,7 +77,15 @@ async function callGemini(name: string, code: string): Promise<Omit<CountryScore
   const json = await res.json();
   const args = json?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
   if (!args) throw new Error("AI returned no tool call");
-  return JSON.parse(args);
+  return normalizeScores(JSON.parse(args));
+}
+
+function normalizeScores<T extends { overall: number; stability: number; growth: number; risk: number }>(s: T): T {
+  // If AI returned 0-10 scale by mistake, scale up to 0-100.
+  const maxVal = Math.max(s.overall, s.stability, s.growth, s.risk);
+  const factor = maxVal <= 10 ? 10 : 1;
+  const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n * factor)));
+  return { ...s, overall: clamp(s.overall), stability: clamp(s.stability), growth: clamp(s.growth), risk: clamp(s.risk) };
 }
 
 export const scoreCountry = createServerFn({ method: "POST" })
