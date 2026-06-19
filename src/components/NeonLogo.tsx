@@ -1,14 +1,18 @@
 import { Link } from "@tanstack/react-router";
+import logoUrl from "@/assets/bspot-logo.png";
 
 export function NeonLogo({ to = "/" }: { to?: string }) {
   return (
-    <Link to={to} className="inline-flex items-center gap-2 group">
-      <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-display text-lg glow-sm pulse-neon">
-        B
-      </span>
-      <span className="font-display text-xl tracking-widest">
-        BSPOT<span className="text-neon">.AI</span>
-      </span>
+    <Link to={to} className="inline-flex items-center group" aria-label="BSpot AI — Cross-border Investment Intelligence">
+      <img
+        src={logoUrl}
+        alt="BSpot AI logo"
+        className="h-9 w-auto md:h-10 object-contain"
+        width={1536}
+        height={1024}
+        loading="eager"
+        decoding="async"
+      />
     </Link>
   );
 }
