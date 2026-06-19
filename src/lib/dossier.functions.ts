@@ -131,11 +131,65 @@ async function callDossier(prompt: string): Promise<Omit<Dossier, "scope">> {
   return JSON.parse(call.function.arguments);
 }
 
+const CACHE_TTL_HOURS = 24;
+const RATE_MAX = 10;        // 10 dossiers
+const RATE_WINDOW = 3600;   // per hour
+
+async function checkDossierRate(supabase: any) {
+  const { data: rl, error: rlErr } = await supabase.rpc("check_ai_rate_limit", {
+    p_feature: "dossier",
+    p_max: RATE_MAX,
+    p_window_seconds: RATE_WINDOW,
+  });
+  if (rlErr) throw new Error(rlErr.message);
+  if (rl && rl.ok === false) {
+    throw new Error(`Dossier limit reached (${RATE_MAX}/hour). Try again later.`);
+  }
+}
+
+async function readCache(
+  supabase: any,
+  scope: "country" | "city",
+  country_code: string,
+  city_name: string | null,
+): Promise<Dossier | null> {
+  const q = supabase
+    .from("dossier_cache")
+    .select("data,created_at")
+    .eq("scope", scope)
+    .eq("country_code", country_code);
+  const { data, error } = city_name
+    ? await q.eq("city_name", city_name).maybeSingle()
+    : await q.is("city_name", null).maybeSingle();
+  if (error || !data) return null;
+  const ageMs = Date.now() - new Date(data.created_at).getTime();
+  if (ageMs > CACHE_TTL_HOURS * 3600 * 1000) return null;
+  return data.data as Dossier;
+}
+
+async function writeCache(
+  supabase: any,
+  scope: "country" | "city",
+  country_code: string,
+  city_name: string | null,
+  dossier: Dossier,
+) {
+  await supabase.from("dossier_cache").upsert(
+    { scope, country_code, city_name, data: dossier, created_at: new Date().toISOString() },
+    { onConflict: "scope,country_code,city_name" },
+  );
+}
+
 export const getCountryDossier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => CountryInput.parse(d))
   .handler(async ({ data, context }): Promise<Dossier> => {
     const { supabase } = context;
+    const cached = await readCache(supabase, "country", data.country_code, null);
+    if (cached) return cached;
+
+    await checkDossierRate(supabase);
+
     const { error: creditErr } = await supabase.rpc("consume_credits", {
       p_amount: COST,
       p_feature: "country_dossier",
@@ -151,7 +205,9 @@ export const getCountryDossier = createServerFn({ method: "POST" })
       `Produce an investment dossier for ${data.country_name} (${data.country_code}).
 Cover: political stability, latest political events (named, with approximate dates), how those politics impact foreign investment & taxes, current corporate/personal/capital-gains/VAT rates, realistic profit margins for foreign businesses, key risks & opportunities, country's role in world politics & global stability, and a clear 2-3 sentence bottom-line verdict for a foreign investor.`,
     );
-    return { scope: "country", ...body };
+    const dossier: Dossier = { scope: "country", ...body };
+    await writeCache(supabase, "country", data.country_code, null, dossier);
+    return dossier;
   });
 
 export const getCityDossier = createServerFn({ method: "POST" })
@@ -159,6 +215,11 @@ export const getCityDossier = createServerFn({ method: "POST" })
   .inputValidator((d) => CityInput.parse(d))
   .handler(async ({ data, context }): Promise<Dossier> => {
     const { supabase } = context;
+    const cached = await readCache(supabase, "city", data.country_code, data.city_name);
+    if (cached) return cached;
+
+    await checkDossierRate(supabase);
+
     const { error: creditErr } = await supabase.rpc("consume_credits", {
       p_amount: COST,
       p_feature: "city_dossier",
@@ -174,5 +235,8 @@ export const getCityDossier = createServerFn({ method: "POST" })
       `Produce an investment dossier for the city of ${data.city_name} in ${data.country_name} (${data.country_code}).
 Focus on the city specifically: local political climate, latest local political/economic events with approximate dates, how city/state politics impact business here, local taxes & incentives (corporate, personal, capital gains, VAT — city/state level if applicable, otherwise national), realistic profit margins for foreign businesses operating in this city, top sectors, risks & opportunities specific to this city, the city's role in regional/world economy & politics, and a clear 2-3 sentence bottom-line verdict for a foreign investor evaluating this city.`,
     );
-    return { scope: "city", ...body };
+    const dossier: Dossier = { scope: "city", ...body };
+    await writeCache(supabase, "city", data.country_code, data.city_name, dossier);
+    return dossier;
   });
+
