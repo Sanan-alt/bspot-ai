@@ -41,6 +41,7 @@ function Home() {
     pl: 0,
   });
   const [recent, setRecent] = useState<Array<{ from: string; to: string; amount: number; result: number; created_at: string }>>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (!user) return;
