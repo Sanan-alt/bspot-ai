@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Bot, Briefcase, Globe2, Mail, Sparkles, TrendingUp, Zap, Plane, Building2, Award } from "lucide-react";
+import { ArrowRight, Bot, Briefcase, Globe2, Mail, Menu, Sparkles, TrendingUp, Zap, Plane, Building2, Award, X } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -17,11 +18,12 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { t } = useTranslation();
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="min-h-screen">
 
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
-        <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
           <NeonLogo />
           <nav className="hidden md:flex items-center gap-7 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
             <a href="#features" className="hover:text-neon">{t("nav.features")}</a>
@@ -30,20 +32,44 @@ function Landing() {
             <Link to="/faq" className="hover:text-neon">FAQ</Link>
             <Link to="/contact" className="hover:text-neon">{t("nav.contact")}</Link>
           </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
-            
+          <div className="hidden sm:flex items-center gap-2 sm:gap-3">
             <LanguageSelector compact />
             <Link to="/signin" className="text-sm font-mono uppercase tracking-widest hover:text-neon">{t("nav.signin")}</Link>
             <Link to="/signup" className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-mono text-xs uppercase tracking-widest glow-sm hover:scale-105 transition-transform">
               {t("nav.launch")}
             </Link>
           </div>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="sm:hidden h-9 w-9 grid place-items-center rounded-md border border-border"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md">
+            <nav className="px-4 py-4 flex flex-col gap-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              <a href="#features" onClick={() => setMenuOpen(false)} className="hover:text-neon">{t("nav.features")}</a>
+              <a href="#top-countries" onClick={() => setMenuOpen(false)} className="hover:text-neon">{t("nav.countries")}</a>
+              <Link to="/about" onClick={() => setMenuOpen(false)} className="hover:text-neon">About</Link>
+              <Link to="/faq" onClick={() => setMenuOpen(false)} className="hover:text-neon">FAQ</Link>
+              <Link to="/contact" onClick={() => setMenuOpen(false)} className="hover:text-neon">{t("nav.contact")}</Link>
+              <div className="h-px bg-border my-1" />
+              <Link to="/signin" onClick={() => setMenuOpen(false)} className="hover:text-neon">{t("nav.signin")}</Link>
+              <Link to="/signup" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-center glow-sm">
+                {t("nav.launch")}
+              </Link>
+              <LanguageSelector compact />
+            </nav>
+          </div>
+        )}
       </header>
 
-      <div className="mx-auto max-w-7xl px-6 pt-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
         <StockTicker />
       </div>
+
 
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 pt-24 pb-32 grid lg:grid-cols-2 gap-12 items-center">
