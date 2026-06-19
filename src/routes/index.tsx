@@ -208,10 +208,12 @@ function Landing() {
           <div className="panel p-0 overflow-hidden">
             <div className="aspect-[4/3] bg-gradient-to-br from-[oklch(0.18_0.005_95)] to-[oklch(0.10_0.005_95)] relative">
               <img
-                src="https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?auto=format&fit=crop&w=900&q=80"
-                alt="Entrepreneur working in a modest local setup before immigration"
+                src={beforeLocal}
+                alt="Entrepreneur working under harsh limits in a local setting"
                 loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover opacity-70 grayscale"
+                width={1024}
+                height={1024}
+                className="absolute inset-0 h-full w-full object-cover opacity-80"
               />
               <div className="absolute top-3 left-3 px-2 py-1 panel-neon font-mono text-[10px] uppercase tracking-widest">Before</div>
             </div>
@@ -223,9 +225,11 @@ function Landing() {
           <div className="panel-neon p-0 overflow-hidden">
             <div className="aspect-[4/3] relative">
               <img
-                src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=900&q=80"
-                alt="Professional business family thriving after investment immigration"
+                src={afterGlobal}
+                alt="Investor overlooking a futuristic city skyline with floating data panels"
                 loading="lazy"
+                width={1024}
+                height={1024}
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute top-3 left-3 px-2 py-1 bg-primary text-primary-foreground font-mono text-[10px] uppercase tracking-widest">After</div>
