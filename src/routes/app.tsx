@@ -58,8 +58,8 @@ function AppLayout() {
               <div className="flex items-center gap-2 sm:gap-3">
                 
                 <CreditsBadge />
-                <Link to="/app/notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
-                  <Bell className="h-4 w-4" />
+                <Link to="/app/notifications" aria-label="Notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
+                  <Bell className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <span className="hidden lg:block font-mono text-xs text-muted-foreground truncate max-w-[160px]">{user?.email ?? "demo@bspot.ai"}</span>
                 <button
