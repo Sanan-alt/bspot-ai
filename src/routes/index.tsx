@@ -4,6 +4,8 @@ import { ArrowRight, Bot, Briefcase, Globe2, Mail, Sparkles, TrendingUp, Zap, Pl
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import beforeLocal from "@/assets/before-local.jpg";
+import afterGlobal from "@/assets/after-global.jpg";
 
 import { StockTicker } from "@/components/StockTicker";
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
