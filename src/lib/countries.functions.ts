@@ -39,8 +39,8 @@ async function callGemini(name: string, code: string): Promise<Omit<CountryScore
     body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       messages: [
-        { role: "system", content: "You are an investment analyst. Return strict JSON only via the tool." },
-        { role: "user", content: `Score ${name} (${code}) for foreign investors right now. Be concise and realistic.` },
+        { role: "system", content: "You are an investment analyst. Return strict JSON only via the tool. All score fields (overall, stability, growth, risk) MUST be integers on a 0-100 scale (e.g. 75 means 75/100). Never use a 0-10 scale." },
+        { role: "user", content: `Score ${name} (${code}) for foreign investors right now. Be concise and realistic. Use the 0-100 scale for every score (overall, stability, growth, risk).` },
       ],
       tools: [{
         type: "function",
