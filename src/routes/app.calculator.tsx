@@ -10,7 +10,18 @@ import {
   type CostCountry,
 } from "@/lib/cost-data";
 
-export const Route = createFileRoute("/app/calculator")({ component: CostCalculator });
+export const Route = createFileRoute("/app/calculator")({
+  head: () => ({
+    meta: [
+      { title: "Investment Cost Calculator — BSpot AI" },
+      { name: "description", content: "Estimate setup, license, and operating costs for businesses across the UAE, UK, Canada, Singapore, and more." },
+      { property: "og:title", content: "Investment Cost Calculator — BSpot AI" },
+      { property: "og:description", content: "Model real cross-border business setup costs by country and business type." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  component: CostCalculator,
+});
 
 const HOME_CURRENCIES: { code: string; label: string; usd: number }[] = [
   { code: "USD", label: "USD 🇺🇸", usd: 1 },
