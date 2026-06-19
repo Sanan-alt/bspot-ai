@@ -48,7 +48,7 @@ function SignUp() {
       return;
     }
     toast.success("Account created — let's set up your profile");
-    navigate({ to: "/onboarding" });
+    navigate({ to: "/app" });
   }
 
   async function google() {

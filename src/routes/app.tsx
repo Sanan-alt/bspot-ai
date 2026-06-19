@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate, Link, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -7,7 +7,6 @@ import { ChatbotFab } from "@/components/ChatbotFab";
 import { CreditsBadge } from "@/components/CreditsBadge";
 
 import { CreditsProvider } from "@/hooks/use-credits";
-import { supabase } from "@/integrations/supabase/client";
 import { Bell, LogOut } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useIdleTimeout } from "@/hooks/use-idle-timeout";
@@ -19,7 +18,6 @@ export const Route = createFileRoute("/app")({
 function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   // Demo is a real (anonymous) Supabase session — gate cannot be bypassed via localStorage.
   const isDemo = !!user?.is_anonymous;
 
@@ -30,21 +28,6 @@ function AppLayout() {
   // Idle timeout (30min) — auto sign-out for security
   useIdleTimeout(!!user && !isDemo, () => navigate({ to: "/signin" }));
 
-  // Auto-redirect to onboarding if profile isn't completed
-  useEffect(() => {
-    if (!user || isDemo) return;
-    if (location.pathname.startsWith("/onboarding")) return;
-    (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("onboarded_at, is_demo")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (data && !data.onboarded_at && !data.is_demo) {
-        navigate({ to: "/onboarding" });
-      }
-    })();
-  }, [user, location.pathname, navigate, isDemo]);
 
   if (loading || !user) {
     return (
