@@ -14,6 +14,16 @@ export const purchaseCreditsMockFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => MockPurchaseInput.parse(i))
   .handler(async ({ data, context }) => {
+    // Mock purchase endpoint is disabled until real payment verification (Stripe webhook) is wired.
+    // Restrict to owner role so it cannot be abused by ordinary authenticated users to mint credits.
+    const { data: isOwner, error: roleErr } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "owner",
+    });
+    if (roleErr) throw new Error(roleErr.message);
+    if (!isOwner) {
+      throw new Error("Payments are not yet available. Please check back soon.");
+    }
     const { error } = await supabaseAdmin.rpc("grant_credits", {
       p_user: context.userId,
       p_amount: data.amount,
