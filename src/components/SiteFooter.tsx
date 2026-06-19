@@ -55,9 +55,9 @@ export function SiteFooter() {
           <span>© {new Date().getFullYear()} BSpot AI · Team ApexMinds</span>
           <div className="flex items-center gap-4">
             <LanguageSelector compact />
-            <span>Beta v1.0 · Built on Lovable Cloud</span>
           </div>
         </div>
+
       </div>
     </footer>
   );
