@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home,
@@ -19,6 +20,8 @@ import {
   Gauge,
   FolderLock,
   LineChart,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
 import {
@@ -35,22 +38,27 @@ import {
 } from "@/components/ui/sidebar";
 import { NeonLogo } from "./NeonLogo";
 
-const items = [
+// 7 primary items — the most-used journey
+const primary = [
   { title: "Home", url: "/app", icon: Home },
   { title: "Markets", url: "/app/markets", icon: LineChart },
   { title: "Currency Converter", url: "/app/converter", icon: ArrowLeftRight },
-  { title: "Cost Calculator", url: "/app/calculator", icon: Calculator },
+  { title: "Country Data", url: "/app/countries", icon: Globe2 },
   { title: "Visa Guide", url: "/app/visa", icon: Plane },
+  { title: "Portfolio", url: "/app/portfolio", icon: Briefcase },
+  { title: "AI Assistant", url: "/app/assistant", icon: Bot },
+];
+
+// secondary — collapsed by default
+const more = [
+  { title: "Cost Calculator", url: "/app/calculator", icon: Calculator },
   { title: "Readiness Score", url: "/app/readiness", icon: Gauge },
   { title: "Roadmap", url: "/app/roadmap", icon: Map },
   { title: "Document Vault", url: "/app/documents", icon: FolderLock },
   { title: "Watchlist", url: "/app/watchlist", icon: Star },
   { title: "Business Suggestions", url: "/app/suggestions", icon: Lightbulb },
-  { title: "Country Data", url: "/app/countries", icon: Globe2 },
   { title: "Conversion History", url: "/app/history", icon: History },
-  { title: "Portfolio Tracker", url: "/app/portfolio", icon: Briefcase },
   { title: "Notifications", url: "/app/notifications", icon: Bell },
-  { title: "AI Assistant", url: "/app/assistant", icon: Bot },
 ];
 
 const billing = [
@@ -64,6 +72,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { isOwner } = useCredits();
+  const moreActive = more.some((m) => m.url === path);
+  const [showMore, setShowMore] = useState(moreActive);
 
   return (
     <Sidebar collapsible="icon">
@@ -75,16 +85,14 @@ export function AppSidebar() {
           <SidebarGroupLabel className="font-mono text-[10px] tracking-[0.25em]">// NAVIGATION</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((it) => {
+              {primary.map((it) => {
                 const active = path === it.url;
                 return (
                   <SidebarMenuItem key={it.url}>
                     <SidebarMenuButton asChild isActive={active}>
                       <Link
                         to={it.url}
-                        className={`flex items-center gap-3 ${
-                          active ? "text-neon" : "hover:text-neon"
-                        }`}
+                        className={`flex items-center gap-3 ${active ? "text-neon" : "hover:text-neon"}`}
                       >
                         <it.icon className="h-4 w-4" />
                         {!collapsed && <span>{it.title}</span>}
@@ -93,9 +101,39 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+
+              {!collapsed && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => setShowMore((v) => !v)}
+                    className="flex items-center gap-3 text-muted-foreground hover:text-neon"
+                  >
+                    {showMore ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    <span>More tools</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+
+              {showMore && !collapsed && more.map((it) => {
+                const active = path === it.url;
+                return (
+                  <SidebarMenuItem key={it.url}>
+                    <SidebarMenuButton asChild isActive={active}>
+                      <Link
+                        to={it.url}
+                        className={`flex items-center gap-3 pl-7 text-sm ${active ? "text-neon" : "text-muted-foreground hover:text-neon"}`}
+                      >
+                        <it.icon className="h-3.5 w-3.5" />
+                        <span>{it.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono text-[10px] tracking-[0.25em]">// BILLING</SidebarGroupLabel>
           <SidebarGroupContent>
