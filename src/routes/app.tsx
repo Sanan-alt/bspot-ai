@@ -30,21 +30,6 @@ function AppLayout() {
   // Idle timeout (30min) — auto sign-out for security
   useIdleTimeout(!!user && !isDemo, () => navigate({ to: "/signin" }));
 
-  // Auto-redirect to onboarding if profile isn't completed
-  useEffect(() => {
-    if (!user || isDemo) return;
-    if (location.pathname.startsWith("/onboarding")) return;
-    (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("onboarded_at, is_demo")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (data && !data.onboarded_at && !data.is_demo) {
-        navigate({ to: "/onboarding" });
-      }
-    })();
-  }, [user, location.pathname, navigate, isDemo]);
 
   if (loading || !user) {
     return (

@@ -63,7 +63,7 @@ function SignIn() {
     setDemoLoading(false);
     if (error) return setErr(error.message);
     toast.success("Demo session started — explore freely");
-    navigate({ to: "/onboarding" });
+    navigate({ to: "/app" });
   }
 
   return (

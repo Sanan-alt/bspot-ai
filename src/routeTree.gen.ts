@@ -14,10 +14,8 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as RefundRouteImport } from './routes/refund'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -66,11 +64,6 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
@@ -79,11 +72,6 @@ const FaqRoute = FaqRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunityGuidelinesRoute = CommunityGuidelinesRouteImport.update({
-  id: '/community-guidelines',
-  path: '/community-guidelines',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -201,10 +189,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/app': typeof AppRouteWithChildren
-  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
-  '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
   '/signin': typeof SigninRoute
@@ -233,10 +219,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
-  '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
   '/signin': typeof SigninRoute
@@ -267,10 +251,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/app': typeof AppRouteWithChildren
-  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
-  '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
   '/signin': typeof SigninRoute
@@ -302,10 +284,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/app'
-    | '/community-guidelines'
     | '/contact'
     | '/faq'
-    | '/onboarding'
     | '/privacy'
     | '/refund'
     | '/signin'
@@ -334,10 +314,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/community-guidelines'
     | '/contact'
     | '/faq'
-    | '/onboarding'
     | '/privacy'
     | '/refund'
     | '/signin'
@@ -367,10 +345,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/app'
-    | '/community-guidelines'
     | '/contact'
     | '/faq'
-    | '/onboarding'
     | '/privacy'
     | '/refund'
     | '/signin'
@@ -401,10 +377,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AppRoute: typeof AppRouteWithChildren
-  CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
-  OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
   SigninRoute: typeof SigninRoute
@@ -449,13 +423,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/faq': {
       id: '/faq'
       path: '/faq'
@@ -468,13 +435,6 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/community-guidelines': {
-      id: '/community-guidelines'
-      path: '/community-guidelines'
-      fullPath: '/community-guidelines'
-      preLoaderRoute: typeof CommunityGuidelinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -684,10 +644,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AppRoute: AppRouteWithChildren,
-  CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
-  OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
   SigninRoute: SigninRoute,
@@ -697,3 +655,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
