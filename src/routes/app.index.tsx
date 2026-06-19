@@ -46,6 +46,7 @@ function Home() {
   useEffect(() => {
     if (!user) return;
     (async () => {
+      setLoadingData(true);
       const [{ count: cConv }, { data: portfolio }, { count: cWatch }, { count: cNotif }, { data: lastConv }] =
         await Promise.all([
           supabase.from("conversions").select("*", { count: "exact", head: true }).eq("user_id", user.id),
@@ -78,6 +79,7 @@ function Home() {
           created_at: r.created_at,
         })),
       );
+      setLoadingData(false);
     })();
   }, [user?.id]);
 
