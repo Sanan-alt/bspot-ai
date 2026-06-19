@@ -13,6 +13,18 @@ import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { TOP_INVESTMENT_COUNTRIES, VISA_PROGRAMS } from "@/lib/visa-programs";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "BSpot AI — Move Capital. Cross Borders. Build Empires." },
+      { name: "description", content: "Cross-border investment intelligence for South Asian & African founders. Live markets, real setup costs, AI-powered country roadmaps." },
+      { property: "og:title", content: "BSpot AI — Move Capital. Cross Borders. Build Empires." },
+      { property: "og:description", content: "Live markets, real country intelligence, and AI roadmaps for investing across borders." },
+      { property: "og:url", content: "https://bspot.info/" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5cbc321a-03f8-4646-8dbc-75bbb5e2c870/id-preview-e92b68db--cd5f01d4-52a6-4098-b7a4-ac17de575c63.lovable.app-1779084856860.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5cbc321a-03f8-4646-8dbc-75bbb5e2c870/id-preview-e92b68db--cd5f01d4-52a6-4098-b7a4-ac17de575c63.lovable.app-1779084856860.png" },
+    ],
+    links: [{ rel: "canonical", href: "https://bspot.info/" }],
+  }),
   component: Landing,
 });
 
