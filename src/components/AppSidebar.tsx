@@ -14,6 +14,7 @@ import {
   Plane,
   FolderLock,
   LineChart,
+  Shield,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
