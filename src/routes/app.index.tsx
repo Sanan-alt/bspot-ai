@@ -16,6 +16,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useCredits } from "@/hooks/use-credits";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OnboardingBanner } from "@/components/OnboardingBanner";
 
 export const Route = createFileRoute("/app/")({ component: Home });
 
@@ -39,10 +41,12 @@ function Home() {
     pl: 0,
   });
   const [recent, setRecent] = useState<Array<{ from: string; to: string; amount: number; result: number; created_at: string }>>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
+      setLoadingData(true);
       const [{ count: cConv }, { data: portfolio }, { count: cWatch }, { count: cNotif }, { data: lastConv }] =
         await Promise.all([
           supabase.from("conversions").select("*", { count: "exact", head: true }).eq("user_id", user.id),
@@ -75,6 +79,7 @@ function Home() {
           created_at: r.created_at,
         })),
       );
+      setLoadingData(false);
     })();
   }, [user?.id]);
 
@@ -97,20 +102,30 @@ function Home() {
         <p className="text-muted-foreground mt-1">Your investment grid is online. Live snapshot below.</p>
       </motion.div>
 
+      <OnboardingBanner />
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {cards.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className={`panel p-4 ${s.accent ? "panel-neon" : ""}`}
-          >
-            <s.icon className="h-4 w-4 text-neon" />
-            <div className="mt-3 font-display text-2xl">{s.value}</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-1">{s.label}</div>
-          </motion.div>
-        ))}
+        {loadingData
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="panel p-4">
+                <Skeleton className="h-4 w-4" />
+                <Skeleton className="mt-3 h-7 w-20" />
+                <Skeleton className="mt-2 h-3 w-16" />
+              </div>
+            ))
+          : cards.map((s, i) => (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className={`panel p-4 ${s.accent ? "panel-neon" : ""}`}
+              >
+                <s.icon className="h-4 w-4 text-neon" />
+                <div className="mt-3 font-display text-2xl">{s.value}</div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-1">{s.label}</div>
+              </motion.div>
+            ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
@@ -121,7 +136,13 @@ function Home() {
             </h2>
             <Link to="/app/history" className="font-mono text-[10px] text-neon">VIEW ALL →</Link>
           </div>
-          {recent.length === 0 ? (
+          {loadingData ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : recent.length === 0 ? (
             <div className="terminal p-4 text-sm">
               <div>$ session.start <span className="text-muted-foreground">--user={name}</span></div>
               <div className="text-muted-foreground">→ no conversions yet — try the converter</div>
