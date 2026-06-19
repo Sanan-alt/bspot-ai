@@ -6,11 +6,11 @@ import {
   Briefcase,
   Globe2,
   History,
-  Lightbulb,
+  LineChart,
+  Bot,
   Sparkles,
   TrendingUp,
   Coins,
-  Star,
   Bell,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -23,9 +23,9 @@ export const Route = createFileRoute("/app/")({ component: Home });
 
 const quick = [
   { to: "/app/converter", title: "Convert Currency", body: "Live FX, save to history.", icon: ArrowLeftRight },
-  { to: "/app/watchlist", title: "Watchlist", body: "Live track favorites.", icon: Star },
-  { to: "/app/portfolio", title: "Portfolio", body: "P/L, AI optimizer.", icon: Briefcase },
-  { to: "/app/suggestions", title: "Business Ideas", body: "AI-curated.", icon: Lightbulb },
+  { to: "/app/markets", title: "Live Markets", body: "Stocks, crypto, forex.", icon: LineChart },
+  { to: "/app/countries", title: "Country Data", body: "Laws, taxes, scores.", icon: Globe2 },
+  { to: "/app/assistant", title: "AI Assistant", body: "Ask anything, get answers.", icon: Bot },
 ] as const;
 
 function Home() {
@@ -36,7 +36,6 @@ function Home() {
   const [stats, setStats] = useState({
     conversions: 0,
     portfolio: 0,
-    watchlist: 0,
     notifications: 0,
     pl: 0,
   });
@@ -47,11 +46,10 @@ function Home() {
     if (!user) return;
     (async () => {
       setLoadingData(true);
-      const [{ count: cConv }, { data: portfolio }, { count: cWatch }, { count: cNotif }, { data: lastConv }] =
+      const [{ count: cConv }, { data: portfolio }, { count: cNotif }, { data: lastConv }] =
         await Promise.all([
           supabase.from("conversions").select("*", { count: "exact", head: true }).eq("user_id", user.id),
           supabase.from("investments").select("initial_amount, current_value").eq("user_id", user.id),
-          supabase.from("watchlists" as never).select("*", { count: "exact", head: true }),
           supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("read", false),
           supabase
             .from("conversions")
@@ -66,7 +64,6 @@ function Home() {
       setStats({
         conversions: cConv ?? 0,
         portfolio: current,
-        watchlist: cWatch ?? 0,
         notifications: cNotif ?? 0,
         pl,
       });
@@ -88,7 +85,6 @@ function Home() {
     { label: "Conversions", value: stats.conversions, icon: ArrowLeftRight },
     { label: "Portfolio Value", value: `$${stats.portfolio.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: Briefcase },
     { label: "P/L %", value: `${stats.pl >= 0 ? "+" : ""}${stats.pl.toFixed(2)}%`, icon: TrendingUp },
-    { label: "Watchlist", value: stats.watchlist, icon: Star },
     { label: "Alerts", value: stats.notifications, icon: Bell },
   ];
 

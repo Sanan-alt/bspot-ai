@@ -77,7 +77,7 @@ function BuyCreditsPage() {
             </p>
           </div>
         </div>
-        <Link to="/app/history-credits" className="md:ml-auto px-4 py-2 rounded-md border border-border font-mono text-xs uppercase tracking-widest hover:border-primary hover:text-neon text-center">
+        <Link to="/app/history" className="md:ml-auto px-4 py-2 rounded-md border border-border font-mono text-xs uppercase tracking-widest hover:border-primary hover:text-neon text-center">
           View credit history
         </Link>
       </div>

@@ -21,16 +21,11 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
 import { Route as AppVisaRouteImport } from './routes/app.visa'
-import { Route as AppSuggestionsRouteImport } from './routes/app.suggestions'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
-import { Route as AppRoadmapRouteImport } from './routes/app.roadmap'
-import { Route as AppReadinessRouteImport } from './routes/app.readiness'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppMarketsRouteImport } from './routes/app.markets'
-import { Route as AppHistoryCreditsRouteImport } from './routes/app.history-credits'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppDocumentsRouteImport } from './routes/app.documents'
 import { Route as AppCountriesRouteImport } from './routes/app.countries'
@@ -100,34 +95,14 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppWatchlistRoute = AppWatchlistRouteImport.update({
-  id: '/watchlist',
-  path: '/watchlist',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppVisaRoute = AppVisaRouteImport.update({
   id: '/visa',
   path: '/visa',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSuggestionsRoute = AppSuggestionsRouteImport.update({
-  id: '/suggestions',
-  path: '/suggestions',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRoadmapRoute = AppRoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppReadinessRoute = AppReadinessRouteImport.update({
-  id: '/readiness',
-  path: '/readiness',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioRoute = AppPortfolioRouteImport.update({
@@ -143,11 +118,6 @@ const AppNotificationsRoute = AppNotificationsRouteImport.update({
 const AppMarketsRoute = AppMarketsRouteImport.update({
   id: '/markets',
   path: '/markets',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHistoryCreditsRoute = AppHistoryCreditsRouteImport.update({
-  id: '/history-credits',
-  path: '/history-credits',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
@@ -211,16 +181,11 @@ export interface FileRoutesByFullPath {
   '/app/countries': typeof AppCountriesRoute
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
-  '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/markets': typeof AppMarketsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
-  '/app/readiness': typeof AppReadinessRoute
-  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/suggestions': typeof AppSuggestionsRoute
   '/app/visa': typeof AppVisaRoute
-  '/app/watchlist': typeof AppWatchlistRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -242,16 +207,11 @@ export interface FileRoutesByTo {
   '/app/countries': typeof AppCountriesRoute
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
-  '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/markets': typeof AppMarketsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
-  '/app/readiness': typeof AppReadinessRoute
-  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/suggestions': typeof AppSuggestionsRoute
   '/app/visa': typeof AppVisaRoute
-  '/app/watchlist': typeof AppWatchlistRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -275,16 +235,11 @@ export interface FileRoutesById {
   '/app/countries': typeof AppCountriesRoute
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
-  '/app/history-credits': typeof AppHistoryCreditsRoute
   '/app/markets': typeof AppMarketsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
-  '/app/readiness': typeof AppReadinessRoute
-  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/suggestions': typeof AppSuggestionsRoute
   '/app/visa': typeof AppVisaRoute
-  '/app/watchlist': typeof AppWatchlistRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -309,16 +264,11 @@ export interface FileRouteTypes {
     | '/app/countries'
     | '/app/documents'
     | '/app/history'
-    | '/app/history-credits'
     | '/app/markets'
     | '/app/notifications'
     | '/app/portfolio'
-    | '/app/readiness'
-    | '/app/roadmap'
     | '/app/settings'
-    | '/app/suggestions'
     | '/app/visa'
-    | '/app/watchlist'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -340,16 +290,11 @@ export interface FileRouteTypes {
     | '/app/countries'
     | '/app/documents'
     | '/app/history'
-    | '/app/history-credits'
     | '/app/markets'
     | '/app/notifications'
     | '/app/portfolio'
-    | '/app/readiness'
-    | '/app/roadmap'
     | '/app/settings'
-    | '/app/suggestions'
     | '/app/visa'
-    | '/app/watchlist'
     | '/app'
   id:
     | '__root__'
@@ -372,16 +317,11 @@ export interface FileRouteTypes {
     | '/app/countries'
     | '/app/documents'
     | '/app/history'
-    | '/app/history-credits'
     | '/app/markets'
     | '/app/notifications'
     | '/app/portfolio'
-    | '/app/readiness'
-    | '/app/roadmap'
     | '/app/settings'
-    | '/app/suggestions'
     | '/app/visa'
-    | '/app/watchlist'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -485,13 +425,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/watchlist': {
-      id: '/app/watchlist'
-      path: '/watchlist'
-      fullPath: '/app/watchlist'
-      preLoaderRoute: typeof AppWatchlistRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/visa': {
       id: '/app/visa'
       path: '/visa'
@@ -499,32 +432,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVisaRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/suggestions': {
-      id: '/app/suggestions'
-      path: '/suggestions'
-      fullPath: '/app/suggestions'
-      preLoaderRoute: typeof AppSuggestionsRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/settings': {
       id: '/app/settings'
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/roadmap': {
-      id: '/app/roadmap'
-      path: '/roadmap'
-      fullPath: '/app/roadmap'
-      preLoaderRoute: typeof AppRoadmapRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/readiness': {
-      id: '/app/readiness'
-      path: '/readiness'
-      fullPath: '/app/readiness'
-      preLoaderRoute: typeof AppReadinessRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/portfolio': {
@@ -546,13 +458,6 @@ declare module '@tanstack/react-router' {
       path: '/markets'
       fullPath: '/app/markets'
       preLoaderRoute: typeof AppMarketsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/history-credits': {
-      id: '/app/history-credits'
-      path: '/history-credits'
-      fullPath: '/app/history-credits'
-      preLoaderRoute: typeof AppHistoryCreditsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/history': {
@@ -623,16 +528,11 @@ interface AppRouteChildren {
   AppCountriesRoute: typeof AppCountriesRoute
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppHistoryRoute: typeof AppHistoryRoute
-  AppHistoryCreditsRoute: typeof AppHistoryCreditsRoute
   AppMarketsRoute: typeof AppMarketsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
-  AppReadinessRoute: typeof AppReadinessRoute
-  AppRoadmapRoute: typeof AppRoadmapRoute
   AppSettingsRoute: typeof AppSettingsRoute
-  AppSuggestionsRoute: typeof AppSuggestionsRoute
   AppVisaRoute: typeof AppVisaRoute
-  AppWatchlistRoute: typeof AppWatchlistRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -645,16 +545,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppCountriesRoute: AppCountriesRoute,
   AppDocumentsRoute: AppDocumentsRoute,
   AppHistoryRoute: AppHistoryRoute,
-  AppHistoryCreditsRoute: AppHistoryCreditsRoute,
   AppMarketsRoute: AppMarketsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
-  AppReadinessRoute: AppReadinessRoute,
-  AppRoadmapRoute: AppRoadmapRoute,
   AppSettingsRoute: AppSettingsRoute,
-  AppSuggestionsRoute: AppSuggestionsRoute,
   AppVisaRoute: AppVisaRoute,
-  AppWatchlistRoute: AppWatchlistRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -676,13 +571,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
