@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          created_at: string
+          feature: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -206,6 +227,33 @@ export type Database = {
           last_free_grant_at?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      dossier_cache: {
+        Row: {
+          city_name: string | null
+          country_code: string
+          created_at: string
+          data: Json
+          id: string
+          scope: string
+        }
+        Insert: {
+          city_name?: string | null
+          country_code: string
+          created_at?: string
+          data: Json
+          id?: string
+          scope: string
+        }
+        Update: {
+          city_name?: string | null
+          country_code?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          scope?: string
         }
         Relationships: []
       }
@@ -565,6 +613,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_ai_rate_limit: {
+        Args: { p_feature: string; p_max: number; p_window_seconds: number }
+        Returns: Json
+      }
       check_login_lockout: { Args: { p_email_hash: string }; Returns: Json }
       claim_daily_free_credits: { Args: never; Returns: Json }
       consume_credits: {
