@@ -16,6 +16,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useCredits } from "@/hooks/use-credits";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OnboardingBanner } from "@/components/OnboardingBanner";
 
 export const Route = createFileRoute("/app/")({ component: Home });
 
