@@ -64,10 +64,6 @@ function CountriesPage() {
   useEffect(() => {
     if (searchCode && searchCode !== selectedCode) setSelectedCode(searchCode);
   }, [searchCode]);
-  const qc = useQueryClient();
-  const selected = selectedCode ? COUNTRY_BY_CODE[selectedCode] : null;
-  const deepKey = selected ? ALPHA2_TO_ALPHA3[selected.code] : null;
-  const deep = deepKey ? COUNTRY_DEEP[deepKey] : null;
 
   const regions = useMemo(() => ["All", ...Array.from(new Set(COUNTRIES.map(c => c.region)))], []);
   const filtered = useMemo(
