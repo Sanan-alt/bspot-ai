@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,13 @@ import { Plane, CheckCircle2, Mail, Clock } from "lucide-react";
 import { getCountryLive } from "@/lib/country-live.functions";
 import { SectorBenchmarks } from "@/components/SectorBenchmarks";
 
+type CountriesSearch = { code?: string };
+
 export const Route = createFileRoute("/app/countries")({
+  validateSearch: (search: Record<string, unknown>): CountriesSearch => {
+    const raw = typeof search.code === "string" ? search.code.toUpperCase() : undefined;
+    return { code: raw && COUNTRY_BY_CODE[raw] ? raw : undefined };
+  },
   head: () => ({
     meta: [
       { title: "Country Intelligence — BSpot AI" },
@@ -44,10 +50,20 @@ type Score = {
 
 function CountriesPage() {
   const { t } = useTranslation();
+  const { code: searchCode } = Route.useSearch();
   const [q, setQ] = useState("");
   const [region, setRegion] = useState<string>("All");
-  const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [selectedCode, setSelectedCode] = useState<string | null>(searchCode ?? null);
   const score = useServerFn(scoreCountry);
+  const qc = useQueryClient();
+  const selected = selectedCode ? COUNTRY_BY_CODE[selectedCode] : null;
+  const deepKey = selected ? ALPHA2_TO_ALPHA3[selected.code] : null;
+  const deep = deepKey ? COUNTRY_DEEP[deepKey] : null;
+
+  // Sync selection when the search param changes (e.g. arriving from a homepage card)
+  useEffect(() => {
+    if (searchCode && searchCode !== selectedCode) setSelectedCode(searchCode);
+  }, [searchCode]);
   const qc = useQueryClient();
   const selected = selectedCode ? COUNTRY_BY_CODE[selectedCode] : null;
   const deepKey = selected ? ALPHA2_TO_ALPHA3[selected.code] : null;
