@@ -3,6 +3,8 @@ import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Target, Compass, Users, Sparkles } from "lucide-react";
 
+const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
@@ -10,9 +12,11 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "BSpot AI helps South Asian and African investors plan, fund, and execute cross-border businesses with AI-powered country intelligence." },
       { property: "og:title", content: "About BSpot AI" },
       { property: "og:description", content: "The story behind BSpot AI and the team building it." },
-      { property: "og:url", content: "https://bspot-ai.lovable.app/about" },
+      { property: "og:url", content: "https://bspot.info/about" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot-ai.lovable.app/about" }],
+    links: [{ rel: "canonical", href: "https://bspot.info/about" }],
   }),
   component: AboutPage,
 });
@@ -39,7 +43,7 @@ function AboutPage() {
           {[
             { icon: Target, title: "Our Mission", body: "Democratize cross-border investment planning so that anyone with a laptop can understand visa, tax, and capital rules as well as a top-tier advisor." },
             { icon: Compass, title: "Our Approach", body: "Live data + AI synthesis. Every number is sourced; every recommendation explains itself." },
-            { icon: Users, title: "Who It's For", body: "Founders, freelancers, traders, and families planning a move to UAE, UK, Canada, Singapore, Türkiye, and more." },
+            { icon: Users, title: "Who It's For", body: "Founders, freelancers, traders, and families planning a move to the US, UK, Germany, Canada, UAE, and more." },
             { icon: Sparkles, title: "Why We're Different", body: "No commission. No referral fees. You get the same advice a paying consultant would give — without the upsell." },
           ].map((b) => (
             <div key={b.title} className="panel p-5">
@@ -52,7 +56,7 @@ function AboutPage() {
 
         <section className="panel-neon p-6">
           <h2 className="font-display text-2xl">The Team</h2>
-          <p className="mt-2 text-sm text-muted-foreground">BSpot AI is built by Team ApexMinds — a group of students, developers, and AI engineers backed by Aptech Learning and supported by Hackroid. Meet the full team in the footer below.</p>
+          <p className="mt-2 text-sm text-muted-foreground">BSpot AI is built by Team ApexMinds — a group of students, developers, and AI engineers backed by Aptech Learning and supported by Hackroid.</p>
         </section>
       </main>
       <SiteFooter />

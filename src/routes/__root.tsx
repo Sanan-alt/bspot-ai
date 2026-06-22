@@ -15,6 +15,8 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageSync } from "@/components/LanguageSync";
 
+const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -105,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           url: "https://bspot.info",
           logo: "https://bspot.info/favicon.png",
           description: "Cross-border investment intelligence platform for South Asian and African investors.",
-          sameAs: ["https://bspot-ai.lovable.app"],
+          sameAs: ["https://bspot.info"],
         }),
       },
     ],
@@ -115,6 +117,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
+
+export { OG_IMAGE };
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
