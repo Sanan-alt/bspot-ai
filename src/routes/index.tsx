@@ -12,6 +12,8 @@ import { StockTicker } from "@/components/StockTicker";
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { TOP_INVESTMENT_COUNTRIES, VISA_PROGRAMS } from "@/lib/visa-programs";
 
+const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -20,8 +22,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "BSpot AI — Move Capital. Cross Borders. Build Empires." },
       { property: "og:description", content: "Live markets, real country intelligence, and AI roadmaps for investing across borders." },
       { property: "og:url", content: "https://bspot.info/" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5cbc321a-03f8-4646-8dbc-75bbb5e2c870/id-preview-e92b68db--cd5f01d4-52a6-4098-b7a4-ac17de575c63.lovable.app-1779084856860.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5cbc321a-03f8-4646-8dbc-75bbb5e2c870/id-preview-e92b68db--cd5f01d4-52a6-4098-b7a4-ac17de575c63.lovable.app-1779084856860.png" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: "https://bspot.info/" }],
   }),
@@ -188,7 +190,7 @@ function Landing() {
             { icon: Briefcase, title: "Portfolio Tracker", body: "Multi-currency P/L, performance charts, AI optimization." },
             { icon: Bot, title: "AI Assistant", body: "Chatbot with reminders, stock alerts, and economic monitoring." },
             { icon: Sparkles, title: "Business Suggestions", body: "AI-generated business ideas tailored to your budget and risk." },
-            { icon: Zap, title: "Real-time Alerts", body: "Push notifications for rate changes, reminders, and portfolio events." },
+            { icon: Zap, title: "Smart Notifications (Coming Soon)", body: "In-app alerts for rate changes, reminders, and portfolio events — rolling out in a future release." },
           ].map((f) => (
             <div key={f.title} className="panel p-6 hover:panel-neon transition-all group">
               <f.icon className="h-7 w-7 text-neon mb-4" />
@@ -211,7 +213,7 @@ function Landing() {
             const c = COUNTRY_BY_CODE[code];
             const programs = VISA_PROGRAMS[code] ?? [];
             return (
-              <Link key={code} to="/app/countries" className="panel p-5 hover:panel-neon transition-all group">
+              <Link key={code} to="/app/countries" search={{ code }} className="panel p-5 hover:panel-neon transition-all group">
                 <div className="flex items-center justify-between">
                   <span className="text-5xl">{c.flag}</span>
                   <Award className="h-5 w-5 text-neon opacity-60 group-hover:opacity-100" />

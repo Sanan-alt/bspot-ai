@@ -1,47 +1,72 @@
+# BSpot AI Trust & Consistency Fix Pack — Plan
 
-# BSpot AI — Phased Build Plan
+I'll work through the list end-to-end. No layout/color/component redesigns — only the targeted fixes you described. A couple of items below need a one-line decision from you before I run; I've called them out.
 
-The requirements document specifies a full investment platform: cyberpunk black/yellow theme, auth (email + Google OAuth), dashboard with 9 sections (currency converter, business suggestions, interactive country map, conversion history, portfolio tracker, notification center, AI assistant, settings), real-time notifications, AI chatbot, and a detailed footer. This is roughly 4–6 sessions of work — not buildable in a single response with quality.
+## Part 1 — Critical fixes
 
-I'll deliver it in phases, each phase shippable on its own.
+### 1. Canonical + og:url → bspot.info
+Files: `src/routes/about.tsx`, `faq.tsx`, `privacy.tsx`, `terms.tsx`, `refund.tsx`, `__root.tsx` (`sameAs` link).
+- Replace every `https://bspot-ai.lovable.app/...` in `og:url` and `<link rel="canonical">` with the matching `https://bspot.info/...`.
+- Update `Organization.sameAs` in `__root.tsx` to `https://bspot.info`.
+- Grep verification: zero `bspot-ai.lovable.app` references left in any meta tag.
 
-## Phase 1 — Foundation (this turn)
-- Cyberpunk black/yellow design system in `src/styles.css` (neon yellow accents, dark bg, glassmorphism tokens, glow shadows, monospace + display font pair)
-- Enable Lovable Cloud (database + auth)
-- Auth pages: Sign Up, Sign In, Terms & Conditions (email/password + Google OAuth, terms checkbox, password strength)
-- Auth state + protected `_authenticated` layout
-- Dashboard shell: animated sidebar, top nav with notification bell + profile dropdown, floating chatbot button placeholder
-- Home Overview page with stat cards, activity log, quick-access cards
-- Global footer with Team ApexMinds credits
-- Routes scaffolded for the other 8 dashboard pages (placeholder content)
+### 2. Replace dead emails with `bspot.ai.official@gmail.com`
+Files: `src/routes/privacy.tsx` (§1, §7, §13), `contact.tsx` (Security & Privacy cards), `faq.tsx` (delete-account answer).
+- Replace `privacy@bspot-ai.lovable.app` and `trust@bspot-ai.lovable.app` everywhere with `bspot.ai.official@gmail.com`.
+- Grep verification: no `@bspot-ai.lovable.app` strings remain.
 
-## Phase 2 — Core investment tools
-- Currency Converter (live FX via free API, save-to-history)
-- Conversion History (table, filters, CSV export)
-- Country Data with interactive world map (react-simple-maps), country detail panel, AI-scored insights
-- Business Suggestions (AI-generated via Lovable AI Gateway, budget filter, save favorites)
+### 3. "Meet the full team in the footer" (About page)
+Default: **remove the sentence** from `src/routes/about.tsx` (line 55) since the footer has no team section.
+- **Decision needed:** If you'd rather add a "Built by Team ApexMinds — <names>" line to `SiteFooter.tsx`, reply with the names. Otherwise I'll just remove the sentence.
 
-## Phase 3 — Portfolio & notifications
-- Portfolio Tracker (CRUD investments, performance charts via recharts, P/L breakdowns, AI optimization suggestions)
-- Notification Center (Supabase Realtime, filter tabs, mark read/delete)
-- Settings (profile, language, theme, notification prefs, security)
+### 4. Hot Destinations cards deep-link to specific country
+Current: all 5 cards link to `/app/countries`. The countries page (`src/routes/app.countries.tsx`) uses internal `selectedCode` state and has no per-country route.
+Fix:
+- Add a validated search param `code` (e.g. `?code=AE`) to `/app/countries` via `validateSearch`. On mount, if `code` is present and matches a `COUNTRIES` entry, auto-select it (open the same dossier panel the click handler opens) and scroll the selected card into view.
+- Update the 5 homepage cards in `src/routes/index.tsx` to `<Link to="/app/countries" search={{ code }}>` per country.
 
-## Phase 4 — AI Assistant + polish
-- Full AI Assistant page (Lovable AI streaming chat, reminder management, stock alert subscriptions, economic tracker)
-- Floating chatbot widget with same backend
-- Cron-based daily stock alert dispatcher
-- Spell-check, chat export, accessibility pass, mobile polish
+### 5. Persistent disclaimer in AI Assistant chat
+Files: `src/routes/app.assistant.tsx` and `src/components/ChatbotFab.tsx` (the floating chatbot uses the same assistant — disclaimer goes in both).
+- Add a single muted line pinned at the top of the chat panel: *"AI-generated guidance, not licensed financial/legal/immigration advice. Always confirm with a professional before acting."*
+- Non-dismissible, one line, doesn't block input.
 
-## Technical details
-- **Stack**: TanStack Start + React 19, Tailwind v4 design tokens in `src/styles.css`, shadcn components with custom `cyber` variants, framer-motion for animations
-- **Backend**: Lovable Cloud (Postgres + Auth + Realtime + Edge); roles in separate `user_roles` table per security policy
-- **Tables (Phase 1+)**: `profiles`, `user_roles`, then `conversions`, `investments`, `notifications`, `reminders`, `chat_messages`, `favorite_suggestions`, `notification_preferences`
-- **AI**: Lovable AI Gateway (`google/gemini-2.5-flash` default) for business suggestions, country scoring, chatbot, portfolio optimization
-- **FX**: free `exchangerate.host` (no key) for live rates
-- **Map**: `react-simple-maps` with TopoJSON world atlas
-- **Charts**: `recharts`
+## Part 2 — Consistency fixes
 
-## What I need from you
-1. **Confirm phased approach** — OK to ship Phase 1 now, then continue?
-2. **Google OAuth** — I'll wire the UI button; you'll need to add Google credentials in Lovable Cloud settings before it works (I'll give instructions). Facebook OAuth in the spec is not natively supported by Lovable Cloud — I'll omit the button unless you want a custom OAuth setup.
-3. **Languages** — spec lists English/Urdu/Hindi/Chinese. UI strings only English in Phase 1; full i18n is a Phase 4 task. OK?
+### 6. Unify the country count
+Source of truth: `COUNTRY_DEEP` in `src/lib/country-deep.ts` (10 countries with full deep profile data). `COUNTRIES` in `countries-data.ts` lists 55 selectable nations but most have only baseline data.
+Plan:
+- Keep the homepage stat at **"10"** (it already matches deep-data coverage) and add a tooltip/subtext clarifying "10 with full deep profiles, 55 selectable".
+- Derive the Hot Destinations 5-card list from a single new exported constant `FEATURED_COUNTRIES` in `countries-data.ts` (default: `["US","GB","DE","CA","AE"]` — matches the current homepage).
+- About page copy: rewrite the country list line to reference the same 5 featured countries (replacing the current `UAE/UK/Canada/Singapore/Türkiye` set so it matches Hot Destinations).
+- **Decision needed (optional):** confirm the 5 featured should stay `US, UK, Germany, Canada, UAE`. If you want a different set, name them.
+
+### 7. Branded OG/Twitter share image (1200×630)
+- Generate one branded PNG via the image tool: dark BSpot theme, neon logo, tagline "Move Capital. Cross Borders. Build Empires.". Save as `src/assets/og-share.png` (uploaded via lovable-assets so it's served from the project's own CDN, not the Lovable preview screenshot endpoint).
+- Update `og:image` + `twitter:image` in `__root.tsx` defaults and any per-route overrides (`index.tsx`, `about.tsx`, `contact.tsx`, `faq.tsx`, `privacy.tsx`, `terms.tsx`, `refund.tsx`) to point at this asset URL.
+- Note to you in chat: crawler caches (WhatsApp/LinkedIn) won't refresh immediately — use each platform's preview debugger to force re-scrape.
+
+### 8. Crawlable FAQ + FAQPage JSON-LD
+File: `src/routes/faq.tsx` (and possibly `src/components/ui/accordion.tsx` if needed).
+- Radix `AccordionContent` uses `hidden` + unmounted content. Replace the FAQ list on the FAQ page with a custom always-rendered version: visible question header, answer always in the DOM, collapsed visually via `max-height` / opacity, expanded on click. Keeps the accordion UX but the answers ship in raw HTML.
+- Verify: `view-source:` shows all 10 answer strings.
+- Add `FAQPage` JSON-LD `scripts` entry in the route's `head()` containing all 10 Q&A pairs.
+
+### 9. "Real-time Alerts" homepage claim
+- Inspection result so far: `notifications` table is read/displayed in `app.notifications.tsx`, but there's no producer (no triggers, no edge function pushing rate/portfolio events, no web-push registration).
+- Fix: relabel the homepage tile in `src/routes/index.tsx` from "Real-time Alerts" to **"Smart Notifications (Coming Soon)"** with body adjusted to match. No removal of the notifications page itself.
+- **Decision needed:** OK to relabel as "Coming Soon"? Alternative is full removal of the tile.
+
+## Optional verification report
+After fixes ship I'll inspect and reply with the current state of:
+- Live Currency Converter (real ExchangeRate-API vs hardcoded).
+- Business Suggestions (whether it references shared country data).
+- Homepage "Try Demo — No Signup" button (end-to-end without auth).
+
+## Things I will NOT do
+- No layout, color, or component-structure changes outside the targeted fixes.
+- Won't touch `src/integrations/supabase/*`, `src/routeTree.gen.ts`, or auth-generated files.
+
+## Open decisions (reply inline; defaults will be used otherwise)
+1. **#3 Team line in footer:** remove sentence (default) or add team credit with which names?
+2. **#6 Featured 5 countries:** keep `US, UK, Germany, Canada, UAE` (default) or swap?
+3. **#9 Alerts tile:** relabel as "Coming Soon" (default) or remove entirely?

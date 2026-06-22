@@ -2,15 +2,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 
+const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms and Conditions — BSpot AI" },
       { name: "description", content: "BSpot AI terms of service: acceptable use, account responsibilities, investment disclaimer, liability, and dispute resolution." },
       { property: "og:title", content: "Terms and Conditions — BSpot AI" },
-      { property: "og:url", content: "https://bspot-ai.lovable.app/terms" },
+      { property: "og:url", content: "https://bspot.info/terms" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot-ai.lovable.app/terms" }],
+    links: [{ rel: "canonical", href: "https://bspot.info/terms" }],
   }),
   component: Terms,
 });

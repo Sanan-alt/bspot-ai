@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 
+const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
   head: () => ({
@@ -9,9 +11,11 @@ export const Route = createFileRoute("/privacy")({
       { title: "Privacy Policy — BSpot AI" },
       { name: "description", content: "How BSpot AI collects, uses, stores, and protects your personal data, and the rights you have over it." },
       { property: "og:title", content: "Privacy Policy — BSpot AI" },
-      { property: "og:url", content: "https://bspot-ai.lovable.app/privacy" },
+      { property: "og:url", content: "https://bspot.info/privacy" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot-ai.lovable.app/privacy" }],
+    links: [{ rel: "canonical", href: "https://bspot.info/privacy" }],
   }),
 });
 
@@ -34,7 +38,7 @@ function PrivacyPage() {
         </header>
 
         <Section title="1. Who we are">
-          <p>BSpot AI is operated by Team ApexMinds, based in Karachi, Pakistan. We are the data controller for personal data you provide to the Service. Contact: <a className="text-neon" href="mailto:privacy@bspot-ai.lovable.app">privacy@bspot-ai.lovable.app</a>.</p>
+          <p>BSpot AI is operated by Team ApexMinds, based in Karachi, Pakistan. We are the data controller for personal data you provide to the Service. Contact: <a className="text-neon" href="mailto:bspot.ai.official@gmail.com">bspot.ai.official@gmail.com</a>.</p>
         </Section>
 
         <Section title="2. Data we collect">
@@ -76,7 +80,7 @@ function PrivacyPage() {
         </Section>
 
         <Section title="7. Your rights">
-          <p>You have the right to access, correct, export, restrict, or delete your personal data, to object to processing based on legitimate interest, and to withdraw consent. Most actions are self-service in Settings; for others email <a className="text-neon" href="mailto:privacy@bspot-ai.lovable.app">privacy@bspot-ai.lovable.app</a>. We respond within 30 days. EU/UK residents may lodge a complaint with their local data-protection authority.</p>
+          <p>You have the right to access, correct, export, restrict, or delete your personal data, to object to processing based on legitimate interest, and to withdraw consent. Most actions are self-service in Settings; for others email <a className="text-neon" href="mailto:bspot.ai.official@gmail.com">bspot.ai.official@gmail.com</a>. We respond within 30 days. EU/UK residents may lodge a complaint with their local data-protection authority.</p>
         </Section>
 
         <Section title="8. International transfers">
@@ -100,7 +104,7 @@ function PrivacyPage() {
         </Section>
 
         <Section title="13. Contact">
-          <p>Privacy & data requests: <a className="text-neon" href="mailto:privacy@bspot-ai.lovable.app">privacy@bspot-ai.lovable.app</a><br/>Security: <a className="text-neon" href="mailto:trust@bspot-ai.lovable.app">trust@bspot-ai.lovable.app</a></p>
+          <p>Privacy, data, and security requests: <a className="text-neon" href="mailto:bspot.ai.official@gmail.com">bspot.ai.official@gmail.com</a></p>
         </Section>
       </main>
       <SiteFooter />

@@ -3,6 +3,8 @@ import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Mail, MessageSquare, Building2, ShieldAlert } from "lucide-react";
 
+const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
@@ -11,6 +13,8 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact BSpot AI" },
       { property: "og:description", content: "Reach support, partnerships, press, privacy, or security at BSpot AI." },
       { property: "og:url", content: "https://bspot.info/contact" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: "https://bspot.info/contact" }],
     scripts: [
@@ -38,8 +42,8 @@ export const Route = createFileRoute("/contact")({
 const channels = [
   { icon: MessageSquare, title: "General support", email: "bspot.ai.official@gmail.com", body: "Questions about features, your account, or how to use the platform." },
   { icon: Building2, title: "Partnerships & press", email: "bspot.ai.official@gmail.com", body: "Collaborations, integrations, media inquiries." },
-  { icon: ShieldAlert, title: "Security & abuse", email: "trust@bspot-ai.lovable.app", body: "Report a vulnerability, abuse, or suspicious activity." },
-  { icon: Mail, title: "Privacy & data requests", email: "privacy@bspot-ai.lovable.app", body: "Export or delete your data, or ask a privacy question." },
+  { icon: ShieldAlert, title: "Security & abuse", email: "bspot.ai.official@gmail.com", body: "Report a vulnerability, abuse, or suspicious activity." },
+  { icon: Mail, title: "Privacy & data requests", email: "bspot.ai.official@gmail.com", body: "Export or delete your data, or ask a privacy question." },
 ];
 
 function ContactPage() {
