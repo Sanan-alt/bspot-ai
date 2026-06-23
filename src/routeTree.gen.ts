@@ -36,6 +36,7 @@ import { Route as AppBuyCreditsRouteImport } from './routes/app.buy-credits'
 import { Route as AppAssistantRouteImport } from './routes/app.assistant'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppAdminEmailsRouteImport } from './routes/app.admin.emails'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -177,6 +178,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAdminEmailsRoute = AppAdminEmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -218,7 +224,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/app/admin': typeof AppAdminRoute
+  '/app/admin': typeof AppAdminRouteWithChildren
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/calculator': typeof AppCalculatorRoute
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/app/visa': typeof AppVisaRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
+  '/app/admin/emails': typeof AppAdminEmailsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -251,7 +258,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/app/admin': typeof AppAdminRoute
+  '/app/admin': typeof AppAdminRouteWithChildren
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/calculator': typeof AppCalculatorRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/app/visa': typeof AppVisaRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app': typeof AppIndexRoute
+  '/app/admin/emails': typeof AppAdminEmailsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -286,7 +294,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/app/admin': typeof AppAdminRoute
+  '/app/admin': typeof AppAdminRouteWithChildren
   '/app/assistant': typeof AppAssistantRoute
   '/app/buy-credits': typeof AppBuyCreditsRoute
   '/app/calculator': typeof AppCalculatorRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/app/visa': typeof AppVisaRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
+  '/app/admin/emails': typeof AppAdminEmailsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -337,6 +346,7 @@ export interface FileRouteTypes {
     | '/app/visa'
     | '/email/unsubscribe'
     | '/app/'
+    | '/app/admin/emails'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/app/visa'
     | '/email/unsubscribe'
     | '/app'
+    | '/app/admin/emails'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -404,6 +415,7 @@ export interface FileRouteTypes {
     | '/app/visa'
     | '/email/unsubscribe'
     | '/app/'
+    | '/app/admin/emails'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -624,6 +636,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/admin/emails': {
+      id: '/app/admin/emails'
+      path: '/emails'
+      fullPath: '/app/admin/emails'
+      preLoaderRoute: typeof AppAdminEmailsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -662,8 +681,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppAdminRouteChildren {
+  AppAdminEmailsRoute: typeof AppAdminEmailsRoute
+}
+
+const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminEmailsRoute: AppAdminEmailsRoute,
+}
+
+const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
+  AppAdminRouteChildren,
+)
+
 interface AppRouteChildren {
-  AppAdminRoute: typeof AppAdminRoute
+  AppAdminRoute: typeof AppAdminRouteWithChildren
   AppAssistantRoute: typeof AppAssistantRoute
   AppBuyCreditsRoute: typeof AppBuyCreditsRoute
   AppCalculatorRoute: typeof AppCalculatorRoute
@@ -680,7 +711,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAdminRoute: AppAdminRoute,
+  AppAdminRoute: AppAdminRouteWithChildren,
   AppAssistantRoute: AppAssistantRoute,
   AppBuyCreditsRoute: AppBuyCreditsRoute,
   AppCalculatorRoute: AppCalculatorRoute,
