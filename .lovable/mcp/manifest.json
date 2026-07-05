@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "bspot-ai-mcp",
+      "version": "0.1.0",
+      "title": "BSpot AI"
+    },
+    "tools": [
+      {
+        "name": "list_countries",
+        "title": "List investable countries",
+        "description": "List the countries BSpot AI provides investment/business intelligence for, optionally filtered by region.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "region": {
+              "description": "Optional region filter.",
+              "type": "string",
+              "enum": [
+                "Americas",
+                "Europe",
+                "Asia",
+                "Middle East",
+                "Africa",
+                "Oceania"
+              ]
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_visa_programs",
+        "title": "Get visa & residency programs",
+        "description": "Return investor, entrepreneur, startup, and golden visa programs available in a target country (ISO 3166-1 alpha-2 code, e.g. AE, GB, US, CA, SG).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "country_code": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "description": "ISO 3166-1 alpha-2 country code, uppercase (e.g. AE, GB, US)."
+            }
+          },
+          "required": [
+            "country_code"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "estimate_setup_cost",
+        "title": "Estimate first-year business setup cost",
+        "description": "Estimate first-year setup + operating cost (USD) for a business type in a supported country. Returns a full line-item breakdown plus 10% contingency total.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "business_type": {
+              "type": "string",
+              "enum": [
+                "ecommerce",
+                "restaurant",
+                "retail_shop",
+                "tech_saas",
+                "trading_import_export",
+                "consulting_services",
+                "real_estate_investment"
+              ],
+              "description": "Type of business to launch."
+            },
+            "country_code": {
+              "type": "string",
+              "enum": [
+                "AE",
+                "GB",
+                "CA",
+                "SG",
+                "US"
+              ],
+              "description": "Target country. Supported: AE, GB, CA, SG, US."
+            }
+          },
+          "required": [
+            "business_type",
+            "country_code"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
