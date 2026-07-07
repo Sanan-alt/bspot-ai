@@ -25,7 +25,7 @@ export const Route = createFileRoute("/contact")({
           "@type": "LocalBusiness",
           name: "BSpot AI",
           url: "https://www.bspot.info/contact",
-          email: "bspot.ai.official@gmail.com",
+          email: "support@bspot.info",
           address: {
             "@type": "PostalAddress",
             addressLocality: "Karachi",
@@ -40,10 +40,10 @@ export const Route = createFileRoute("/contact")({
 });
 
 const channels = [
-  { icon: MessageSquare, title: "General support", email: "bspot.ai.official@gmail.com", body: "Questions about features, your account, or how to use the platform." },
-  { icon: Building2, title: "Partnerships & press", email: "bspot.ai.official@gmail.com", body: "Collaborations, integrations, media inquiries." },
-  { icon: ShieldAlert, title: "Security & abuse", email: "bspot.ai.official@gmail.com", body: "Report a vulnerability, abuse, or suspicious activity." },
-  { icon: Mail, title: "Privacy & data requests", email: "bspot.ai.official@gmail.com", body: "Export or delete your data, or ask a privacy question." },
+  { icon: MessageSquare, title: "General support", email: "support@bspot.info", body: "Questions about features, your account, or how to use the platform." },
+  { icon: Building2, title: "Partnerships & press", email: "partnerships@bspot.info", body: "Collaborations, integrations, media inquiries." },
+  { icon: ShieldAlert, title: "Security & abuse", email: "security@bspot.info", body: "Report a vulnerability, abuse, or suspicious activity." },
+  { icon: Mail, title: "Privacy & data requests", email: "privacy@bspot.info", body: "Export or delete your data, or ask a privacy question." },
 ];
 
 function ContactPage() {
@@ -68,7 +68,7 @@ function ContactPage() {
               <c.icon className="h-5 w-5 text-neon" />
               <h2 className="mt-3 font-display text-lg">{c.title}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{c.body}</p>
-              <p className="mt-3 font-mono text-xs text-neon break-all">{c.email}</p>
+              <p className="mt-3 font-mono text-xs text-neon">Email us →</p>
             </a>
           ))}
         </div>

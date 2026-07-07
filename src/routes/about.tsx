@@ -56,7 +56,8 @@ function AboutPage() {
 
         <section className="panel-neon p-6">
           <h2 className="font-display text-2xl">The Team</h2>
-          <p className="mt-2 text-sm text-muted-foreground">BSpot AI is built by Team ApexMinds — a group of students, developers, and AI engineers backed by Aptech Learning and supported by Hackroid.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Built by Team ApexMinds, in partnership with Aptech Learning, under the technical direction of founder Muhammad Sanan Abid.</p>
+          <p className="mt-3 text-sm text-muted-foreground">No commission. No referral fees. You get the same advice a paying consultant would give — without the upsell.</p>
         </section>
       </main>
       <SiteFooter />
