@@ -188,7 +188,7 @@ function Landing() {
             { icon: TrendingUp, title: "Live Currency Converter", body: "180+ currencies with real-time rates and smart save-to-history." },
             { icon: Globe2, title: "Country Intelligence", body: "Interactive world map with AI scoring, taxes, and laws per country." },
             { icon: Briefcase, title: "Portfolio Tracker", body: "Multi-currency P/L, performance charts, AI optimization." },
-            { icon: Bot, title: "AI Assistant", body: "Chatbot with reminders, stock alerts, and economic monitoring." },
+            { icon: Bot, title: "AI Advisor", body: "AI-powered analysis using live market and country data (Google Gemini via Lovable AI Gateway)." },
             { icon: Sparkles, title: "Business Suggestions", body: "AI-generated business ideas tailored to your budget and risk." },
             { icon: Zap, title: "Smart Notifications (Coming Soon)", body: "In-app alerts for rate changes, reminders, and portfolio events — rolling out in a future release." },
           ].map((f) => (
@@ -200,6 +200,23 @@ function Landing() {
           ))}
         </div>
       </section>
+
+      {/* TRUST SIGNALS */}
+      <section aria-label="Data sources and disclaimers" className="mx-auto max-w-7xl px-6 -mt-4">
+        <div className="panel p-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-mono text-muted-foreground">
+          <span className="uppercase tracking-widest text-[10px] text-neon">// LIVE DATA</span>
+          <span>ExchangeRate-API</span>
+          <span className="opacity-40">·</span>
+          <span>Finnhub</span>
+          <span className="opacity-40">·</span>
+          <span>World Bank</span>
+          <span className="opacity-40">·</span>
+          <span>CoinGecko</span>
+          <span className="opacity-40 hidden md:inline">·</span>
+          <span className="italic">Not licensed financial advice — educational planning tool.</span>
+        </div>
+      </section>
+
 
       {/* TOP 5 INVESTMENT COUNTRIES */}
       <section id="top-countries" className="mx-auto max-w-7xl px-6 py-20">
