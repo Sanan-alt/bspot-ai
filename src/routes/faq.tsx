@@ -4,7 +4,7 @@ import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ChevronDown } from "lucide-react";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 const faqs = [
   { q: "What is BSpot AI?", a: "An AI-powered platform that helps you plan cross-border investments — choose a country, estimate setup costs, generate a business roadmap, and track your portfolio in multiple currencies." },
@@ -25,11 +25,11 @@ export const Route = createFileRoute("/faq")({
       { title: "FAQ — BSpot AI" },
       { name: "description", content: "Answers to common questions about BSpot AI, pricing, credits, data sources, and security." },
       { property: "og:title", content: "BSpot AI — Frequently Asked Questions" },
-      { property: "og:url", content: "https://bspot.info/faq" },
+      { property: "og:url", content: "https://www.bspot.info/faq" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/faq" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/faq" }],
     scripts: [
       {
         type: "application/ld+json",

@@ -15,7 +15,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageSync } from "@/components/LanguageSync";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 function NotFoundComponent() {
   return (
@@ -104,10 +104,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "BSpot AI",
-          url: "https://bspot.info",
-          logo: "https://bspot.info/favicon.png",
+          url: "https://www.bspot.info",
+          logo: "https://www.bspot.info/favicon.png",
           description: "Cross-border investment intelligence platform for South Asian and African investors.",
-          sameAs: ["https://bspot.info"],
+          sameAs: ["https://www.bspot.info"],
         }),
       },
     ],

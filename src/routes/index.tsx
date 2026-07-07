@@ -12,7 +12,7 @@ import { StockTicker } from "@/components/StockTicker";
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { TOP_INVESTMENT_COUNTRIES, VISA_PROGRAMS } from "@/lib/visa-programs";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,11 +21,11 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Cross-border investment intelligence for South Asian & African founders. Live markets, real setup costs, AI-powered country roadmaps." },
       { property: "og:title", content: "BSpot AI — Move Capital. Cross Borders. Build Empires." },
       { property: "og:description", content: "Live markets, real country intelligence, and AI roadmaps for investing across borders." },
-      { property: "og:url", content: "https://bspot.info/" },
+      { property: "og:url", content: "https://www.bspot.info/" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/" }],
   }),
   component: Landing,
 });
