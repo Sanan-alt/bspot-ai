@@ -252,7 +252,13 @@ function Landing() {
             );
           })}
         </div>
+        <div className="mt-8 text-center">
+          <Link to="/app/countries" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-primary/50 text-neon font-mono text-xs uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors">
+            View all 10 countries <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </section>
+
 
       {/* BEFORE / AFTER */}
       <section id="success" className="mx-auto max-w-7xl px-6 py-20">
