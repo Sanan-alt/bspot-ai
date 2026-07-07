@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 export const Route = createFileRoute("/refund")({
   head: () => ({
@@ -10,11 +10,11 @@ export const Route = createFileRoute("/refund")({
       { title: "Refund Policy — BSpot AI" },
       { name: "description", content: "BSpot AI's refund policy for credit purchases and subscriptions." },
       { property: "og:title", content: "Refund Policy — BSpot AI" },
-      { property: "og:url", content: "https://bspot.info/refund" },
+      { property: "og:url", content: "https://www.bspot.info/refund" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/refund" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/refund" }],
   }),
   component: RefundPage,
 });

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
@@ -11,11 +11,11 @@ export const Route = createFileRoute("/privacy")({
       { title: "Privacy Policy — BSpot AI" },
       { name: "description", content: "How BSpot AI collects, uses, stores, and protects your personal data, and the rights you have over it." },
       { property: "og:title", content: "Privacy Policy — BSpot AI" },
-      { property: "og:url", content: "https://bspot.info/privacy" },
+      { property: "og:url", content: "https://www.bspot.info/privacy" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/privacy" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/privacy" }],
   }),
 });
 

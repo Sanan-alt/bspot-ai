@@ -12,7 +12,7 @@ import { StockTicker } from "@/components/StockTicker";
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { TOP_INVESTMENT_COUNTRIES, VISA_PROGRAMS } from "@/lib/visa-programs";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,11 +21,11 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Cross-border investment intelligence for South Asian & African founders. Live markets, real setup costs, AI-powered country roadmaps." },
       { property: "og:title", content: "BSpot AI — Move Capital. Cross Borders. Build Empires." },
       { property: "og:description", content: "Live markets, real country intelligence, and AI roadmaps for investing across borders." },
-      { property: "og:url", content: "https://bspot.info/" },
+      { property: "og:url", content: "https://www.bspot.info/" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/" }],
   }),
   component: Landing,
 });
@@ -188,7 +188,7 @@ function Landing() {
             { icon: TrendingUp, title: "Live Currency Converter", body: "180+ currencies with real-time rates and smart save-to-history." },
             { icon: Globe2, title: "Country Intelligence", body: "Interactive world map with AI scoring, taxes, and laws per country." },
             { icon: Briefcase, title: "Portfolio Tracker", body: "Multi-currency P/L, performance charts, AI optimization." },
-            { icon: Bot, title: "AI Assistant", body: "Chatbot with reminders, stock alerts, and economic monitoring." },
+            { icon: Bot, title: "AI Advisor", body: "AI-powered analysis using live market and country data (Google Gemini via Lovable AI Gateway)." },
             { icon: Sparkles, title: "Business Suggestions", body: "AI-generated business ideas tailored to your budget and risk." },
             { icon: Zap, title: "Smart Notifications (Coming Soon)", body: "In-app alerts for rate changes, reminders, and portfolio events — rolling out in a future release." },
           ].map((f) => (
@@ -200,6 +200,23 @@ function Landing() {
           ))}
         </div>
       </section>
+
+      {/* TRUST SIGNALS */}
+      <section aria-label="Data sources and disclaimers" className="mx-auto max-w-7xl px-6 -mt-4">
+        <div className="panel p-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-mono text-muted-foreground">
+          <span className="uppercase tracking-widest text-[10px] text-neon">// LIVE DATA</span>
+          <span>ExchangeRate-API</span>
+          <span className="opacity-40">·</span>
+          <span>Finnhub</span>
+          <span className="opacity-40">·</span>
+          <span>World Bank</span>
+          <span className="opacity-40">·</span>
+          <span>CoinGecko</span>
+          <span className="opacity-40 hidden md:inline">·</span>
+          <span className="italic">Not licensed financial advice — educational planning tool.</span>
+        </div>
+      </section>
+
 
       {/* TOP 5 INVESTMENT COUNTRIES */}
       <section id="top-countries" className="mx-auto max-w-7xl px-6 py-20">
@@ -235,7 +252,13 @@ function Landing() {
             );
           })}
         </div>
+        <div className="mt-8 text-center">
+          <Link to="/app/countries" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-primary/50 text-neon font-mono text-xs uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors">
+            View all 10 countries <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </section>
+
 
       {/* BEFORE / AFTER */}
       <section id="success" className="mx-auto max-w-7xl px-6 py-20">

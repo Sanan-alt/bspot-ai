@@ -4,4 +4,4 @@ Disallow: /app/
 Disallow: /signin
 Disallow: /signup
 
-Sitemap: https://bspot.info/sitemap.xml
+Sitemap: https://www.bspot.info/sitemap.xml

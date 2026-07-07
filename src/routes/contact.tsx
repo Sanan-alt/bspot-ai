@@ -3,7 +3,7 @@ import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Mail, MessageSquare, Building2, ShieldAlert } from "lucide-react";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -12,11 +12,11 @@ export const Route = createFileRoute("/contact")({
       { name: "description", content: "Get in touch with the BSpot AI team for support, partnerships, press, or security reports." },
       { property: "og:title", content: "Contact BSpot AI" },
       { property: "og:description", content: "Reach support, partnerships, press, privacy, or security at BSpot AI." },
-      { property: "og:url", content: "https://bspot.info/contact" },
+      { property: "og:url", content: "https://www.bspot.info/contact" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/contact" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/contact" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -24,8 +24,8 @@ export const Route = createFileRoute("/contact")({
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           name: "BSpot AI",
-          url: "https://bspot.info/contact",
-          email: "bspot.ai.official@gmail.com",
+          url: "https://www.bspot.info/contact",
+          email: "support@bspot.info",
           address: {
             "@type": "PostalAddress",
             addressLocality: "Karachi",
@@ -40,10 +40,10 @@ export const Route = createFileRoute("/contact")({
 });
 
 const channels = [
-  { icon: MessageSquare, title: "General support", email: "bspot.ai.official@gmail.com", body: "Questions about features, your account, or how to use the platform." },
-  { icon: Building2, title: "Partnerships & press", email: "bspot.ai.official@gmail.com", body: "Collaborations, integrations, media inquiries." },
-  { icon: ShieldAlert, title: "Security & abuse", email: "bspot.ai.official@gmail.com", body: "Report a vulnerability, abuse, or suspicious activity." },
-  { icon: Mail, title: "Privacy & data requests", email: "bspot.ai.official@gmail.com", body: "Export or delete your data, or ask a privacy question." },
+  { icon: MessageSquare, title: "General support", email: "support@bspot.info", body: "Questions about features, your account, or how to use the platform." },
+  { icon: Building2, title: "Partnerships & press", email: "partnerships@bspot.info", body: "Collaborations, integrations, media inquiries." },
+  { icon: ShieldAlert, title: "Security & abuse", email: "security@bspot.info", body: "Report a vulnerability, abuse, or suspicious activity." },
+  { icon: Mail, title: "Privacy & data requests", email: "privacy@bspot.info", body: "Export or delete your data, or ask a privacy question." },
 ];
 
 function ContactPage() {
@@ -68,7 +68,7 @@ function ContactPage() {
               <c.icon className="h-5 w-5 text-neon" />
               <h2 className="mt-3 font-display text-lg">{c.title}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{c.body}</p>
-              <p className="mt-3 font-mono text-xs text-neon break-all">{c.email}</p>
+              <p className="mt-3 font-mono text-xs text-neon">Email us →</p>
             </a>
           ))}
         </div>

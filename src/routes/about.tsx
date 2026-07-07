@@ -3,7 +3,7 @@ import { NeonLogo } from "@/components/NeonLogo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Target, Compass, Users, Sparkles } from "lucide-react";
 
-const OG_IMAGE = "https://bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
+const OG_IMAGE = "https://www.bspot.info/__l5e/assets-v1/f64266aa-1489-436a-9b59-75bdc6a1acf4/og-share.png";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -12,11 +12,11 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "BSpot AI helps South Asian and African investors plan, fund, and execute cross-border businesses with AI-powered country intelligence." },
       { property: "og:title", content: "About BSpot AI" },
       { property: "og:description", content: "The story behind BSpot AI and the team building it." },
-      { property: "og:url", content: "https://bspot.info/about" },
+      { property: "og:url", content: "https://www.bspot.info/about" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://bspot.info/about" }],
+    links: [{ rel: "canonical", href: "https://www.bspot.info/about" }],
   }),
   component: AboutPage,
 });
@@ -56,7 +56,8 @@ function AboutPage() {
 
         <section className="panel-neon p-6">
           <h2 className="font-display text-2xl">The Team</h2>
-          <p className="mt-2 text-sm text-muted-foreground">BSpot AI is built by Team ApexMinds — a group of students, developers, and AI engineers backed by Aptech Learning and supported by Hackroid.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Built by Team ApexMinds, in partnership with Aptech Learning, under the technical direction of founder Muhammad Sanan Abid.</p>
+          <p className="mt-3 text-sm text-muted-foreground">No commission. No referral fees. You get the same advice a paying consultant would give — without the upsell.</p>
         </section>
       </main>
       <SiteFooter />
