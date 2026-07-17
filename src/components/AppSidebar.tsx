@@ -70,7 +70,21 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-4 border-b border-sidebar-border">
-        {!collapsed ? <NeonLogo /> : <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground grid place-items-center font-display">B</div>}
+        <div className="flex items-center justify-between gap-2">
+          {!collapsed ? <NeonLogo /> : <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground grid place-items-center font-display">B</div>}
+          {unread > 0 && (
+            <Link
+              to="/app/notifications"
+              aria-label={`${unread} unread notifications`}
+              className="relative h-8 w-8 grid place-items-center rounded-md border border-border hover:border-primary hover:text-neon"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-mono grid place-items-center glow-sm">
+                {unread > 9 ? "9+" : unread}
+              </span>
+            </Link>
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
