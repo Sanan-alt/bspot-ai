@@ -7,12 +7,19 @@ import { Loader2 } from "lucide-react";
 import { AuthShell, Divider, Field } from "./signup";
 
 export const Route = createFileRoute("/signin")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
+  }),
   component: SignIn,
 });
 
+
 function SignIn() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const dest = next ?? "/app";
   const [email, setEmail] = useState("");
+
   const [pw, setPw] = useState("");
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
@@ -46,11 +53,11 @@ function SignIn() {
       return setErr(`${error.message}${remaining > 0 && remaining < 5 ? ` (${remaining} attempt${remaining === 1 ? "" : "s"} left)` : ""}`);
     }
     toast.success("Welcome back to the grid");
-    navigate({ to: "/app" });
+    next ? (window.location.href = next) : navigate({ to: "/app" });
   }
 
   async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/app` });
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${dest}` });
     if (r.error) toast.error(r.error.message);
   }
 
@@ -63,7 +70,7 @@ function SignIn() {
     setDemoLoading(false);
     if (error) return setErr(error.message);
     toast.success("Demo session started — explore freely");
-    navigate({ to: "/app" });
+    next ? (window.location.href = next) : navigate({ to: "/app" });
   }
 
   return (
