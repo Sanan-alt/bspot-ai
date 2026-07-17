@@ -57,6 +57,7 @@ function AppLayout() {
                 <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground hidden sm:inline">// BSPOT.AI</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
+                <ThemeToggle />
                 
                 <CreditsBadge />
                 <Link to="/app/notifications" aria-label="Notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
