@@ -53,7 +53,7 @@ function SignIn() {
       return setErr(`${error.message}${remaining > 0 && remaining < 5 ? ` (${remaining} attempt${remaining === 1 ? "" : "s"} left)` : ""}`);
     }
     toast.success("Welcome back to the grid");
-    navigate({ to: dest });
+    next ? (window.location.href = next) : navigate({ to: "/app" });
   }
 
   async function google() {
@@ -70,7 +70,7 @@ function SignIn() {
     setDemoLoading(false);
     if (error) return setErr(error.message);
     toast.success("Demo session started — explore freely");
-    navigate({ to: dest });
+    next ? (window.location.href = next) : navigate({ to: "/app" });
   }
 
   return (
