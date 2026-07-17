@@ -22,7 +22,7 @@ function buildFaqs(country: Country, deep: Deep | null, visas: Visa[]): Faq[] {
   const faqs: Faq[] = [];
   if (deep) {
     faqs.push({ q: `How much does it cost to start a business in ${country.name}?`, a: `Year-one setup typically ranges ${deep.setup_cost_range}. This covers registration, licensing, and initial compliance for a foreign-owned company.` });
-    faqs.push({ q: `What is the corporate tax rate in ${country.name}?`, a: `${country.name} applies a corporate tax of ${deep.corporate_tax}. Personal income tax is ${deep.income_tax}, and VAT/sales tax is ${deep.vat}.` });
+    faqs.push({ q: `What is the corporate tax rate in ${country.name}?`, a: `${country.name} applies a corporate tax of ${deep.corporate_tax}. Personal income tax is ${deep.personal_income_tax}, and VAT/sales tax is ${deep.vat}.` });
     faqs.push({ q: `Can foreigners fully own a company in ${country.name}?`, a: deep.foreign_ownership });
     faqs.push({ q: `How long does incorporation take in ${country.name}?`, a: `Standard incorporation completes in about ${deep.setup_time}, assuming documents are in order.` });
   }
