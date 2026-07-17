@@ -72,10 +72,35 @@ function PortfolioPage() {
     return Object.entries(map).map(([name, value]) => ({ name, value }));
   }, [items]);
 
+  const timeframeDays = { "7d": 7, "30d": 30, "90d": 90, "1y": 365, all: Infinity }[timeframe];
+
+  const filteredByTime = useMemo(() => {
+    if (timeframeDays === Infinity) return items;
+    const cutoff = Date.now() - timeframeDays * 86_400_000;
+    return items.filter(i => new Date(i.created_at).getTime() >= cutoff);
+  }, [items, timeframeDays]);
+
   const perAsset = useMemo(
-    () => items.map(i => ({ name: i.name.slice(0, 12), pl: Number(i.current_value) - Number(i.initial_amount) })),
-    [items]
+    () => filteredByTime.map(i => ({
+      name: i.name.slice(0, 12),
+      pl: Number(i.current_value) - Number(i.initial_amount),
+      invested: Number(i.initial_amount),
+      current: Number(i.current_value),
+    })),
+    [filteredByTime]
   );
+
+  // Cumulative P/L history built from investment creation dates within the window.
+  const plHistory = useMemo(() => {
+    const sorted = [...filteredByTime].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    let cum = 0;
+    return sorted.map(i => {
+      cum += Number(i.current_value) - Number(i.initial_amount);
+      return { date: formatDate(i.created_at, { month: "short", day: "numeric" }), pl: Number(cum.toFixed(2)) };
+    });
+  }, [filteredByTime]);
 
   const openCreate = () => { setEditing(null); setForm(empty); setOpen(true); };
   const openEdit = (it: Investment) => {
