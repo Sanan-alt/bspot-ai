@@ -63,8 +63,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { isOwner } = useCredits();
+  const unread = useUnreadNotifications();
   const moreActive = more.some((m) => m.url === path);
-  const [showMore, setShowMore] = useState(moreActive);
+  const [showMore, setShowMore] = useState(moreActive || unread > 0);
 
   return (
     <Sidebar collapsible="icon">
