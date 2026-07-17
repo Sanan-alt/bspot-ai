@@ -24,6 +24,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as AppWelcomeRouteImport } from './routes/app.welcome'
 import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
@@ -124,6 +125,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWelcomeRoute = AppWelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppVisaRoute = AppVisaRouteImport.update({
   id: '/visa',
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
+  '/app/welcome': typeof AppWelcomeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
+  '/app/welcome': typeof AppWelcomeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
+  '/app/welcome': typeof AppWelcomeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -415,6 +424,7 @@ export interface FileRouteTypes {
     | '/app/portfolio'
     | '/app/settings'
     | '/app/visa'
+    | '/app/welcome'
     | '/email/unsubscribe'
     | '/app/'
     | '/.lovable/oauth/consent'
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/app/portfolio'
     | '/app/settings'
     | '/app/visa'
+    | '/app/welcome'
     | '/email/unsubscribe'
     | '/app'
     | '/.lovable/oauth/consent'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
     | '/app/portfolio'
     | '/app/settings'
     | '/app/visa'
+    | '/app/welcome'
     | '/email/unsubscribe'
     | '/app/'
     | '/.lovable/oauth/consent'
@@ -645,6 +657,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/welcome': {
+      id: '/app/welcome'
+      path: '/welcome'
+      fullPath: '/app/welcome'
+      preLoaderRoute: typeof AppWelcomeRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/visa': {
       id: '/app/visa'
@@ -850,6 +869,7 @@ interface AppRouteChildren {
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppVisaRoute: typeof AppVisaRoute
+  AppWelcomeRoute: typeof AppWelcomeRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -867,6 +887,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioRoute: AppPortfolioRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppVisaRoute: AppVisaRoute,
+  AppWelcomeRoute: AppWelcomeRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
