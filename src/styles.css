@@ -122,8 +122,62 @@
   --map-label-stroke: oklch(1 0 0 / 90%);
 }
 
-/* Dark mode disabled — keep selectors as no-ops so existing classes don't break */
-.dark, .light { }
+/* Night mode — user-opt-in. Default remains light. */
+.dark {
+  --background: oklch(0.16 0.01 250);
+  --foreground: oklch(0.96 0.005 250);
+
+  --card: oklch(0.20 0.01 250);
+  --card-foreground: oklch(0.96 0.005 250);
+  --popover: oklch(0.20 0.01 250);
+  --popover-foreground: oklch(0.96 0.005 250);
+
+  --primary: oklch(0.92 0.02 250);
+  --primary-foreground: oklch(0.16 0.01 250);
+
+  --secondary: oklch(0.24 0.01 250);
+  --secondary-foreground: oklch(0.96 0.005 250);
+
+  --muted: oklch(0.24 0.01 250);
+  --muted-foreground: oklch(0.70 0.01 250);
+
+  --accent: oklch(0.26 0.02 250);
+  --accent-foreground: oklch(0.96 0.005 250);
+
+  --destructive: oklch(0.60 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.30 0.01 250);
+  --input: oklch(0.28 0.01 250);
+  --ring: oklch(0.65 0.10 250);
+
+  --neon: oklch(0.85 0.16 95);
+  --neon-soft: oklch(0.85 0.16 95 / 15%);
+  --success: oklch(0.70 0.16 150);
+  --warning: oklch(0.78 0.16 70);
+
+  --sidebar: oklch(0.18 0.01 250);
+  --sidebar-foreground: oklch(0.94 0.005 250);
+  --sidebar-primary: oklch(0.85 0.16 95);
+  --sidebar-primary-foreground: oklch(0.16 0.01 250);
+  --sidebar-accent: oklch(0.24 0.01 250);
+  --sidebar-accent-foreground: oklch(0.94 0.005 250);
+  --sidebar-border: oklch(0.30 0.01 250);
+  --sidebar-ring: oklch(0.65 0.10 250);
+
+  --gradient-neon: linear-gradient(135deg, oklch(0.85 0.16 95), oklch(0.70 0.14 60));
+  --gradient-panel: linear-gradient(180deg, oklch(0.20 0.01 250), oklch(0.18 0.01 250));
+  --shadow-neon: 0 6px 20px oklch(0 0 0 / 40%), 0 1px 3px oklch(0 0 0 / 30%);
+  --shadow-neon-sm: 0 1px 3px oklch(0 0 0 / 30%);
+
+  --map-bg: oklch(0.20 0.01 250);
+  --map-fill: oklch(0.70 0.12 250);
+  --map-fill-muted: oklch(0.28 0.01 250);
+  --map-stroke: oklch(0.18 0.01 250);
+  --map-label: oklch(0.94 0.005 250);
+  --map-label-stroke: oklch(0.16 0.01 250 / 90%);
+}
+.light { }
 
 
 @layer base {

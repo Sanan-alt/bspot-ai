@@ -22,10 +22,7 @@ void i18n
     },
     fallbackLng: "en",
     supportedLngs: ["en", "ur", "ar", "hi"],
-    parseMissingKeyHandler: (key) => {
-      if (import.meta.env.DEV) console.warn(`[i18n] missing "${key}" — using English fallback.`);
-      return key;
-    },
+    parseMissingKeyHandler: (key) => key,
     saveMissing: true,
     missingKeyHandler: (lngs, _ns, key) => {
       // Batch to Supabase in prod; keep console quiet.

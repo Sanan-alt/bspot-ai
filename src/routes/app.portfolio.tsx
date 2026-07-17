@@ -166,19 +166,37 @@ function PortfolioPage() {
   };
 
   const exportCsv = () => {
-    const header = ["Name", "Country", "Currency", "Invested", "Current", "P/L", "Return %", "Created"];
+    const winInvested = filteredByTime.reduce((s, i) => s + Number(i.initial_amount), 0);
+    const winCurrent = filteredByTime.reduce((s, i) => s + Number(i.current_value), 0);
+    const winPl = winCurrent - winInvested;
+    const winPct = winInvested ? (winPl / winInvested) * 100 : 0;
+    const preface = [
+      ["BSpot AI — Portfolio Report"],
+      [`Timeframe: ${timeframe}`],
+      [`Generated: ${formatDate(new Date(), { dateStyle: "long", timeStyle: "short" })}`],
+      [`Positions: ${filteredByTime.length}`],
+      [`Invested (window): ${formatCurrency(winInvested)}`],
+      [`Current (window): ${formatCurrency(winCurrent)}`],
+      [`Net P/L (window): ${formatCurrency(winPl)} (${formatPercent(winPct)})`],
+      [],
+    ];
+    const header = ["Name", "Country", "Currency", "Invested", "Current", "P/L", "Return %", "Added"];
     const rows = filteredByTime.map(i => {
       const pl = Number(i.current_value) - Number(i.initial_amount);
       const pct = Number(i.initial_amount) ? (pl / Number(i.initial_amount)) * 100 : 0;
-      return [i.name, i.country ?? "", i.currency, i.initial_amount, i.current_value, pl.toFixed(2), pct.toFixed(2), i.created_at];
+      return [i.name, i.country ?? "", i.currency, i.initial_amount, i.current_value, pl.toFixed(2), pct.toFixed(2), formatDate(i.created_at)];
     });
-    const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = [...preface, header, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = `bspot-portfolio-${timeframe}-${new Date().toISOString().slice(0,10)}.csv`;
     a.click(); URL.revokeObjectURL(url);
     track("portfolio_export", { metadata: { format: "csv", timeframe, rows: rows.length } });
+  };
+
+  const timeframeLabel: Record<typeof timeframe, string> = {
+    "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days", "1y": "Last 12 months", all: "All time",
   };
 
   const exportPdf = async () => {
@@ -188,22 +206,71 @@ function PortfolioPage() {
     ]);
     const autoTable = (autoTableMod as { default: (doc: unknown, opts: unknown) => void }).default;
     const doc = new jsPDF();
-    doc.setFontSize(16); doc.text("BSpot AI — Portfolio Report", 14, 18);
+
+    // Header
+    doc.setFontSize(18); doc.text("BSpot AI — Portfolio Report", 14, 18);
     doc.setFontSize(10); doc.setTextColor(120);
-    doc.text(`Timeframe: ${timeframe.toUpperCase()}   ·   Generated: ${new Date().toLocaleString()}`, 14, 25);
+    doc.text(`Timeframe: ${timeframeLabel[timeframe]}`, 14, 25);
+    doc.text(`Generated: ${formatDate(new Date(), { dateStyle: "long", timeStyle: "short" })}`, 14, 30);
     doc.setTextColor(0);
-    doc.text(`Invested: ${formatCurrency(totals.invested)}    Current: ${formatCurrency(totals.current)}    P/L: ${formatCurrency(totals.pl)} (${formatPercent(totals.pct)})`, 14, 33);
+
+    // Summary metrics block
+    const winInvested = filteredByTime.reduce((s, i) => s + Number(i.initial_amount), 0);
+    const winCurrent = filteredByTime.reduce((s, i) => s + Number(i.current_value), 0);
+    const winPl = winCurrent - winInvested;
+    const winPct = winInvested ? (winPl / winInvested) * 100 : 0;
+    const best = [...filteredByTime].sort((a, b) => (Number(b.current_value) - Number(b.initial_amount)) - (Number(a.current_value) - Number(a.initial_amount)))[0];
+    const worst = [...filteredByTime].sort((a, b) => (Number(a.current_value) - Number(a.initial_amount)) - (Number(b.current_value) - Number(b.initial_amount)))[0];
+
     autoTable(doc, {
-      startY: 40,
-      head: [["Name", "Country", "CCY", "Invested", "Current", "P/L", "Return %"]],
-      body: filteredByTime.map(i => {
-        const pl = Number(i.current_value) - Number(i.initial_amount);
-        const pct = Number(i.initial_amount) ? (pl / Number(i.initial_amount)) * 100 : 0;
-        return [i.name, i.country ?? "-", i.currency, formatCurrency(Number(i.initial_amount), i.currency), formatCurrency(Number(i.current_value), i.currency), formatCurrency(pl, i.currency), `${pct.toFixed(2)}%`];
-      }),
+      startY: 36,
+      head: [["Summary", "Value"]],
+      body: [
+        ["Positions", String(filteredByTime.length)],
+        ["Total invested (window)", formatCurrency(winInvested)],
+        ["Current value (window)", formatCurrency(winCurrent)],
+        ["Net P/L (window)", `${formatCurrency(winPl)} (${formatPercent(winPct)})`],
+        ["All-time P/L", `${formatCurrency(totals.pl)} (${formatPercent(totals.pct)})`],
+        ["Best performer", best ? `${best.name} (${formatCurrency(Number(best.current_value) - Number(best.initial_amount), best.currency)})` : "—"],
+        ["Worst performer", worst && worst !== best ? `${worst.name} (${formatCurrency(Number(worst.current_value) - Number(worst.initial_amount), worst.currency)})` : "—"],
+      ],
       styles: { fontSize: 9 },
       headStyles: { fillColor: [30, 30, 30] },
     });
+
+    // Allocation by country
+    if (byCountry.length) {
+      autoTable(doc, {
+        head: [["Country", "Current value", "% of portfolio"]],
+        body: byCountry
+          .sort((a, b) => b.value - a.value)
+          .map(row => [row.name, formatCurrency(row.value), formatPercent(totals.current ? (row.value / totals.current) * 100 : 0)]),
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [30, 30, 30] },
+      });
+    }
+
+    // Positions detail
+    autoTable(doc, {
+      head: [["Name", "Country", "CCY", "Invested", "Current", "P/L", "Return", "Added"]],
+      body: filteredByTime.map(i => {
+        const pl = Number(i.current_value) - Number(i.initial_amount);
+        const pct = Number(i.initial_amount) ? (pl / Number(i.initial_amount)) * 100 : 0;
+        return [
+          i.name,
+          i.country ?? "-",
+          i.currency,
+          formatCurrency(Number(i.initial_amount), i.currency),
+          formatCurrency(Number(i.current_value), i.currency),
+          formatCurrency(pl, i.currency),
+          formatPercent(pct),
+          formatDate(i.created_at),
+        ];
+      }),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 30, 30] },
+    });
+
     doc.save(`bspot-portfolio-${timeframe}-${new Date().toISOString().slice(0,10)}.pdf`);
     track("portfolio_export", { metadata: { format: "pdf", timeframe, rows: filteredByTime.length } });
   };

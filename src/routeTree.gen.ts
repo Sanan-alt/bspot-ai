@@ -43,6 +43,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppAdminTelemetryRouteImport } from './routes/app.admin.telemetry'
 import { Route as AppAdminEmailsRouteImport } from './routes/app.admin.emails'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -224,6 +225,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAdminTelemetryRoute = AppAdminTelemetryRouteImport.update({
+  id: '/telemetry',
+  path: '/telemetry',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminEmailsRoute = AppAdminEmailsRouteImport.update({
   id: '/emails',
   path: '/emails',
@@ -306,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/app/admin/emails': typeof AppAdminEmailsRoute
+  '/app/admin/telemetry': typeof AppAdminTelemetryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/app/admin/emails': typeof AppAdminEmailsRoute
+  '/app/admin/telemetry': typeof AppAdminTelemetryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -394,6 +402,7 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/app/admin/emails': typeof AppAdminEmailsRoute
+  '/app/admin/telemetry': typeof AppAdminTelemetryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -440,6 +449,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/app/admin/emails'
+    | '/app/admin/telemetry'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/app/admin/emails'
+    | '/app/admin/telemetry'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -527,6 +538,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/app/admin/emails'
+    | '/app/admin/telemetry'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -804,6 +816,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/admin/telemetry': {
+      id: '/app/admin/telemetry'
+      path: '/telemetry'
+      fullPath: '/app/admin/telemetry'
+      preLoaderRoute: typeof AppAdminTelemetryRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/emails': {
       id: '/app/admin/emails'
       path: '/emails'
@@ -865,10 +884,12 @@ declare module '@tanstack/react-router' {
 
 interface AppAdminRouteChildren {
   AppAdminEmailsRoute: typeof AppAdminEmailsRoute
+  AppAdminTelemetryRoute: typeof AppAdminTelemetryRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminEmailsRoute: AppAdminEmailsRoute,
+  AppAdminTelemetryRoute: AppAdminTelemetryRoute,
 }
 
 const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(

@@ -1,6 +1,7 @@
 // Batched, production-safe telemetry writer.
-// Queues events client-side, flushes every FLUSH_MS or on visibility change.
-// Never spams the console in prod; dev logs a compact summary only.
+// - Batches events client-side, flushes every FLUSH_MS or when queue fills.
+// - Rate-limits both event volume and per-key missing-translation reports.
+// - Never writes to the console in production; dev prints one compact debug line on failure.
 import { supabase } from "@/integrations/supabase/client";
 
 type EventLevel = "info" | "warn" | "error";
@@ -14,8 +15,18 @@ export type TelemetryEvent = {
 
 const FLUSH_MS = 5000;
 const MAX_BATCH = 25;
+// Global rate limit: hard cap on how many events we accept per rolling minute
+// so a runaway loop can never flood the DB (or the network tab).
+const EVENTS_PER_MIN = 200;
+// Per-missing-key cap per session — dedupe stops repeats within a batch, this
+// stops the same key from being re-reported over and over across batches.
+const MISSING_KEY_MAX_PER_SESSION = 5;
+
 let queue: TelemetryEvent[] = [];
 let missingKeys = new Map<string, { lang: string; key: string; count: number; path?: string }>();
+const missingKeySessionCount = new Map<string, number>();
+let recentEventTimes: number[] = [];
+let droppedInWindow = 0;
 let sessionId: string | null = null;
 let userId: string | null = null;
 let timer: ReturnType<typeof setTimeout> | null = null;
@@ -47,11 +58,22 @@ function scheduleFlush() {
   timer = setTimeout(() => { timer = null; void flush(); }, FLUSH_MS);
 }
 
+function underRateLimit(): boolean {
+  const now = Date.now();
+  recentEventTimes = recentEventTimes.filter(t => now - t < 60_000);
+  if (recentEventTimes.length >= EVENTS_PER_MIN) return false;
+  recentEventTimes.push(now);
+  return true;
+}
+
 export async function flush() {
   if (typeof window === "undefined") return;
   const events = queue.splice(0, queue.length);
   const missing = Array.from(missingKeys.values());
   missingKeys = new Map();
+  const dropped = droppedInWindow;
+  droppedInWindow = 0;
+
   if (events.length === 0 && missing.length === 0) return;
 
   const sid = getSessionId();
@@ -63,7 +85,10 @@ export async function flush() {
           path: e.path ?? (typeof location !== "undefined" ? location.pathname : null),
           value: e.value ?? null,
           level: e.level ?? "info",
-          metadata: (e.metadata ?? null) as never,
+          metadata: {
+            ...(e.metadata ?? {}),
+            ...(dropped > 0 ? { _dropped_since_last_flush: dropped } : {}),
+          } as never,
           session_id: sid,
           user_id: userId,
         }))
@@ -79,6 +104,7 @@ export async function flush() {
 }
 
 export function track(event: string, opts: Omit<TelemetryEvent, "event"> = {}) {
+  if (!underRateLimit()) { droppedInWindow++; return; }
   queue.push({ event, ...opts });
   if (queue.length >= MAX_BATCH) void flush();
   else scheduleFlush();
@@ -86,6 +112,10 @@ export function track(event: string, opts: Omit<TelemetryEvent, "event"> = {}) {
 
 export function trackMissingKey(lang: string, key: string) {
   const k = `${lang}::${key}`;
+  const sessionCount = missingKeySessionCount.get(k) ?? 0;
+  if (sessionCount >= MISSING_KEY_MAX_PER_SESSION) return;
+  missingKeySessionCount.set(k, sessionCount + 1);
+
   const existing = missingKeys.get(k);
   if (existing) existing.count += 1;
   else missingKeys.set(k, {
