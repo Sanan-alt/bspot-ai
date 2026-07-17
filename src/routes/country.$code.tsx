@@ -244,7 +244,7 @@ function CountryPublicPage() {
           <section>
             <h2 className="font-display text-2xl mb-3">Frequently Asked Questions</h2>
             <div className="space-y-2">
-              {faqs.map((f) => (
+              {faqs.map((f: { q: string; a: string }) => (
                 <details key={f.q} className="panel p-4 group">
                   <summary className="cursor-pointer font-display text-sm list-none flex items-center justify-between">
                     <span>{f.q}</span>
