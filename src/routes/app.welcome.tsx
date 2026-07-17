@@ -45,7 +45,7 @@ function WelcomePage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      navigate({ to: "/signin" });
+      navigate({ to: "/signin", search: { redirect: "/app/welcome" } });
       return;
     }
     (async () => {
