@@ -21,6 +21,21 @@ void i18n
     },
     fallbackLng: "en",
     supportedLngs: ["en", "ur", "ar", "hi"],
+    // Fall back to English for any missing key, and log once in dev.
+    parseMissingKeyHandler: (key) => {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(`[i18n] missing translation for key "${key}" — using English fallback.`);
+      }
+      return key;
+    },
+    saveMissing: import.meta.env.DEV,
+    missingKeyHandler: (lngs, _ns, key) => {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(`[i18n] missing "${key}" in [${lngs.join(",")}] — falling back to en.`);
+      }
+    },
     interpolation: { escapeValue: false },
     detection: {
       order: ["localStorage", "navigator"],
