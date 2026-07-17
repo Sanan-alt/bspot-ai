@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { sendChatMessage, clearChatHistory } from "@/lib/assistant.functions";
+import { clearChatHistory } from "@/lib/assistant.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,9 @@ type Msg = { id: string; role: string; content: string; created_at: string };
 
 function AssistantPage() {
   const qc = useQueryClient();
-  const sendFn = useServerFn(sendChatMessage);
   const clearFn = useServerFn(clearChatHistory);
   const [input, setInput] = useState("");
+  const [streaming, setStreaming] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: messages = [] } = useQuery({
@@ -36,10 +36,87 @@ function AssistantPage() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages.length, streaming]);
 
   const send = useMutation({
-    mutationFn: async (message: string) => sendFn({ data: { message } }),
+    mutationFn: async (message: string) => {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!res.ok || !res.body) {
+        const text = await res.text().catch(() => "");
+        const match = text.match(/data:\s*({.*})/);
+        if (match) {
+          try {
+            const j = JSON.parse(match[1]);
+            throw new Error(j.message || `Request failed (${res.status})`);
+          } catch (e) {
+            if (e instanceof Error && e.message) throw e;
+          }
+        }
+        throw new Error(`Request failed (${res.status})`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let acc = "";
+      let errored: string | null = null;
+
+      setStreaming("");
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split("\n\n");
+          buffer = events.pop() ?? "";
+          for (const evt of events) {
+            const lines = evt.split("\n");
+            let eventName = "message";
+            let dataStr = "";
+            for (const l of lines) {
+              if (l.startsWith("event:")) eventName = l.slice(6).trim();
+              else if (l.startsWith("data:")) dataStr += l.slice(5).trim();
+            }
+            if (!dataStr) continue;
+            if (dataStr === "[DONE]") continue;
+            if (eventName === "error") {
+              try {
+                errored = JSON.parse(dataStr).message ?? "Stream error";
+              } catch {
+                errored = "Stream error";
+              }
+              continue;
+            }
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.delta) {
+                acc += parsed.delta;
+                setStreaming(acc);
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+      } finally {
+        setStreaming(null);
+      }
+
+      if (errored) throw new Error(errored);
+      return acc;
+    },
     onSuccess: () => {
       setInput("");
       qc.invalidateQueries({ queryKey: ["chat_messages"] });
@@ -76,7 +153,7 @@ function AssistantPage() {
           </p>
         </div>
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
+          {messages.length === 0 && !streaming && (
             <div className="text-center text-muted-foreground py-12">
               <Bot className="h-10 w-10 mx-auto mb-3 opacity-50" />
               <p>Ask me about investments, currencies, countries, or your portfolio.</p>
@@ -101,12 +178,14 @@ function AssistantPage() {
               )}
             </div>
           ))}
-          {send.isPending && (
+          {streaming !== null && (
             <div className="flex gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary/10 grid place-items-center">
-                <Bot className="h-4 w-4 text-primary animate-pulse" />
+              <div className="h-8 w-8 rounded-full bg-primary/10 grid place-items-center shrink-0">
+                <Bot className={`h-4 w-4 text-primary ${streaming === "" ? "animate-pulse" : ""}`} />
               </div>
-              <div className="bg-muted rounded-lg px-3 py-2 text-sm">Thinking…</div>
+              <div className="max-w-[75%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap bg-muted">
+                {streaming === "" ? "Thinking…" : streaming}
+              </div>
             </div>
           )}
         </div>
