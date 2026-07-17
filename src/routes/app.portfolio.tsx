@@ -208,10 +208,10 @@ function PortfolioPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Invested" value={`$${totals.invested.toLocaleString()}`} />
-        <Stat label="Current" value={`$${totals.current.toLocaleString()}`} />
-        <Stat label="P/L" value={`${totals.pl >= 0 ? "+" : ""}$${totals.pl.toLocaleString()}`} accent={totals.pl >= 0 ? "up" : "down"} />
-        <Stat label="Return" value={`${totals.pct.toFixed(2)}%`} accent={totals.pct >= 0 ? "up" : "down"} />
+        <Stat label="Invested" value={formatCurrency(totals.invested)} />
+        <Stat label="Current" value={formatCurrency(totals.current)} />
+        <Stat label="P/L" value={`${totals.pl >= 0 ? "+" : ""}${formatCurrency(totals.pl)}`} accent={totals.pl >= 0 ? "up" : "down"} />
+        <Stat label="Return" value={formatPercent(totals.pct)} accent={totals.pct >= 0 ? "up" : "down"} />
       </div>
 
       {aiAdvice && (
@@ -222,30 +222,75 @@ function PortfolioPage() {
       )}
 
       {items.length > 0 && (
-        <div className="grid lg:grid-cols-2 gap-4">
-          <div className="panel p-4">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// Allocation by Country</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={byCountry} dataKey="value" nameKey="name" outerRadius={80} label>
-                  {byCountry.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={{ background: "oklch(0.12 0.005 95)", border: "1px solid oklch(0.25 0.01 95)" }} />
-              </PieChart>
-            </ResponsiveContainer>
+        <>
+          <div className="grid lg:grid-cols-2 gap-4">
+            <div className="panel p-4">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// Allocation by Country</p>
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie data={byCountry} dataKey="value" nameKey="name" outerRadius={80} label>
+                    {byCountry.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ background: "oklch(0.12 0.005 95)", border: "1px solid oklch(0.25 0.01 95)" }}
+                    formatter={(v: number, name) => [formatCurrency(v), name as string]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="panel p-4">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// P/L per Asset</p>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={perAsset}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0.01 95)" />
+                  <XAxis dataKey="name" stroke="oklch(0.55 0.01 95)" fontSize={10} />
+                  <YAxis stroke="oklch(0.55 0.01 95)" fontSize={10} tickFormatter={(v) => formatCurrency(v, "USD", { notation: "compact", maximumFractionDigits: 1 })} />
+                  <Tooltip
+                    contentStyle={{ background: "oklch(0.12 0.005 95)", border: "1px solid oklch(0.25 0.01 95)" }}
+                    formatter={(v: number, key) => [formatCurrency(v), key === "pl" ? "P/L" : (key as string)]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={() => "P/L per asset"} />
+                  <Bar dataKey="pl" fill="oklch(0.88 0.19 95)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
+
           <div className="panel p-4">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// P/L per Asset</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={perAsset}>
-                <XAxis dataKey="name" stroke="oklch(0.55 0.01 95)" fontSize={10} />
-                <YAxis stroke="oklch(0.55 0.01 95)" fontSize={10} />
-                <Tooltip contentStyle={{ background: "oklch(0.12 0.005 95)", border: "1px solid oklch(0.25 0.01 95)" }} />
-                <Bar dataKey="pl" fill="oklch(0.88 0.19 95)" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// Cumulative P/L over time</p>
+              <div className="flex gap-1">
+                {(["7d", "30d", "90d", "1y", "all"] as const).map(tf => (
+                  <button
+                    key={tf}
+                    onClick={() => setTimeframe(tf)}
+                    className={`text-[10px] font-mono px-2 py-1 rounded border ${timeframe === tf ? "border-neon text-neon" : "border-border text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {tf.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {plHistory.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">No investments in the selected window.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={plHistory}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0.01 95)" />
+                  <XAxis dataKey="date" stroke="oklch(0.55 0.01 95)" fontSize={10} />
+                  <YAxis stroke="oklch(0.55 0.01 95)" fontSize={10} tickFormatter={(v) => formatCurrency(v, "USD", { notation: "compact", maximumFractionDigits: 1 })} />
+                  <Tooltip
+                    contentStyle={{ background: "oklch(0.12 0.005 95)", border: "1px solid oklch(0.25 0.01 95)" }}
+                    formatter={(v: number) => [formatCurrency(v), "Cumulative P/L"]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={() => "Cumulative P/L"} />
+                  <Line type="monotone" dataKey="pl" stroke="oklch(0.88 0.19 95)" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
-        </div>
+        </>
       )}
 
       <div className="panel p-0 overflow-hidden">
