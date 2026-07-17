@@ -13,7 +13,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/lib/countries-data";
 import { optimizePortfolio } from "@/lib/portfolio.functions";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, LineChart, Line, CartesianGrid } from "recharts";
+import { formatCurrency, formatDate, formatPercent } from "@/lib/i18n-format";
 
 export const Route = createFileRoute("/app/portfolio")({ component: PortfolioPage });
 
