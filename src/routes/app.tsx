@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatbotFab } from "@/components/ChatbotFab";
 import { CreditsBadge } from "@/components/CreditsBadge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { CreditsProvider } from "@/hooks/use-credits";
 import { Bell, LogOut } from "lucide-react";
