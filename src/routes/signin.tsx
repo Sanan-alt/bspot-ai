@@ -53,11 +53,11 @@ function SignIn() {
       return setErr(`${error.message}${remaining > 0 && remaining < 5 ? ` (${remaining} attempt${remaining === 1 ? "" : "s"} left)` : ""}`);
     }
     toast.success("Welcome back to the grid");
-    navigate({ to: "/app" });
+    navigate({ to: dest });
   }
 
   async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/app` });
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${dest}` });
     if (r.error) toast.error(r.error.message);
   }
 
@@ -70,7 +70,7 @@ function SignIn() {
     setDemoLoading(false);
     if (error) return setErr(error.message);
     toast.success("Demo session started — explore freely");
-    navigate({ to: "/app" });
+    navigate({ to: dest });
   }
 
   return (
