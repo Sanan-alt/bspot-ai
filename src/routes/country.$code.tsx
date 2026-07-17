@@ -18,6 +18,34 @@ type Visa = import("@/lib/visa-programs").VisaProgram;
 type Faq = { q: string; a: string };
 type HowTo = { name: string; description: string; steps: { name: string; text: string }[] };
 
+function clean(s: unknown, max = 500): string {
+  if (typeof s !== "string") return "";
+  return s.replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function validFaqs(raw: Faq[]): Faq[] {
+  const seen = new Set<string>();
+  const out: Faq[] = [];
+  for (const f of raw) {
+    const q = clean(f?.q, 200);
+    const a = clean(f?.a, 800);
+    if (!q || !a || q.length < 8 || a.length < 12) continue;
+    const key = q.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ q, a });
+  }
+  return out;
+}
+
+function fallbackFaqs(country: Country): Faq[] {
+  return [
+    { q: `Is ${country.name} a good country for cross-border investment?`, a: `${country.name} is one of the destinations tracked by BSpot AI for ${country.region} investors. Open the full profile for stability, growth, and risk indicators.` },
+    { q: `What currency does ${country.name} use?`, a: `${country.name} transacts in ${country.currency}. Use the BSpot converter for live cross-rates against USD, EUR, PKR, INR, and more.` },
+    { q: `How can I plan a business setup in ${country.name}?`, a: `Use the BSpot cost calculator and visa comparison tools to model incorporation cost, tax exposure, and residency pathways for ${country.name}.` },
+  ];
+}
+
 function buildFaqs(country: Country, deep: Deep | null, visas: Visa[]): Faq[] {
   const faqs: Faq[] = [];
   if (deep) {
@@ -31,24 +59,37 @@ function buildFaqs(country: Country, deep: Deep | null, visas: Visa[]): Faq[] {
     faqs.push({ q: `Which visa is best for investors in ${country.name}?`, a: `Popular routes include ${(visas.length ? visas : deep?.visa_programs ?? []).slice(0, 3).map(v => (v as { name: string }).name).join(", ")}. ${first ? `The ${first} program is a common starting point.` : ""}` });
   }
   faqs.push({ q: `Is ${country.name} a good country for cross-border investment?`, a: `${country.name} scores well on our BSpot index for ${country.region} founders looking to diversify. Open the full profile for stability, growth, and risk scores.` });
-  return faqs;
+  const cleaned = validFaqs(faqs);
+  return cleaned.length >= 2 ? cleaned : validFaqs([...cleaned, ...fallbackFaqs(country)]);
 }
 
 function buildHowTo(country: Country, deep: Deep | null): HowTo | null {
-  if (!deep) return null;
-  return {
-    name: `How to start a business in ${country.name}`,
-    description: `Step-by-step guide to incorporating and moving capital into ${country.name}.`,
-    steps: [
+  const rawSteps = deep
+    ? [
       { name: "Choose the right entity", text: `Decide between mainland, free-zone, or offshore structures based on your activity. ${deep.foreign_ownership}` },
       { name: "Reserve a company name", text: `Submit 2-3 name options to the registrar. Names must comply with local naming conventions.` },
       { name: "Prepare KYC documents", text: `Notarized passport copies, proof of address, bank references, and a business plan for licensed activities.` },
       { name: "Submit incorporation", text: `File Memorandum & Articles with the registrar. Processing takes about ${deep.setup_time}.` },
       { name: "Open a corporate bank account", text: `Most banks require the director to be physically present for KYC. Prepare source-of-funds evidence.` },
       { name: "Register for tax & payroll", text: `Corporate tax ${deep.corporate_tax}, VAT ${deep.vat}. Register before invoicing customers.` },
-    ],
+    ]
+    : [
+      { name: "Research the market", text: `Review ${country.name}'s economy, currency (${country.currency}), and regulatory climate before committing capital.` },
+      { name: "Pick a visa or residency route", text: `Compare investor, work, and residency visas that fit your budget and timeline.` },
+      { name: "Model the setup cost", text: `Use the BSpot calculator to estimate incorporation, licensing, and first-year compliance costs.` },
+      { name: "Line up local partners", text: `Engage a local lawyer, accountant, and bank early — most jurisdictions require in-country KYC.` },
+    ];
+  const steps = rawSteps
+    .map(s => ({ name: clean(s.name, 120), text: clean(s.text, 600) }))
+    .filter(s => s.name && s.text);
+  if (steps.length < 2) return null;
+  return {
+    name: `How to start a business in ${country.name}`,
+    description: `Step-by-step guide to incorporating and moving capital into ${country.name}.`,
+    steps,
   };
 }
+
 
 
 export const Route = createFileRoute("/country/$code")({
