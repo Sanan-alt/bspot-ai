@@ -110,7 +110,7 @@ function CountryPublicPage() {
             <section>
               <h2 className="font-display text-2xl mb-3 flex items-center gap-2"><Plane className="h-5 w-5 text-neon" /> Visa Programs</h2>
               <ul className="grid md:grid-cols-2 gap-3">
-                {deep.visa_programs.map((v) => (
+                {deep.visa_programs.map((v: { name: string; duration: string; type: string; min_investment: string }) => (
                   <li key={v.name} className="panel p-4">
                     <div className="font-display">{v.name}</div>
                     <p className="text-xs text-muted-foreground mt-1">{v.duration} · {v.type}</p>
@@ -139,7 +139,7 @@ function CountryPublicPage() {
           <section>
             <h2 className="font-display text-2xl mb-3">Curated Visa Pathways</h2>
             <ul className="space-y-2">
-              {visas.map((v) => (
+              {visas.map((v: import("@/lib/visa-programs").VisaProgram) => (
                 <li key={v.name} className="panel p-3 flex items-center justify-between gap-3">
                   <div>
                     <div className="font-display text-sm">{v.name}</div>
