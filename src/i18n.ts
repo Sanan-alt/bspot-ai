@@ -6,6 +6,7 @@ import en from "./locales/en.json";
 import ur from "./locales/ur.json";
 import ar from "./locales/ar.json";
 import hi from "./locales/hi.json";
+import { trackMissingKey } from "@/lib/telemetry";
 
 const RTL = new Set(["ur", "ar", "fa", "he"]);
 
@@ -21,20 +22,14 @@ void i18n
     },
     fallbackLng: "en",
     supportedLngs: ["en", "ur", "ar", "hi"],
-    // Fall back to English for any missing key, and log once in dev.
     parseMissingKeyHandler: (key) => {
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.warn(`[i18n] missing translation for key "${key}" — using English fallback.`);
-      }
+      if (import.meta.env.DEV) console.warn(`[i18n] missing "${key}" — using English fallback.`);
       return key;
     },
-    saveMissing: import.meta.env.DEV,
+    saveMissing: true,
     missingKeyHandler: (lngs, _ns, key) => {
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.warn(`[i18n] missing "${key}" in [${lngs.join(",")}] — falling back to en.`);
-      }
+      // Batch to Supabase in prod; keep console quiet.
+      for (const lng of lngs) trackMissingKey(lng, key);
     },
     interpolation: { escapeValue: false },
     detection: {

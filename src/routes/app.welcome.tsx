@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { track } from "@/lib/telemetry";
 
 export const Route = createFileRoute("/app/welcome")({
   head: () => ({
@@ -41,6 +42,9 @@ function WelcomePage() {
   const [sectors, setSectors] = useState<string[]>([]);
   const [timeline, setTimeline] = useState<string>("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => { track("onboarding_started"); }, []);
+  useEffect(() => { track("onboarding_step", { value: step }); }, [step]);
 
   useEffect(() => {
     if (loading) return;
@@ -85,11 +89,13 @@ function WelcomePage() {
       return;
     }
     toast.success("Welcome aboard!");
+    track("onboarding_finished", { metadata: { experience, sectors: sectors.length, timeline } });
     navigate({ to: "/app" });
   };
 
   const skip = async () => {
     if (!user) return;
+    track("onboarding_skipped", { value: step });
     await supabase
       .from("profiles")
       .update({ onboarded_at: new Date().toISOString() })

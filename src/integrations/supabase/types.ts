@@ -344,6 +344,33 @@ export type Database = {
         }
         Relationships: []
       }
+      i18n_missing_keys: {
+        Row: {
+          count: number
+          created_at: string
+          id: number
+          key: string
+          lang: string
+          path: string | null
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          id?: number
+          key: string
+          lang: string
+          path?: string | null
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: number
+          key?: string
+          lang?: string
+          path?: string | null
+        }
+        Relationships: []
+      }
       investments: {
         Row: {
           country: string | null
@@ -620,6 +647,42 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      telemetry_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: number
+          level: string
+          metadata: Json | null
+          path: string | null
+          session_id: string | null
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: number
+          level?: string
+          metadata?: Json | null
+          path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: number
+          level?: string
+          metadata?: Json | null
+          path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          value?: number | null
         }
         Relationships: []
       }

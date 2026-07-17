@@ -1,14 +1,55 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Plane, Building2, Landmark } from "lucide-react";
+import { track } from "@/lib/telemetry";
 
 const ALPHA2_TO_ALPHA3: Record<string, string> = {
   AE: "ARE", GB: "GBR", CA: "CAN", SG: "SGP", SA: "SAU",
   DE: "DEU", US: "USA", TR: "TUR", PT: "PRT", AU: "AUS",
 };
+
+type Country = (typeof COUNTRIES)[number];
+type Deep = (typeof COUNTRY_DEEP)[keyof typeof COUNTRY_DEEP];
+type Visa = import("@/lib/visa-programs").VisaProgram;
+type Faq = { q: string; a: string };
+type HowTo = { name: string; description: string; steps: { name: string; text: string }[] };
+
+function buildFaqs(country: Country, deep: Deep | null, visas: Visa[]): Faq[] {
+  const faqs: Faq[] = [];
+  if (deep) {
+    faqs.push({ q: `How much does it cost to start a business in ${country.name}?`, a: `Year-one setup typically ranges ${deep.setup_cost_range}. This covers registration, licensing, and initial compliance for a foreign-owned company.` });
+    faqs.push({ q: `What is the corporate tax rate in ${country.name}?`, a: `${country.name} applies a corporate tax of ${deep.corporate_tax}. Personal income tax is ${deep.income_tax}, and VAT/sales tax is ${deep.vat}.` });
+    faqs.push({ q: `Can foreigners fully own a company in ${country.name}?`, a: deep.foreign_ownership });
+    faqs.push({ q: `How long does incorporation take in ${country.name}?`, a: `Standard incorporation completes in about ${deep.setup_time}, assuming documents are in order.` });
+  }
+  if (visas.length || deep?.visa_programs.length) {
+    const first = visas[0]?.name ?? deep?.visa_programs[0]?.name;
+    faqs.push({ q: `Which visa is best for investors in ${country.name}?`, a: `Popular routes include ${(visas.length ? visas : deep?.visa_programs ?? []).slice(0, 3).map(v => (v as { name: string }).name).join(", ")}. ${first ? `The ${first} program is a common starting point.` : ""}` });
+  }
+  faqs.push({ q: `Is ${country.name} a good country for cross-border investment?`, a: `${country.name} scores well on our BSpot index for ${country.region} founders looking to diversify. Open the full profile for stability, growth, and risk scores.` });
+  return faqs;
+}
+
+function buildHowTo(country: Country, deep: Deep | null): HowTo | null {
+  if (!deep) return null;
+  return {
+    name: `How to start a business in ${country.name}`,
+    description: `Step-by-step guide to incorporating and moving capital into ${country.name}.`,
+    steps: [
+      { name: "Choose the right entity", text: `Decide between mainland, free-zone, or offshore structures based on your activity. ${deep.foreign_ownership}` },
+      { name: "Reserve a company name", text: `Submit 2-3 name options to the registrar. Names must comply with local naming conventions.` },
+      { name: "Prepare KYC documents", text: `Notarized passport copies, proof of address, bank references, and a business plan for licensed activities.` },
+      { name: "Submit incorporation", text: `File Memorandum & Articles with the registrar. Processing takes about ${deep.setup_time}.` },
+      { name: "Open a corporate bank account", text: `Most banks require the director to be physically present for KYC. Prepare source-of-funds evidence.` },
+      { name: "Register for tax & payroll", text: `Corporate tax ${deep.corporate_tax}, VAT ${deep.vat}. Register before invoicing customers.` },
+    ],
+  };
+}
+
 
 export const Route = createFileRoute("/country/$code")({
   loader: ({ params }) => {
@@ -18,11 +59,13 @@ export const Route = createFileRoute("/country/$code")({
     const deepKey = ALPHA2_TO_ALPHA3[code];
     const deep = deepKey ? COUNTRY_DEEP[deepKey] : null;
     const visas = VISA_PROGRAMS[code] ?? [];
-    return { country, deep, visas };
+    const faqs = buildFaqs(country, deep, visas);
+    const howto = buildHowTo(country, deep);
+    return { country, deep, visas, faqs, howto };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
-    const { country, deep } = loaderData;
+    const { country, deep, faqs, howto } = loaderData;
     const title = `${country.name} — Setup Cost, Visa & Tax Guide | BSpot AI`;
     const description = deep
       ? `Start a business in ${country.name}: setup cost ${deep.setup_cost_range}, corporate tax ${deep.corporate_tax}, ${deep.visa_programs.length} visa pathways.`
@@ -41,20 +84,43 @@ export const Route = createFileRoute("/country/$code")({
         { name: "twitter:description", content: description },
       ],
       links: [{ rel: "canonical", href: url }],
-      scripts: deep
-        ? [{
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Article",
-              headline: title,
-              description,
-              about: country.name,
-              url,
-              publisher: { "@type": "Organization", name: "BSpot AI", url: "https://www.bspot.info" },
-            }),
-          }]
-        : [],
+      scripts: [
+        ...(deep ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: title,
+            description,
+            about: country.name,
+            url,
+            publisher: { "@type": "Organization", name: "BSpot AI", url: "https://www.bspot.info" },
+          }),
+        }] : []),
+        ...(faqs.length ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map(f => ({
+              "@type": "Question", name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          }),
+        }] : []),
+        ...(howto ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: howto.name,
+            description: howto.description,
+            step: howto.steps.map((s, i) => ({
+              "@type": "HowToStep", position: i + 1, name: s.name, text: s.text,
+            })),
+          }),
+        }] : []),
+      ],
     };
   },
   component: CountryPublicPage,
@@ -79,7 +145,11 @@ export const Route = createFileRoute("/country/$code")({
 });
 
 function CountryPublicPage() {
-  const { country, deep, visas } = Route.useLoaderData();
+  const { country, deep, visas, faqs, howto } = Route.useLoaderData();
+  useEffect(() => {
+    track("country_page_view", { metadata: { code: country.code, name: country.name, hasDeep: !!deep } });
+  }, [country.code]);
+  const related = COUNTRIES.filter(c => c.code !== country.code && c.region === country.region).slice(0, 6);
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
