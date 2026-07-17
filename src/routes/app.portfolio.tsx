@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil } from "lucide-react";
+import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil, FileDown, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { COUNTRIES } from "@/lib/countries-data";
 import { optimizePortfolio } from "@/lib/portfolio.functions";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, LineChart, Line, CartesianGrid } from "recharts";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/i18n-format";
+import { track } from "@/lib/telemetry";
 
 export const Route = createFileRoute("/app/portfolio")({ component: PortfolioPage });
 
@@ -46,11 +47,13 @@ function PortfolioPage() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
+    const t0 = performance.now();
     const { data, error } = await supabase
       .from("investments").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setItems((data ?? []) as Investment[]);
     setLoading(false);
+    track("portfolio_loaded", { value: Math.round(performance.now() - t0), metadata: { count: data?.length ?? 0 } });
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [user]);
@@ -162,6 +165,49 @@ function PortfolioPage() {
     }
   };
 
+  const exportCsv = () => {
+    const header = ["Name", "Country", "Currency", "Invested", "Current", "P/L", "Return %", "Created"];
+    const rows = filteredByTime.map(i => {
+      const pl = Number(i.current_value) - Number(i.initial_amount);
+      const pct = Number(i.initial_amount) ? (pl / Number(i.initial_amount)) * 100 : 0;
+      return [i.name, i.country ?? "", i.currency, i.initial_amount, i.current_value, pl.toFixed(2), pct.toFixed(2), i.created_at];
+    });
+    const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `bspot-portfolio-${timeframe}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    track("portfolio_export", { metadata: { format: "csv", timeframe, rows: rows.length } });
+  };
+
+  const exportPdf = async () => {
+    const [{ default: jsPDF }, autoTableMod] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    const autoTable = (autoTableMod as { default: (doc: unknown, opts: unknown) => void }).default;
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.text("BSpot AI — Portfolio Report", 14, 18);
+    doc.setFontSize(10); doc.setTextColor(120);
+    doc.text(`Timeframe: ${timeframe.toUpperCase()}   ·   Generated: ${new Date().toLocaleString()}`, 14, 25);
+    doc.setTextColor(0);
+    doc.text(`Invested: ${formatCurrency(totals.invested)}    Current: ${formatCurrency(totals.current)}    P/L: ${formatCurrency(totals.pl)} (${formatPercent(totals.pct)})`, 14, 33);
+    autoTable(doc, {
+      startY: 40,
+      head: [["Name", "Country", "CCY", "Invested", "Current", "P/L", "Return %"]],
+      body: filteredByTime.map(i => {
+        const pl = Number(i.current_value) - Number(i.initial_amount);
+        const pct = Number(i.initial_amount) ? (pl / Number(i.initial_amount)) * 100 : 0;
+        return [i.name, i.country ?? "-", i.currency, formatCurrency(Number(i.initial_amount), i.currency), formatCurrency(Number(i.current_value), i.currency), formatCurrency(pl, i.currency), `${pct.toFixed(2)}%`];
+      }),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [30, 30, 30] },
+    });
+    doc.save(`bspot-portfolio-${timeframe}-${new Date().toISOString().slice(0,10)}.pdf`);
+    track("portfolio_export", { metadata: { format: "pdf", timeframe, rows: filteredByTime.length } });
+  };
+
   const COLORS = ["oklch(0.88 0.19 95)", "oklch(0.68 0.18 50)", "oklch(0.65 0.18 200)", "oklch(0.65 0.18 320)", "oklch(0.70 0.15 150)", "oklch(0.60 0.15 30)"];
 
   return (
@@ -172,7 +218,13 @@ function PortfolioPage() {
           <h1 className="mt-2 font-display text-3xl md:text-4xl">Portfolio Tracker</h1>
           <p className="text-sm text-muted-foreground mt-1">Track every investment, watch your P/L move in real time.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={exportCsv} disabled={items.length === 0} title="Export current timeframe as CSV">
+            <FileDown className="h-4 w-4" /> CSV
+          </Button>
+          <Button variant="outline" onClick={exportPdf} disabled={items.length === 0} title="Export current timeframe as PDF">
+            <FileText className="h-4 w-4" /> PDF
+          </Button>
           <Button variant="outline" onClick={optimize} disabled={aiLoading}>
             {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             AI Review (15 cr)

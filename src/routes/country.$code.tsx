@@ -1,14 +1,55 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { COUNTRIES, COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Plane, Building2, Landmark } from "lucide-react";
+import { track } from "@/lib/telemetry";
 
 const ALPHA2_TO_ALPHA3: Record<string, string> = {
   AE: "ARE", GB: "GBR", CA: "CAN", SG: "SGP", SA: "SAU",
   DE: "DEU", US: "USA", TR: "TUR", PT: "PRT", AU: "AUS",
 };
+
+type Country = (typeof COUNTRIES)[number];
+type Deep = (typeof COUNTRY_DEEP)[keyof typeof COUNTRY_DEEP];
+type Visa = import("@/lib/visa-programs").VisaProgram;
+type Faq = { q: string; a: string };
+type HowTo = { name: string; description: string; steps: { name: string; text: string }[] };
+
+function buildFaqs(country: Country, deep: Deep | null, visas: Visa[]): Faq[] {
+  const faqs: Faq[] = [];
+  if (deep) {
+    faqs.push({ q: `How much does it cost to start a business in ${country.name}?`, a: `Year-one setup typically ranges ${deep.setup_cost_range}. This covers registration, licensing, and initial compliance for a foreign-owned company.` });
+    faqs.push({ q: `What is the corporate tax rate in ${country.name}?`, a: `${country.name} applies a corporate tax of ${deep.corporate_tax}. Personal income tax is ${deep.personal_income_tax}, and VAT/sales tax is ${deep.vat}.` });
+    faqs.push({ q: `Can foreigners fully own a company in ${country.name}?`, a: deep.foreign_ownership });
+    faqs.push({ q: `How long does incorporation take in ${country.name}?`, a: `Standard incorporation completes in about ${deep.setup_time}, assuming documents are in order.` });
+  }
+  if (visas.length || deep?.visa_programs.length) {
+    const first = visas[0]?.name ?? deep?.visa_programs[0]?.name;
+    faqs.push({ q: `Which visa is best for investors in ${country.name}?`, a: `Popular routes include ${(visas.length ? visas : deep?.visa_programs ?? []).slice(0, 3).map(v => (v as { name: string }).name).join(", ")}. ${first ? `The ${first} program is a common starting point.` : ""}` });
+  }
+  faqs.push({ q: `Is ${country.name} a good country for cross-border investment?`, a: `${country.name} scores well on our BSpot index for ${country.region} founders looking to diversify. Open the full profile for stability, growth, and risk scores.` });
+  return faqs;
+}
+
+function buildHowTo(country: Country, deep: Deep | null): HowTo | null {
+  if (!deep) return null;
+  return {
+    name: `How to start a business in ${country.name}`,
+    description: `Step-by-step guide to incorporating and moving capital into ${country.name}.`,
+    steps: [
+      { name: "Choose the right entity", text: `Decide between mainland, free-zone, or offshore structures based on your activity. ${deep.foreign_ownership}` },
+      { name: "Reserve a company name", text: `Submit 2-3 name options to the registrar. Names must comply with local naming conventions.` },
+      { name: "Prepare KYC documents", text: `Notarized passport copies, proof of address, bank references, and a business plan for licensed activities.` },
+      { name: "Submit incorporation", text: `File Memorandum & Articles with the registrar. Processing takes about ${deep.setup_time}.` },
+      { name: "Open a corporate bank account", text: `Most banks require the director to be physically present for KYC. Prepare source-of-funds evidence.` },
+      { name: "Register for tax & payroll", text: `Corporate tax ${deep.corporate_tax}, VAT ${deep.vat}. Register before invoicing customers.` },
+    ],
+  };
+}
+
 
 export const Route = createFileRoute("/country/$code")({
   loader: ({ params }) => {
@@ -18,11 +59,13 @@ export const Route = createFileRoute("/country/$code")({
     const deepKey = ALPHA2_TO_ALPHA3[code];
     const deep = deepKey ? COUNTRY_DEEP[deepKey] : null;
     const visas = VISA_PROGRAMS[code] ?? [];
-    return { country, deep, visas };
+    const faqs = buildFaqs(country, deep, visas);
+    const howto = buildHowTo(country, deep);
+    return { country, deep, visas, faqs, howto };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
-    const { country, deep } = loaderData;
+    const { country, deep, faqs, howto } = loaderData;
     const title = `${country.name} — Setup Cost, Visa & Tax Guide | BSpot AI`;
     const description = deep
       ? `Start a business in ${country.name}: setup cost ${deep.setup_cost_range}, corporate tax ${deep.corporate_tax}, ${deep.visa_programs.length} visa pathways.`
@@ -41,20 +84,43 @@ export const Route = createFileRoute("/country/$code")({
         { name: "twitter:description", content: description },
       ],
       links: [{ rel: "canonical", href: url }],
-      scripts: deep
-        ? [{
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Article",
-              headline: title,
-              description,
-              about: country.name,
-              url,
-              publisher: { "@type": "Organization", name: "BSpot AI", url: "https://www.bspot.info" },
-            }),
-          }]
-        : [],
+      scripts: [
+        ...(deep ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: title,
+            description,
+            about: country.name,
+            url,
+            publisher: { "@type": "Organization", name: "BSpot AI", url: "https://www.bspot.info" },
+          }),
+        }] : []),
+        ...(faqs.length ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map(f => ({
+              "@type": "Question", name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          }),
+        }] : []),
+        ...(howto ? [{
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: howto.name,
+            description: howto.description,
+            step: howto.steps.map((s, i) => ({
+              "@type": "HowToStep", position: i + 1, name: s.name, text: s.text,
+            })),
+          }),
+        }] : []),
+      ],
     };
   },
   component: CountryPublicPage,
@@ -79,7 +145,11 @@ export const Route = createFileRoute("/country/$code")({
 });
 
 function CountryPublicPage() {
-  const { country, deep, visas } = Route.useLoaderData();
+  const { country, deep, visas, faqs, howto } = Route.useLoaderData();
+  useEffect(() => {
+    track("country_page_view", { metadata: { code: country.code, name: country.name, hasDeep: !!deep } });
+  }, [country.code]);
+  const related = COUNTRIES.filter(c => c.code !== country.code && c.region === country.region).slice(0, 6);
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
@@ -152,19 +222,73 @@ function CountryPublicPage() {
           </section>
         )}
 
+        {howto && (
+          <section>
+            <h2 className="font-display text-2xl mb-3">{howto.name}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{howto.description}</p>
+            <ol className="space-y-3">
+              {howto.steps.map((s: { name: string; text: string }, i: number) => (
+                <li key={s.name} className="panel p-4 flex gap-3">
+                  <span className="font-display text-neon text-xl leading-none">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <div className="font-display text-sm">{s.name}</div>
+                    <p className="text-sm text-muted-foreground mt-1">{s.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        {faqs.length > 0 && (
+          <section>
+            <h2 className="font-display text-2xl mb-3">Frequently Asked Questions</h2>
+            <div className="space-y-2">
+              {faqs.map((f: { q: string; a: string }) => (
+                <details key={f.q} className="panel p-4 group">
+                  <summary className="cursor-pointer font-display text-sm list-none flex items-center justify-between">
+                    <span>{f.q}</span>
+                    <span className="text-neon text-xs group-open:rotate-45 transition">+</span>
+                  </summary>
+                  <p className="text-sm text-muted-foreground mt-3">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="flex flex-wrap gap-3 pt-6 border-t border-border">
           <Link to="/app/countries" search={{ code: country.code }}>
             <Button>Open full profile <ArrowRight className="h-4 w-4" /></Button>
           </Link>
-          <Link to="/">
-            <Button variant="outline">Back to home</Button>
-          </Link>
+          <Link to="/app/calculator"><Button variant="outline">Setup cost calculator</Button></Link>
+          <Link to="/app/visa"><Button variant="outline">Compare visas</Button></Link>
+          <Link to="/"><Button variant="outline">Back to home</Button></Link>
         </div>
 
-        <nav aria-label="Other countries" className="pt-8 border-t border-border">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// Explore more</p>
+        {related.length > 0 && (
+          <nav aria-label={`Other ${country.region} countries`} className="pt-8 border-t border-border">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// More in {country.region}</p>
+            <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {related.map((c) => (
+                <li key={c.code}>
+                  <Link to="/country/$code" params={{ code: c.code }} className="panel p-3 flex items-center gap-2 hover:border-neon hover:text-neon transition">
+                    <span className="text-xl">{c.flag}</span>
+                    <div className="text-sm">
+                      <div className="font-display">{c.name}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground">Start a business in {c.name}</div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        <nav aria-label="All countries" className="pt-8 border-t border-border">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// Explore all destinations</p>
           <ul className="flex flex-wrap gap-2">
-            {COUNTRIES.slice(0, 20).filter(c => c.code !== country.code).map((c) => (
+            {COUNTRIES.filter(c => c.code !== country.code).map((c) => (
               <li key={c.code}>
                 <Link to="/country/$code" params={{ code: c.code }} className="text-xs px-3 py-1.5 border border-border rounded hover:border-neon hover:text-neon">
                   {c.flag} {c.name}

@@ -137,6 +137,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  if (typeof window !== "undefined") {
+    // Fire once — startTelemetry is idempotent.
+    void import("@/lib/telemetry").then(m => m.startTelemetry());
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
