@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
@@ -40,7 +40,22 @@ const quick = [
 function Home() {
   const { user } = useAuth();
   const { balance } = useCredits();
+  const navigate = useNavigate();
   const name = user?.email?.split("@")[0] ?? "investor";
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("onboarded_at")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data && !data.onboarded_at) {
+        navigate({ to: "/app/welcome" });
+      }
+    })();
+  }, [user?.id]);
 
   const [stats, setStats] = useState({
     conversions: 0,
