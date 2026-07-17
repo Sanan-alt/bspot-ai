@@ -227,7 +227,7 @@ function CountryPublicPage() {
             <h2 className="font-display text-2xl mb-3">{howto.name}</h2>
             <p className="text-sm text-muted-foreground mb-4">{howto.description}</p>
             <ol className="space-y-3">
-              {howto.steps.map((s, i) => (
+              {howto.steps.map((s: { name: string; text: string }, i: number) => (
                 <li key={s.name} className="panel p-4 flex gap-3">
                   <span className="font-display text-neon text-xl leading-none">{String(i + 1).padStart(2, "0")}</span>
                   <div>
