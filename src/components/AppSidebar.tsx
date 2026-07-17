@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useCredits } from "@/hooks/use-credits";
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications";
 import {
   Sidebar,
   SidebarContent,
