@@ -20,11 +20,11 @@ export const Route = createFileRoute("/app/admin/telemetry")({
 });
 
 type Row = {
-  id: string;
+  id: number | string;
   event: string;
   path: string | null;
   value: number | null;
-  level: "info" | "warn" | "error" | null;
+  level: string | null;
   metadata: Record<string, unknown> | null;
   session_id: string | null;
   user_id: string | null;
