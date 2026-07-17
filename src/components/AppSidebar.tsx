@@ -102,12 +102,18 @@ export function AppSidebar() {
                   >
                     {showMore ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     <span>More tools</span>
+                    {!showMore && unread > 0 && (
+                      <span className="ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-mono glow-sm">
+                        {unread > 99 ? "99+" : unread}
+                      </span>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
 
               {showMore && !collapsed && more.map((it) => {
                 const active = path === it.url;
+                const isNotif = it.url === "/app/notifications";
                 return (
                   <SidebarMenuItem key={it.url}>
                     <SidebarMenuButton asChild isActive={active}>
@@ -117,6 +123,11 @@ export function AppSidebar() {
                       >
                         <it.icon className="h-3.5 w-3.5" />
                         <span>{it.title}</span>
+                        {isNotif && unread > 0 && (
+                          <span className="ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-mono glow-sm">
+                            {unread > 99 ? "99+" : unread}
+                          </span>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
