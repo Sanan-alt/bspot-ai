@@ -122,9 +122,16 @@ export { OG_IMAGE };
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="light" style={{ colorScheme: "light" }}>
+    <html lang="en" className="light" suppressHydrationWarning style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
+        {/* Restore saved theme before paint to avoid a light→dark flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('bspot.theme');if(t==='dark'){document.documentElement.classList.remove('light');document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}",
+          }}
+        />
       </head>
       <body>
         {children}
