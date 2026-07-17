@@ -166,13 +166,27 @@ function PortfolioPage() {
   };
 
   const exportCsv = () => {
-    const header = ["Name", "Country", "Currency", "Invested", "Current", "P/L", "Return %", "Created"];
+    const winInvested = filteredByTime.reduce((s, i) => s + Number(i.initial_amount), 0);
+    const winCurrent = filteredByTime.reduce((s, i) => s + Number(i.current_value), 0);
+    const winPl = winCurrent - winInvested;
+    const winPct = winInvested ? (winPl / winInvested) * 100 : 0;
+    const preface = [
+      ["BSpot AI — Portfolio Report"],
+      [`Timeframe: ${timeframe}`],
+      [`Generated: ${formatDate(new Date(), { dateStyle: "long", timeStyle: "short" })}`],
+      [`Positions: ${filteredByTime.length}`],
+      [`Invested (window): ${formatCurrency(winInvested)}`],
+      [`Current (window): ${formatCurrency(winCurrent)}`],
+      [`Net P/L (window): ${formatCurrency(winPl)} (${formatPercent(winPct)})`],
+      [],
+    ];
+    const header = ["Name", "Country", "Currency", "Invested", "Current", "P/L", "Return %", "Added"];
     const rows = filteredByTime.map(i => {
       const pl = Number(i.current_value) - Number(i.initial_amount);
       const pct = Number(i.initial_amount) ? (pl / Number(i.initial_amount)) * 100 : 0;
-      return [i.name, i.country ?? "", i.currency, i.initial_amount, i.current_value, pl.toFixed(2), pct.toFixed(2), i.created_at];
+      return [i.name, i.country ?? "", i.currency, i.initial_amount, i.current_value, pl.toFixed(2), pct.toFixed(2), formatDate(i.created_at)];
     });
-    const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = [...preface, header, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
