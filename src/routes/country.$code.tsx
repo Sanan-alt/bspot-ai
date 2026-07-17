@@ -17,7 +17,7 @@ export const Route = createFileRoute("/country/$code")({
     if (!country) throw notFound();
     const deepKey = ALPHA2_TO_ALPHA3[code];
     const deep = deepKey ? COUNTRY_DEEP[deepKey] : null;
-    const visas = VISA_PROGRAMS.filter((v) => v.country === code);
+    const visas = VISA_PROGRAMS[code] ?? [];
     return { country, deep, visas };
   },
   head: ({ loaderData }) => {
@@ -143,9 +143,9 @@ function CountryPublicPage() {
                 <li key={v.name} className="panel p-3 flex items-center justify-between gap-3">
                   <div>
                     <div className="font-display text-sm">{v.name}</div>
-                    <p className="text-xs text-muted-foreground">{v.type} · {v.duration}</p>
+                    <p className="text-xs text-muted-foreground">{v.category} · {v.duration} · {v.minInvestment}</p>
                   </div>
-                  {v.pr_pathway && <span className="text-[10px] font-mono px-2 py-1 border border-neon text-neon rounded">PR</span>}
+                  {v.pathToPR && <span className="text-[10px] font-mono px-2 py-1 border border-neon text-neon rounded">PR</span>}
                 </li>
               ))}
             </ul>
