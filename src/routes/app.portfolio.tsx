@@ -41,6 +41,7 @@ function PortfolioPage() {
   const [form, setForm] = useState(empty);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAdvice, setAiAdvice] = useState<string | null>(null);
+  const [timeframe, setTimeframe] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
 
   const load = async () => {
     if (!user) return;
