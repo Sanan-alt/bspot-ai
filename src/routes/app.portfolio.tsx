@@ -308,15 +308,15 @@ function PortfolioPage() {
                   <div className="flex-1 min-w-0">
                     <div className="font-display">{it.name}</div>
                     <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                      {it.country ?? "—"} · {it.currency} · {new Date(it.created_at).toLocaleDateString()}
+                      {it.country ?? "—"} · {it.currency} · {formatDate(it.created_at)}
                     </div>
                     {it.notes && <div className="text-xs text-muted-foreground mt-1 line-clamp-1">{it.notes}</div>}
                   </div>
                   <div className="text-right">
-                    <div className="font-display text-sm">${Number(it.current_value).toLocaleString()}</div>
+                    <div className="font-display text-sm">{formatCurrency(Number(it.current_value), it.currency)}</div>
                     <div className={`text-xs flex items-center justify-end gap-1 ${pl >= 0 ? "text-neon" : "text-destructive"}`}>
                       {pl >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {pct.toFixed(2)}%
+                      {formatPercent(pct)}
                     </div>
                   </div>
                   <div className="flex gap-1">
