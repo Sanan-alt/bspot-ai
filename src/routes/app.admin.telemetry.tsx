@@ -78,7 +78,7 @@ function TelemetryPage() {
     const { data, error } = await q;
     setLoading(false);
     if (error) return toast.error(error.message);
-    setRows((data ?? []) as Row[]);
+    setRows((data ?? []) as unknown as Row[]);
   };
 
   useEffect(() => { if (verified === "ok") void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [verified, filter, limit]);
