@@ -222,19 +222,73 @@ function CountryPublicPage() {
           </section>
         )}
 
+        {howto && (
+          <section>
+            <h2 className="font-display text-2xl mb-3">{howto.name}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{howto.description}</p>
+            <ol className="space-y-3">
+              {howto.steps.map((s, i) => (
+                <li key={s.name} className="panel p-4 flex gap-3">
+                  <span className="font-display text-neon text-xl leading-none">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <div className="font-display text-sm">{s.name}</div>
+                    <p className="text-sm text-muted-foreground mt-1">{s.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        {faqs.length > 0 && (
+          <section>
+            <h2 className="font-display text-2xl mb-3">Frequently Asked Questions</h2>
+            <div className="space-y-2">
+              {faqs.map((f) => (
+                <details key={f.q} className="panel p-4 group">
+                  <summary className="cursor-pointer font-display text-sm list-none flex items-center justify-between">
+                    <span>{f.q}</span>
+                    <span className="text-neon text-xs group-open:rotate-45 transition">+</span>
+                  </summary>
+                  <p className="text-sm text-muted-foreground mt-3">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="flex flex-wrap gap-3 pt-6 border-t border-border">
           <Link to="/app/countries" search={{ code: country.code }}>
             <Button>Open full profile <ArrowRight className="h-4 w-4" /></Button>
           </Link>
-          <Link to="/">
-            <Button variant="outline">Back to home</Button>
-          </Link>
+          <Link to="/app/calculator"><Button variant="outline">Setup cost calculator</Button></Link>
+          <Link to="/app/visa"><Button variant="outline">Compare visas</Button></Link>
+          <Link to="/"><Button variant="outline">Back to home</Button></Link>
         </div>
 
-        <nav aria-label="Other countries" className="pt-8 border-t border-border">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// Explore more</p>
+        {related.length > 0 && (
+          <nav aria-label={`Other ${country.region} countries`} className="pt-8 border-t border-border">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// More in {country.region}</p>
+            <ul className="grid sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {related.map((c) => (
+                <li key={c.code}>
+                  <Link to="/country/$code" params={{ code: c.code }} className="panel p-3 flex items-center gap-2 hover:border-neon hover:text-neon transition">
+                    <span className="text-xl">{c.flag}</span>
+                    <div className="text-sm">
+                      <div className="font-display">{c.name}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground">Start a business in {c.name}</div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        <nav aria-label="All countries" className="pt-8 border-t border-border">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">// Explore all destinations</p>
           <ul className="flex flex-wrap gap-2">
-            {COUNTRIES.slice(0, 20).filter(c => c.code !== country.code).map((c) => (
+            {COUNTRIES.filter(c => c.code !== country.code).map((c) => (
               <li key={c.code}>
                 <Link to="/country/$code" params={{ code: c.code }} className="text-xs px-3 py-1.5 border border-border rounded hover:border-neon hover:text-neon">
                   {c.flag} {c.name}
