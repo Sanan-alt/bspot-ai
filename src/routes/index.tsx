@@ -5,6 +5,7 @@ import { ArrowRight, Bot, Briefcase, Globe2, Mail, Menu, Sparkles, TrendingUp, Z
 import { SiteFooter } from "@/components/SiteFooter";
 import { NeonLogo } from "@/components/NeonLogo";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import beforeLocal from "@/assets/before-local.jpg";
 import afterGlobal from "@/assets/after-global.jpg";
 
