@@ -55,13 +55,16 @@ function Landing() {
               {t("nav.launch")}
             </Link>
           </div>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            className="sm:hidden h-9 w-9 grid place-items-center rounded-md border border-border"
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
+          <div className="sm:hidden flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="h-9 w-9 grid place-items-center rounded-md border border-border"
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
         {menuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md">
