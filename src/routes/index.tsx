@@ -49,6 +49,7 @@ function Landing() {
           </nav>
           <div className="hidden sm:flex items-center gap-2 sm:gap-3">
             <LanguageSelector compact />
+            <ThemeToggle />
             <Link to="/signin" className="text-sm font-mono uppercase tracking-widest hover:text-neon">{t("nav.signin")}</Link>
             <Link to="/signup" className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-mono text-xs uppercase tracking-widest glow-sm hover:scale-105 transition-transform">
               {t("nav.launch")}
