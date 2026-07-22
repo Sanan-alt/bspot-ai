@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Loader2, X, Building2, Plane, Vote, Sparkles, RefreshCw, MapPin,
   TrendingUp, ShieldAlert, CheckCircle2, AlertTriangle, Globe2,
+  Landmark, Users, LineChart, Shield, Wrench,
 } from "lucide-react";
+
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
@@ -36,6 +38,8 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
 }
 
 function DossierView({ dossier }: { dossier: Dossier }) {
+  const gov = dossier.current_government;
+  const st = dossier.key_stats;
   return (
     <div className="space-y-5">
       <div className="panel p-4">
@@ -45,8 +49,44 @@ function DossierView({ dossier }: { dossier: Dossier }) {
           <ScoreBar label="Political stability" value={dossier.political_stability} />
           <ScoreBar label="Investment climate" value={dossier.investment_climate} />
           <ScoreBar label="Business-friendly" value={dossier.business_friendliness} />
+          <ScoreBar label="Safety" value={dossier.safety_score} />
+          <ScoreBar label="Corruption cleanliness" value={dossier.corruption_score} />
+          <ScoreBar label="Infrastructure" value={dossier.infrastructure_score} />
+          <ScoreBar label="Cost of living (cheaper=higher)" value={dossier.cost_of_living_score} />
         </div>
       </div>
+
+      {gov && (
+        <section className="panel p-4">
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
+            <Landmark className="h-3 w-3" /> Current government
+          </h4>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div><span className="text-muted-foreground text-xs">Head of state</span><p className="font-medium">{gov.head_of_state}</p></div>
+            <div><span className="text-muted-foreground text-xs">Head of government</span><p className="font-medium">{gov.head_of_government}</p></div>
+            <div><span className="text-muted-foreground text-xs">Ruling party</span><p className="font-medium">{gov.ruling_party}</p></div>
+            <div><span className="text-muted-foreground text-xs">In power since</span><p className="font-mono">{gov.in_power_since}</p></div>
+            <div><span className="text-muted-foreground text-xs">Next election</span><p className="font-mono">{gov.next_election}</p></div>
+            <div><span className="text-muted-foreground text-xs">System</span><p className="font-medium">{gov.system}</p></div>
+          </div>
+        </section>
+      )}
+
+      {st && (
+        <section className="panel p-4">
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
+            <LineChart className="h-3 w-3" /> Key macro stats
+          </h4>
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div><span className="text-muted-foreground text-xs flex items-center gap-1"><Users className="h-3 w-3" />Population</span><p className="font-mono">{st.population}</p></div>
+            <div><span className="text-muted-foreground text-xs">GDP</span><p className="font-mono">{st.gdp_usd}</p></div>
+            <div><span className="text-muted-foreground text-xs">GDP growth</span><p className="font-mono">{st.gdp_growth_pct}</p></div>
+            <div><span className="text-muted-foreground text-xs">Inflation</span><p className="font-mono">{st.inflation_pct}</p></div>
+            <div><span className="text-muted-foreground text-xs">Unemployment</span><p className="font-mono">{st.unemployment_pct}</p></div>
+            <div><span className="text-muted-foreground text-xs">Currency</span><p className="font-mono">{st.currency}</p></div>
+          </div>
+        </section>
+      )}
 
       <section>
         <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
@@ -64,6 +104,25 @@ function DossierView({ dossier }: { dossier: Dossier }) {
           ))}
         </ul>
       </section>
+
+      {dossier.recent_economic_events?.length > 0 && (
+        <section>
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
+            <TrendingUp className="h-3 w-3" /> Recent economic events
+          </h4>
+          <ul className="space-y-2">
+            {dossier.recent_economic_events.map((ev, i) => (
+              <li key={i} className="panel p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-medium leading-snug">{ev.title}</p>
+                  <span className="font-mono text-[10px] text-muted-foreground shrink-0">{ev.date_hint}</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">{ev.impact}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="panel p-4">
         <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
@@ -84,6 +143,19 @@ function DossierView({ dossier }: { dossier: Dossier }) {
         </div>
         {dossier.taxes.notes && <p className="text-xs text-muted-foreground mt-3">{dossier.taxes.notes}</p>}
       </section>
+
+      {dossier.top_sectors?.length > 0 && (
+        <section className="panel p-4">
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
+            <Wrench className="h-3 w-3" /> Top booming sectors
+          </h4>
+          <div className="flex flex-wrap gap-1.5">
+            {dossier.top_sectors.map((s, i) => (
+              <span key={i} className="px-2.5 py-1 rounded-md border border-primary/40 bg-primary/5 text-xs font-medium">{s}</span>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="panel p-4">
         <h4 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
@@ -120,12 +192,15 @@ function DossierView({ dossier }: { dossier: Dossier }) {
       </section>
 
       <section className="panel-neon p-4">
-        <h4 className="font-mono text-[10px] uppercase tracking-widest text-neon mb-2">Bottom line</h4>
+        <h4 className="font-mono text-[10px] uppercase tracking-widest text-neon mb-2 flex items-center gap-1.5">
+          <Shield className="h-3 w-3" /> Bottom line
+        </h4>
         <p className="text-sm font-medium leading-relaxed">{dossier.bottom_line}</p>
       </section>
     </div>
   );
 }
+
 
 export function CountryDossierPanel({
   countryCode,
