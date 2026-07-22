@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil, FileDown, FileText } from "lucide-react";
+import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil, FileDown, FileText, RefreshCw, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/lib/countries-data";
+import { CURRENCIES } from "@/lib/currencies";
 import { optimizePortfolio } from "@/lib/portfolio.functions";
+import { getQuotes } from "@/lib/markets.functions";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, LineChart, Line, CartesianGrid } from "recharts";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/i18n-format";
 import { track } from "@/lib/telemetry";
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/app/portfolio")({ component: PortfolioPag
 type Investment = {
   id: string;
   name: string;
+  symbol: string | null;
   country: string | null;
   currency: string;
   initial_amount: number;
@@ -30,10 +33,11 @@ type Investment = {
   created_at: string;
 };
 
-const empty = { name: "", country: "", currency: "USD", initial_amount: "", current_value: "", notes: "" };
+const empty = { name: "", symbol: "", country: "", currency: "USD", initial_amount: "", current_value: "", notes: "" };
 
 function PortfolioPage() {
   const optimizeFn = useServerFn(optimizePortfolio);
+  const quotesFn = useServerFn(getQuotes);
   const { user } = useAuth();
   const [items, setItems] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +47,9 @@ function PortfolioPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAdvice, setAiAdvice] = useState<string | null>(null);
   const [timeframe, setTimeframe] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
 
   const load = async () => {
     if (!user) return;
