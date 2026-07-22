@@ -112,9 +112,11 @@ function MarketsPage() {
   });
 
   const { data: cData, isLoading: cLoading } = useQuery({
-    queryKey: ["finnhub-candles", active],
-    queryFn: async () => await candlesFn({ data: { symbol: active, resolution: "D", days: 120 } }),
-    staleTime: 5 * 60_000,
+    queryKey: ["market-candles", active, tf.key],
+    queryFn: async () => await candlesFn({ data: { symbol: active, resolution: "D", days: 60, interval: tf.interval, range: tf.range } }),
+    staleTime: tf.intraday ? 30_000 : 5 * 60_000,
+    refetchInterval: tf.intraday ? Math.max(refreshMs, 30_000) : false,
+    refetchIntervalInBackground: false,
   });
 
   // Price alert evaluation on each quote tick
