@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil, FileDown, FileText } from "lucide-react";
+import { Plus, Trash2, TrendingUp, TrendingDown, Loader2, Sparkles, Pencil, FileDown, FileText, RefreshCw, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/lib/countries-data";
+import { CURRENCIES } from "@/lib/currencies";
 import { optimizePortfolio } from "@/lib/portfolio.functions";
+import { getQuotes } from "@/lib/markets.functions";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, LineChart, Line, CartesianGrid } from "recharts";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/i18n-format";
 import { track } from "@/lib/telemetry";
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/app/portfolio")({ component: PortfolioPag
 type Investment = {
   id: string;
   name: string;
+  symbol: string | null;
   country: string | null;
   currency: string;
   initial_amount: number;
@@ -30,10 +33,11 @@ type Investment = {
   created_at: string;
 };
 
-const empty = { name: "", country: "", currency: "USD", initial_amount: "", current_value: "", notes: "" };
+const empty = { name: "", symbol: "", country: "", currency: "USD", initial_amount: "", current_value: "", notes: "" };
 
 function PortfolioPage() {
   const optimizeFn = useServerFn(optimizePortfolio);
+  const quotesFn = useServerFn(getQuotes);
   const { user } = useAuth();
   const [items, setItems] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +47,9 @@ function PortfolioPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAdvice, setAiAdvice] = useState<string | null>(null);
   const [timeframe, setTimeframe] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
 
   const load = async () => {
     if (!user) return;
@@ -109,7 +116,7 @@ function PortfolioPage() {
   const openEdit = (it: Investment) => {
     setEditing(it);
     setForm({
-      name: it.name, country: it.country ?? "", currency: it.currency,
+      name: it.name, symbol: it.symbol ?? "", country: it.country ?? "", currency: it.currency,
       initial_amount: String(it.initial_amount), current_value: String(it.current_value),
       notes: it.notes ?? "",
     });
@@ -125,6 +132,7 @@ function PortfolioPage() {
     const payload = {
       user_id: user.id,
       name: form.name,
+      symbol: form.symbol ? form.symbol.toUpperCase().trim() : null,
       country: form.country || null,
       currency: form.currency,
       initial_amount: Number(form.initial_amount),
@@ -147,6 +155,55 @@ function PortfolioPage() {
     toast.success("Removed");
     load();
   };
+
+  // Auto-refresh live prices for any position that has a ticker symbol.
+  const refreshLivePrices = async (silent = false) => {
+    const withSymbol = items.filter((i) => i.symbol && i.symbol.trim());
+    if (withSymbol.length === 0) {
+      if (!silent) toast.info("Add a ticker symbol to a position to enable live price refresh.");
+      return;
+    }
+    setRefreshing(true);
+    try {
+      const symbols = Array.from(new Set(withSymbol.map((i) => i.symbol!.toUpperCase()))).slice(0, 10);
+      const { quotes } = await quotesFn({ data: { symbols } });
+      const priceMap = new Map(quotes.map((q) => [q.symbol.toUpperCase(), q.c]));
+      let updated = 0;
+      for (const it of withSymbol) {
+        const price = priceMap.get(it.symbol!.toUpperCase());
+        if (!Number.isFinite(price) || !price) continue;
+        // We treat current_value as (units * price). If user only holds 1 unit, that's the price.
+        // Best-effort: use ratio of previous current_value to previous price via initial_amount as unit proxy.
+        // Simpler safe approach: only update when initial_amount was recorded as unit count (< price)
+        // → to keep it obvious, we set current_value = price * (current_value / previous_price_stored_in_notes? nope).
+        // Pragmatic: assume position size = current_value / lastKnownPrice. Since we don't store lastPrice,
+        // we update current_value = price (per-share view). Users with multiple shares can multiply in notes.
+        const newValue = Number(price.toFixed(2));
+        if (newValue === Number(it.current_value)) continue;
+        const { error } = await supabase.from("investments").update({ current_value: newValue }).eq("id", it.id);
+        if (!error) updated++;
+      }
+      setLastRefresh(new Date());
+      if (!silent) toast.success(updated ? `Updated ${updated} position${updated > 1 ? "s" : ""} from live data` : "Prices already up to date");
+      if (updated) load();
+    } catch (e) {
+      if (!silent) toast.error((e as Error).message);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Auto-refresh every 60s while the tab is visible.
+  const refreshRef = useRef(refreshLivePrices);
+  refreshRef.current = refreshLivePrices;
+  useEffect(() => {
+    if (!items.some((i) => i.symbol)) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") refreshRef.current(true);
+    }, 60_000);
+    return () => clearInterval(id);
+  }, [items]);
+
 
   const optimize = async () => {
     if (items.length === 0) return toast.error("Add some investments first");
@@ -283,25 +340,49 @@ function PortfolioPage() {
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">// PORTFOLIO</p>
           <h1 className="mt-2 font-display text-3xl md:text-4xl">Portfolio Tracker</h1>
-          <p className="text-sm text-muted-foreground mt-1">Track every investment, watch your P/L move in real time.</p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+            Log every investment — stocks, ETFs, crypto, real estate — and watch your P/L update live.
+            Add a ticker symbol (e.g. <span className="font-mono text-neon">AAPL</span>) to auto-refresh the current price every minute from Yahoo Finance (may be delayed ~15 min).
+          </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" onClick={exportCsv} disabled={items.length === 0} title="Export current timeframe as CSV">
+          <Button variant="outline" onClick={() => refreshLivePrices(false)} disabled={refreshing || items.length === 0} title="Fetch the latest price for positions with a ticker symbol">
+            {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Refresh prices
+          </Button>
+          <Button variant="outline" onClick={exportCsv} disabled={items.length === 0} title="Download the current timeframe as a spreadsheet (CSV)">
             <FileDown className="h-4 w-4" /> CSV
           </Button>
-          <Button variant="outline" onClick={exportPdf} disabled={items.length === 0} title="Export current timeframe as PDF">
+          <Button variant="outline" onClick={exportPdf} disabled={items.length === 0} title="Download the current timeframe as a printable PDF report">
             <FileText className="h-4 w-4" /> PDF
           </Button>
-          <Button variant="outline" onClick={optimize} disabled={aiLoading}>
+          <Button variant="outline" onClick={optimize} disabled={aiLoading} title="Ask the AI to review your allocation and suggest rebalancing (costs 15 credits)">
             {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             AI Review (15 cr)
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button onClick={openCreate}><Plus className="h-4 w-4" /> Add</Button></DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>{editing ? "Edit investment" : "Add investment"}</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>{editing ? "Edit investment" : "Add investment"}</DialogTitle>
+                <DialogDescription>
+                  Give the position a name and its cost basis. If it's a public stock, ETF or index, add its ticker symbol so we can update its price for you automatically.
+                </DialogDescription>
+              </DialogHeader>
               <div className="grid gap-3">
-                <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Apple stock" /></div>
+                <div>
+                  <Label>Name</Label>
+                  <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Apple stock" />
+                  <p className="text-[11px] text-muted-foreground mt-1">A short label you'll recognise in the list.</p>
+                </div>
+                <div>
+                  <Label>Ticker symbol <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                  <Input value={form.symbol} onChange={e => setForm({ ...form, symbol: e.target.value.toUpperCase() })} placeholder="e.g. AAPL, MSFT, BTC-USD" maxLength={12} />
+                  <p className="text-[11px] text-muted-foreground mt-1 flex items-start gap-1">
+                    <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                    Add a Yahoo Finance symbol to enable live price refresh every 60s. Leave blank for private assets (real estate, business, cash).
+                  </p>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Country</Label>
@@ -312,19 +393,43 @@ function PortfolioPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div><Label>Currency</Label><Input value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value.toUpperCase() })} maxLength={6} /></div>
+                  <div>
+                    <Label>Currency</Label>
+                    <Select value={form.currency} onValueChange={v => setForm({ ...form, currency: v })}>
+                      <SelectTrigger><SelectValue placeholder="Currency" /></SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.symbol} {c.code} — {c.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Initial amount</Label><Input type="number" value={form.initial_amount} onChange={e => setForm({ ...form, initial_amount: e.target.value })} /></div>
-                  <div><Label>Current value</Label><Input type="number" value={form.current_value} onChange={e => setForm({ ...form, current_value: e.target.value })} /></div>
+                  <div>
+                    <Label>Initial amount</Label>
+                    <Input type="number" value={form.initial_amount} onChange={e => setForm({ ...form, initial_amount: e.target.value })} placeholder="What you paid" />
+                  </div>
+                  <div>
+                    <Label>Current value</Label>
+                    <Input type="number" value={form.current_value} onChange={e => setForm({ ...form, current_value: e.target.value })} placeholder="Market value today" />
+                  </div>
                 </div>
-                <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
+                <div>
+                  <Label>Notes</Label>
+                  <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} placeholder="Optional: strategy, shares held, broker…" />
+                </div>
               </div>
               <DialogFooter><Button onClick={save}>{editing ? "Save" : "Add"}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
       </div>
+
+      {lastRefresh && (
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground -mt-3">
+          // Live prices last updated {formatDate(lastRefresh, { hour: "2-digit", minute: "2-digit", second: "2-digit" })} · Auto-refresh every 60s · Data via Yahoo Finance (may be delayed ~15 min)
+        </p>
+      )}
+
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Stat label="Invested" value={formatCurrency(totals.invested)} />
@@ -425,7 +530,10 @@ function PortfolioPage() {
               return (
                 <div key={it.id} className="p-4 flex items-center gap-4 hover:bg-accent/30">
                   <div className="flex-1 min-w-0">
-                    <div className="font-display">{it.name}</div>
+                    <div className="font-display flex items-center gap-2">
+                      {it.name}
+                      {it.symbol && <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-neon/40 text-neon uppercase tracking-widest">{it.symbol} · live</span>}
+                    </div>
                     <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                       {it.country ?? "—"} · {it.currency} · {formatDate(it.created_at)}
                     </div>

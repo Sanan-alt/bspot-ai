@@ -381,6 +381,7 @@ export type Database = {
           initial_amount: number
           name: string
           notes: string | null
+          symbol: string | null
           updated_at: string
           user_id: string
         }
@@ -393,6 +394,7 @@ export type Database = {
           initial_amount: number
           name: string
           notes?: string | null
+          symbol?: string | null
           updated_at?: string
           user_id: string
         }
@@ -405,6 +407,7 @@ export type Database = {
           initial_amount?: number
           name?: string
           notes?: string | null
+          symbol?: string | null
           updated_at?: string
           user_id?: string
         }
