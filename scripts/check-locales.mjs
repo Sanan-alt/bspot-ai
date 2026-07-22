@@ -11,7 +11,7 @@ import { dirname, resolve } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const localesDir = resolve(__dirname, "../src/locales");
-const targets = ["ur", "ar", "hi"];
+const targets = ["ur", "ar", "hi", "fa", "ru", "fr", "zh", "ja", "ko", "it", "bn"];
 
 function load(name) {
   return JSON.parse(readFileSync(resolve(localesDir, `${name}.json`), "utf8"));

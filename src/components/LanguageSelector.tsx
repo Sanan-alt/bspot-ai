@@ -11,8 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Display-only language picker. Persists choice in localStorage.
-// Real i18n translations can be wired later; this exposes the UX the user wants.
+// Only languages that actually ship with full translations.
 type Lang = { code: string; label: string };
 
 const GROUPS: { label: string; langs: Lang[] }[] = [
@@ -21,52 +20,18 @@ const GROUPS: { label: string; langs: Lang[] }[] = [
     langs: [{ code: "en", label: "English" }],
   },
   {
-    label: "Urdu & Pakistani languages",
+    label: "South Asia",
     langs: [
       { code: "ur", label: "Urdu (اردو)" },
-      { code: "pa", label: "Punjabi (پنجابی)" },
-      { code: "sd", label: "Sindhi (سنڌي)" },
-      { code: "bal", label: "Balochi (بلوچی)" },
-      { code: "ps", label: "Pashto (پښتو)" },
-      { code: "skr", label: "Saraiki (سرائیکی)" },
-      { code: "brh", label: "Brahui" },
-      { code: "khw", label: "Khowar / Chitrali" },
-      { code: "bft", label: "Balti" },
-      { code: "shi", label: "Shina" },
-      { code: "ks", label: "Kashmiri (کٲشُر)" },
-    ],
-  },
-  {
-    label: "Indian languages",
-    langs: [
       { code: "hi", label: "Hindi (हिन्दी)" },
       { code: "bn", label: "Bengali (বাংলা)" },
-      { code: "te", label: "Telugu (తెలుగు)" },
-      { code: "mr", label: "Marathi (मराठी)" },
-      { code: "ta", label: "Tamil (தமிழ்)" },
-      { code: "gu", label: "Gujarati (ગુજરાતી)" },
-      { code: "kn", label: "Kannada (ಕನ್ನಡ)" },
-      { code: "ml", label: "Malayalam (മലയാളം)" },
-      { code: "or", label: "Odia (ଓଡ଼ିଆ)" },
-      { code: "pa-in", label: "Punjabi – India (ਪੰਜਾਬੀ)" },
-      { code: "as", label: "Assamese (অসমীয়া)" },
-      { code: "ne", label: "Nepali (नेपाली)" },
-      { code: "si", label: "Sinhala (සිංහල)" },
     ],
   },
   {
-    label: "Middle East & Africa",
+    label: "Middle East",
     langs: [
       { code: "ar", label: "Arabic (العربية)" },
-      { code: "he", label: "Hebrew (עברית)" },
       { code: "fa", label: "Persian (فارسی)" },
-      { code: "tr", label: "Turkish (Türkçe)" },
-      { code: "sw", label: "Swahili (Kiswahili)" },
-      { code: "ha", label: "Hausa" },
-      { code: "yo", label: "Yoruba" },
-      { code: "am", label: "Amharic (አማርኛ)" },
-      { code: "af", label: "Afrikaans" },
-      { code: "zu", label: "Zulu" },
     ],
   },
   {
@@ -74,36 +39,20 @@ const GROUPS: { label: string; langs: Lang[] }[] = [
     langs: [
       { code: "fr", label: "French (Français)" },
       { code: "it", label: "Italian (Italiano)" },
-      { code: "es", label: "Spanish (Español)" },
-      { code: "pt", label: "Portuguese (Português)" },
-      { code: "de", label: "German (Deutsch)" },
-      { code: "nl", label: "Dutch (Nederlands)" },
-      { code: "sv", label: "Swedish (Svenska)" },
-      { code: "no", label: "Norwegian (Norsk)" },
-      { code: "pl", label: "Polish (Polski)" },
-      { code: "uk", label: "Ukrainian (Українська)" },
       { code: "ru", label: "Russian (Русский)" },
     ],
   },
   {
-    label: "Asia Pacific",
+    label: "East Asia",
     langs: [
       { code: "zh", label: "Chinese (中文)" },
       { code: "ja", label: "Japanese (日本語)" },
       { code: "ko", label: "Korean (한국어)" },
-      { code: "id", label: "Indonesian (Bahasa Indonesia)" },
-      { code: "th", label: "Thai (ไทย)" },
-      { code: "vi", label: "Vietnamese (Tiếng Việt)" },
-      { code: "ms", label: "Malay (Bahasa Melayu)" },
-      { code: "tl", label: "Filipino (Tagalog)" },
     ],
   },
 ];
 
 const STORAGE_KEY = "bspot.lang";
-
-// Languages with full translations wired through i18next.
-const I18N_LANGS = new Set(["en", "ur", "ar", "hi"]);
 
 export function LanguageSelector({ compact = false }: { compact?: boolean }) {
   const { i18n } = useTranslation();
@@ -118,11 +67,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
     try {
       localStorage.setItem(STORAGE_KEY, v);
     } catch {}
-    // Only ask i18next to load locales we actually ship; otherwise just
-    // persist the preference for future i18n expansion.
-    if (I18N_LANGS.has(v)) {
-      void i18n.changeLanguage(v);
-    }
+    void i18n.changeLanguage(v);
   };
 
   return (
