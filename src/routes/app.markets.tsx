@@ -517,3 +517,65 @@ function AddSymbolDialog({ onAdded }: { onAdded: () => void }) {
     </Dialog>
   );
 }
+
+function StockSearch({ searchFn, onPick }: { searchFn: (args: { data: { query: string } }) => Promise<{ results: SymbolHit[]; error?: string }>; onPick: (symbol: string) => void }) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<SymbolHit[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    const query = q.trim();
+    if (query.length < 1) { setResults([]); setErr(null); return; }
+    setBusy(true);
+    const t = setTimeout(async () => {
+      try {
+        const r = await searchFn({ data: { query } });
+        setResults(r.results ?? []);
+        setErr(r.error ?? null);
+        setOpen(true);
+      } catch (e) {
+        setErr((e as Error).message);
+      } finally {
+        setBusy(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q, searchFn]);
+
+  return (
+    <div className="relative">
+      <div className="panel p-3 flex items-center gap-2">
+        <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onFocus={() => results.length && setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder="Search any stock, ETF, or index (e.g. Apple, TSLA, ^GSPC, BTC-USD)"
+          className="border-0 bg-transparent focus-visible:ring-0 h-9 px-0"
+        />
+        {busy && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      </div>
+      {open && (results.length > 0 || err) && (
+        <div className="absolute z-30 left-0 right-0 mt-1 panel p-1 max-h-80 overflow-auto">
+          {err && <div className="p-2 text-[11px] text-amber-500 font-mono">{err}</div>}
+          {results.map((r) => (
+            <button
+              key={r.symbol}
+              onMouseDown={(e) => { e.preventDefault(); onPick(r.symbol); setQ(""); setResults([]); setOpen(false); }}
+              className="w-full text-left px-3 py-2 rounded-md hover:bg-primary/10 flex items-center justify-between gap-3"
+            >
+              <span className="flex flex-col">
+                <span className="font-mono text-sm text-neon">{r.symbol}</span>
+                <span className="text-[11px] text-muted-foreground truncate max-w-[380px]">{r.name}</span>
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{r.type} · {r.exch}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
