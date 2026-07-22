@@ -530,7 +530,10 @@ function PortfolioPage() {
               return (
                 <div key={it.id} className="p-4 flex items-center gap-4 hover:bg-accent/30">
                   <div className="flex-1 min-w-0">
-                    <div className="font-display">{it.name}</div>
+                    <div className="font-display flex items-center gap-2">
+                      {it.name}
+                      {it.symbol && <span className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-neon/40 text-neon uppercase tracking-widest">{it.symbol} · live</span>}
+                    </div>
                     <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                       {it.country ?? "—"} · {it.currency} · {formatDate(it.created_at)}
                     </div>
