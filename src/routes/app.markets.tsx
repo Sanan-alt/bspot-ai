@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   createChart, CandlestickSeries, LineSeries, ColorType, type IChartApi,
 } from "lightweight-charts";
-import { Loader2, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Plus, X, Bell } from "lucide-react";
-import { getQuotes, getCandles, type FinnhubQuote, type Candle } from "@/lib/markets.functions";
+import { Loader2, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Plus, X, Bell, Search } from "lucide-react";
+import { getQuotes, getCandles, searchSymbols, type FinnhubQuote, type Candle, type SymbolHit } from "@/lib/markets.functions";
 import { sma, rsi, bollinger } from "@/lib/indicators";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -44,6 +44,17 @@ const REFRESH_OPTS = [
   { v: 300_000, label: "5m" },
 ];
 
+type Timeframe = { key: string; label: string; interval: "1m" | "5m" | "15m" | "30m" | "60m" | "1d" | "1wk"; range: "1d" | "5d" | "1mo" | "3mo" | "6mo" | "1y" | "2y" | "5y"; intraday: boolean };
+const TIMEFRAMES: Timeframe[] = [
+  { key: "1D", label: "1D", interval: "5m", range: "1d", intraday: true },
+  { key: "5D", label: "5D", interval: "15m", range: "5d", intraday: true },
+  { key: "1M", label: "1M", interval: "1d", range: "1mo", intraday: false },
+  { key: "3M", label: "3M", interval: "1d", range: "3mo", intraday: false },
+  { key: "6M", label: "6M", interval: "1d", range: "6mo", intraday: false },
+  { key: "1Y", label: "1Y", interval: "1d", range: "1y", intraday: false },
+  { key: "5Y", label: "5Y", interval: "1wk", range: "5y", intraday: false },
+];
+
 type WatchRow = {
   id: string; symbol: string; kind: string;
   alert_above: number | null; alert_below: number | null;
@@ -57,6 +68,8 @@ function MarketsPage() {
   const [stockRows, setStockRows] = useState<WatchRow[]>([]);
   const [active, setActive] = useState<string>(DEFAULTS[0]);
   const [refreshMs, setRefreshMs] = useState<number>(10_000);
+  const [tfKey, setTfKey] = useState<string>("3M");
+  const tf = TIMEFRAMES.find((t) => t.key === tfKey) ?? TIMEFRAMES[3];
   const [indicators, setIndicators] = useState<IndicatorState>(() => {
     try {
       const v = localStorage.getItem("bspot.markets.indicators");
@@ -70,6 +83,7 @@ function MarketsPage() {
 
   const quotesFn = useServerFn(getQuotes);
   const candlesFn = useServerFn(getCandles);
+  const searchFn = useServerFn(searchSymbols);
 
   const loadWatchlist = async () => {
     if (!user) return;
@@ -98,9 +112,11 @@ function MarketsPage() {
   });
 
   const { data: cData, isLoading: cLoading } = useQuery({
-    queryKey: ["finnhub-candles", active],
-    queryFn: async () => await candlesFn({ data: { symbol: active, resolution: "D", days: 120 } }),
-    staleTime: 5 * 60_000,
+    queryKey: ["market-candles", active, tf.key],
+    queryFn: async () => await candlesFn({ data: { symbol: active, resolution: "D", days: 60, interval: tf.interval, range: tf.range } }),
+    staleTime: tf.intraday ? 30_000 : 5 * 60_000,
+    refetchInterval: tf.intraday ? Math.max(refreshMs, 30_000) : false,
+    refetchIntervalInBackground: false,
   });
 
   // Price alert evaluation on each quote tick
@@ -156,6 +172,16 @@ function MarketsPage() {
           </button>
         </div>
       </div>
+
+      <StockSearch
+        searchFn={searchFn}
+        onPick={(sym) => {
+          const s = sym.toUpperCase();
+          setSymbols((prev) => (prev.includes(s) ? prev : [s, ...prev].slice(0, 12)));
+          setActive(s);
+        }}
+      />
+
 
       {qErr && (
         <div className="panel p-4 border-destructive/40 flex items-center gap-2 text-sm text-destructive">
@@ -226,8 +252,18 @@ function MarketsPage() {
       <div className="panel-neon p-4">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// CHART</p>
-            <h2 className="font-display text-xl">{active} · Daily candles</h2>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// CHART · {tf.label} · {tf.intraday ? "intraday" : "daily"}</p>
+            <h2 className="font-display text-xl">{active}</h2>
+            <p className="text-[10px] font-mono text-muted-foreground mt-1">Data via Yahoo Finance · may be delayed ~15 min</p>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {TIMEFRAMES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTfKey(t.key)}
+                className={`px-2.5 h-8 rounded-md border text-[11px] font-mono uppercase tracking-widest transition-colors ${tf.key === t.key ? "border-primary text-neon bg-primary/10" : "border-border text-muted-foreground hover:border-primary/50"}`}
+              >{t.label}</button>
+            ))}
           </div>
           <div className="flex items-center gap-3 flex-wrap text-xs">
             <IndicatorToggle label="SMA 20" color="#d4a017" checked={indicators.sma20} onChange={(b) => setIndicators({ ...indicators, sma20: b })} />
@@ -479,5 +515,67 @@ function AddSymbolDialog({ onAdded }: { onAdded: () => void }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StockSearch({ searchFn, onPick }: { searchFn: (args: { data: { query: string } }) => Promise<{ results: SymbolHit[]; error?: string }>; onPick: (symbol: string) => void }) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<SymbolHit[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    const query = q.trim();
+    if (query.length < 1) { setResults([]); setErr(null); return; }
+    setBusy(true);
+    const t = setTimeout(async () => {
+      try {
+        const r = await searchFn({ data: { query } });
+        setResults(r.results ?? []);
+        setErr(r.error ?? null);
+        setOpen(true);
+      } catch (e) {
+        setErr((e as Error).message);
+      } finally {
+        setBusy(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q, searchFn]);
+
+  return (
+    <div className="relative">
+      <div className="panel p-3 flex items-center gap-2">
+        <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onFocus={() => results.length && setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder="Search any stock, ETF, or index (e.g. Apple, TSLA, ^GSPC, BTC-USD)"
+          className="border-0 bg-transparent focus-visible:ring-0 h-9 px-0"
+        />
+        {busy && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      </div>
+      {open && (results.length > 0 || err) && (
+        <div className="absolute z-30 left-0 right-0 mt-1 panel p-1 max-h-80 overflow-auto">
+          {err && <div className="p-2 text-[11px] text-amber-500 font-mono">{err}</div>}
+          {results.map((r) => (
+            <button
+              key={r.symbol}
+              onMouseDown={(e) => { e.preventDefault(); onPick(r.symbol); setQ(""); setResults([]); setOpen(false); }}
+              className="w-full text-left px-3 py-2 rounded-md hover:bg-primary/10 flex items-center justify-between gap-3"
+            >
+              <span className="flex flex-col">
+                <span className="font-mono text-sm text-neon">{r.symbol}</span>
+                <span className="text-[11px] text-muted-foreground truncate max-w-[380px]">{r.name}</span>
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{r.type} · {r.exch}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

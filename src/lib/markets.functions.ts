@@ -73,13 +73,14 @@ const CandleInput = z.object({
   symbol: z.string().min(1).max(10),
   resolution: z.enum(["1", "5", "15", "30", "60", "D"]).default("D"),
   days: z.number().int().min(1).max(365).default(60),
+  interval: z.enum(["1m", "5m", "15m", "30m", "60m", "1d", "1wk", "1mo"]).optional(),
+  range: z.enum(["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"]).optional(),
 });
 
 export type Candle = { time: number; open: number; high: number; low: number; close: number };
 
-async function fetchYahooCandles(symbol: string, days: number): Promise<{ candles: Candle[]; error?: string }> {
-  const range = days <= 7 ? "5d" : days <= 31 ? "1mo" : days <= 95 ? "3mo" : days <= 190 ? "6mo" : "1y";
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=${range}`;
+async function fetchYahooCandles(symbol: string, interval: string, range: string): Promise<{ candles: Candle[]; error?: string }> {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}`;
   try {
     const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 BSpotAI/1.0" } });
     if (!res.ok) return { candles: [], error: `Historical data unavailable (HTTP ${res.status}).` };
@@ -107,25 +108,41 @@ export const getCandles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => CandleInput.parse(d))
   .handler(async ({ data }): Promise<{ candles: Candle[]; error?: string; source?: string }> => {
-    // Finnhub free plan blocks /stock/candle (401/403). Use Yahoo Finance as primary free source.
-    const yahoo = await fetchYahooCandles(data.symbol, data.days);
+    const interval = data.interval ?? "1d";
+    const range = data.range ?? (
+      data.days <= 7 ? "5d" :
+      data.days <= 31 ? "1mo" :
+      data.days <= 95 ? "3mo" :
+      data.days <= 190 ? "6mo" : "1y"
+    );
+    const yahoo = await fetchYahooCandles(data.symbol, interval, range);
     if (yahoo.candles.length) return { ...yahoo, source: "yahoo" };
-
-    // Fallback to Finnhub (paid plans only)
-    const to = Math.floor(Date.now() / 1000);
-    const from = to - data.days * 86400;
-    try {
-      const res = await fetchFinnhub(`/stock/candle?symbol=${encodeURIComponent(data.symbol)}&resolution=${data.resolution}&from=${from}&to=${to}`);
-      if (res.ok) {
-        const j = (await res.json()) as { s: string; t: number[]; o: number[]; h: number[]; l: number[]; c: number[] };
-        if (j.s === "ok" && j.t?.length) {
-          return {
-            candles: j.t.map((time, i) => ({ time, open: j.o[i], high: j.h[i], low: j.l[i], close: j.c[i] })),
-            source: "finnhub",
-          };
-        }
-      }
-    } catch { /* ignore */ }
-
     return { candles: [], error: yahoo.error ?? "No historical data available." };
+  });
+
+const SearchInput = z.object({ query: z.string().min(1).max(40) });
+export type SymbolHit = { symbol: string; name: string; exch?: string; type?: string };
+
+export const searchSymbols = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => SearchInput.parse(d))
+  .handler(async ({ data }): Promise<{ results: SymbolHit[]; error?: string }> => {
+    try {
+      const url = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(data.query)}&quotesCount=10&newsCount=0`;
+      const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 BSpotAI/1.0" } });
+      if (!res.ok) return { results: [], error: `Search unavailable (HTTP ${res.status}).` };
+      const j = (await res.json()) as { quotes?: Array<{ symbol?: string; shortname?: string; longname?: string; exchDisp?: string; quoteType?: string }> };
+      const results: SymbolHit[] = (j.quotes ?? [])
+        .filter((q) => !!q.symbol)
+        .slice(0, 10)
+        .map((q) => ({
+          symbol: q.symbol as string,
+          name: q.longname || q.shortname || (q.symbol as string),
+          exch: q.exchDisp,
+          type: q.quoteType,
+        }));
+      return { results };
+    } catch (e) {
+      return { results: [], error: (e as Error).message };
+    }
   });
