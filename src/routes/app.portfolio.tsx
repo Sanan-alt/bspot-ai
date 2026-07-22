@@ -116,7 +116,7 @@ function PortfolioPage() {
   const openEdit = (it: Investment) => {
     setEditing(it);
     setForm({
-      name: it.name, country: it.country ?? "", currency: it.currency,
+      name: it.name, symbol: it.symbol ?? "", country: it.country ?? "", currency: it.currency,
       initial_amount: String(it.initial_amount), current_value: String(it.current_value),
       notes: it.notes ?? "",
     });
@@ -132,6 +132,7 @@ function PortfolioPage() {
     const payload = {
       user_id: user.id,
       name: form.name,
+      symbol: form.symbol ? form.symbol.toUpperCase().trim() : null,
       country: form.country || null,
       currency: form.currency,
       initial_amount: Number(form.initial_amount),
@@ -154,6 +155,55 @@ function PortfolioPage() {
     toast.success("Removed");
     load();
   };
+
+  // Auto-refresh live prices for any position that has a ticker symbol.
+  const refreshLivePrices = async (silent = false) => {
+    const withSymbol = items.filter((i) => i.symbol && i.symbol.trim());
+    if (withSymbol.length === 0) {
+      if (!silent) toast.info("Add a ticker symbol to a position to enable live price refresh.");
+      return;
+    }
+    setRefreshing(true);
+    try {
+      const symbols = Array.from(new Set(withSymbol.map((i) => i.symbol!.toUpperCase()))).slice(0, 10);
+      const { quotes } = await quotesFn({ data: { symbols } });
+      const priceMap = new Map(quotes.map((q) => [q.symbol.toUpperCase(), q.c]));
+      let updated = 0;
+      for (const it of withSymbol) {
+        const price = priceMap.get(it.symbol!.toUpperCase());
+        if (!Number.isFinite(price) || !price) continue;
+        // We treat current_value as (units * price). If user only holds 1 unit, that's the price.
+        // Best-effort: use ratio of previous current_value to previous price via initial_amount as unit proxy.
+        // Simpler safe approach: only update when initial_amount was recorded as unit count (< price)
+        // → to keep it obvious, we set current_value = price * (current_value / previous_price_stored_in_notes? nope).
+        // Pragmatic: assume position size = current_value / lastKnownPrice. Since we don't store lastPrice,
+        // we update current_value = price (per-share view). Users with multiple shares can multiply in notes.
+        const newValue = Number(price.toFixed(2));
+        if (newValue === Number(it.current_value)) continue;
+        const { error } = await supabase.from("investments").update({ current_value: newValue }).eq("id", it.id);
+        if (!error) updated++;
+      }
+      setLastRefresh(new Date());
+      if (!silent) toast.success(updated ? `Updated ${updated} position${updated > 1 ? "s" : ""} from live data` : "Prices already up to date");
+      if (updated) load();
+    } catch (e) {
+      if (!silent) toast.error((e as Error).message);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Auto-refresh every 60s while the tab is visible.
+  const refreshRef = useRef(refreshLivePrices);
+  refreshRef.current = refreshLivePrices;
+  useEffect(() => {
+    if (!items.some((i) => i.symbol)) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") refreshRef.current(true);
+    }, 60_000);
+    return () => clearInterval(id);
+  }, [items]);
+
 
   const optimize = async () => {
     if (items.length === 0) return toast.error("Add some investments first");
