@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   createChart, CandlestickSeries, LineSeries, ColorType, type IChartApi,
 } from "lightweight-charts";
-import { Loader2, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Plus, X, Bell } from "lucide-react";
-import { getQuotes, getCandles, type FinnhubQuote, type Candle } from "@/lib/markets.functions";
+import { Loader2, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Plus, X, Bell, Search } from "lucide-react";
+import { getQuotes, getCandles, searchSymbols, type FinnhubQuote, type Candle, type SymbolHit } from "@/lib/markets.functions";
 import { sma, rsi, bollinger } from "@/lib/indicators";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
