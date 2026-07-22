@@ -68,6 +68,8 @@ function MarketsPage() {
   const [stockRows, setStockRows] = useState<WatchRow[]>([]);
   const [active, setActive] = useState<string>(DEFAULTS[0]);
   const [refreshMs, setRefreshMs] = useState<number>(10_000);
+  const [tfKey, setTfKey] = useState<string>("3M");
+  const tf = TIMEFRAMES.find((t) => t.key === tfKey) ?? TIMEFRAMES[3];
   const [indicators, setIndicators] = useState<IndicatorState>(() => {
     try {
       const v = localStorage.getItem("bspot.markets.indicators");
@@ -81,6 +83,7 @@ function MarketsPage() {
 
   const quotesFn = useServerFn(getQuotes);
   const candlesFn = useServerFn(getCandles);
+  const searchFn = useServerFn(searchSymbols);
 
   const loadWatchlist = async () => {
     if (!user) return;
