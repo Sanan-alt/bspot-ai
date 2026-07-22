@@ -44,6 +44,17 @@ const REFRESH_OPTS = [
   { v: 300_000, label: "5m" },
 ];
 
+type Timeframe = { key: string; label: string; interval: "1m" | "5m" | "15m" | "30m" | "60m" | "1d" | "1wk"; range: "1d" | "5d" | "1mo" | "3mo" | "6mo" | "1y" | "2y" | "5y"; intraday: boolean };
+const TIMEFRAMES: Timeframe[] = [
+  { key: "1D", label: "1D", interval: "5m", range: "1d", intraday: true },
+  { key: "5D", label: "5D", interval: "15m", range: "5d", intraday: true },
+  { key: "1M", label: "1M", interval: "1d", range: "1mo", intraday: false },
+  { key: "3M", label: "3M", interval: "1d", range: "3mo", intraday: false },
+  { key: "6M", label: "6M", interval: "1d", range: "6mo", intraday: false },
+  { key: "1Y", label: "1Y", interval: "1d", range: "1y", intraday: false },
+  { key: "5Y", label: "5Y", interval: "1wk", range: "5y", intraday: false },
+];
+
 type WatchRow = {
   id: string; symbol: string; kind: string;
   alert_above: number | null; alert_below: number | null;
