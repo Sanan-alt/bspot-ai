@@ -252,8 +252,18 @@ function MarketsPage() {
       <div className="panel-neon p-4">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// CHART</p>
-            <h2 className="font-display text-xl">{active} · Daily candles</h2>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">// CHART · {tf.label} · {tf.intraday ? "intraday" : "daily"}</p>
+            <h2 className="font-display text-xl">{active}</h2>
+            <p className="text-[10px] font-mono text-muted-foreground mt-1">Data via Yahoo Finance · may be delayed ~15 min</p>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {TIMEFRAMES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTfKey(t.key)}
+                className={`px-2.5 h-8 rounded-md border text-[11px] font-mono uppercase tracking-widest transition-colors ${tf.key === t.key ? "border-primary text-neon bg-primary/10" : "border-border text-muted-foreground hover:border-primary/50"}`}
+              >{t.label}</button>
+            ))}
           </div>
           <div className="flex items-center gap-3 flex-wrap text-xs">
             <IndicatorToggle label="SMA 20" color="#d4a017" checked={indicators.sma20} onChange={(b) => setIndicators({ ...indicators, sma20: b })} />
