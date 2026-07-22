@@ -173,6 +173,16 @@ function MarketsPage() {
         </div>
       </div>
 
+      <StockSearch
+        searchFn={searchFn}
+        onPick={(sym) => {
+          const s = sym.toUpperCase();
+          setSymbols((prev) => (prev.includes(s) ? prev : [s, ...prev].slice(0, 12)));
+          setActive(s);
+        }}
+      />
+
+
       {qErr && (
         <div className="panel p-4 border-destructive/40 flex items-center gap-2 text-sm text-destructive">
           <AlertTriangle className="h-4 w-4" /> {(qErr as Error).message}
