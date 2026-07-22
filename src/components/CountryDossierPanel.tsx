@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Loader2, X, Building2, Plane, Vote, Sparkles, RefreshCw, MapPin,
   TrendingUp, ShieldAlert, CheckCircle2, AlertTriangle, Globe2,
+  Landmark, Users, LineChart, Shield, Wrench,
 } from "lucide-react";
+
 import { COUNTRY_BY_CODE } from "@/lib/countries-data";
 import { COUNTRY_DEEP } from "@/lib/country-deep";
 import { VISA_PROGRAMS } from "@/lib/visa-programs";
