@@ -340,25 +340,49 @@ function PortfolioPage() {
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">// PORTFOLIO</p>
           <h1 className="mt-2 font-display text-3xl md:text-4xl">Portfolio Tracker</h1>
-          <p className="text-sm text-muted-foreground mt-1">Track every investment, watch your P/L move in real time.</p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+            Log every investment — stocks, ETFs, crypto, real estate — and watch your P/L update live.
+            Add a ticker symbol (e.g. <span className="font-mono text-neon">AAPL</span>) to auto-refresh the current price every minute from Yahoo Finance (may be delayed ~15 min).
+          </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" onClick={exportCsv} disabled={items.length === 0} title="Export current timeframe as CSV">
+          <Button variant="outline" onClick={() => refreshLivePrices(false)} disabled={refreshing || items.length === 0} title="Fetch the latest price for positions with a ticker symbol">
+            {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Refresh prices
+          </Button>
+          <Button variant="outline" onClick={exportCsv} disabled={items.length === 0} title="Download the current timeframe as a spreadsheet (CSV)">
             <FileDown className="h-4 w-4" /> CSV
           </Button>
-          <Button variant="outline" onClick={exportPdf} disabled={items.length === 0} title="Export current timeframe as PDF">
+          <Button variant="outline" onClick={exportPdf} disabled={items.length === 0} title="Download the current timeframe as a printable PDF report">
             <FileText className="h-4 w-4" /> PDF
           </Button>
-          <Button variant="outline" onClick={optimize} disabled={aiLoading}>
+          <Button variant="outline" onClick={optimize} disabled={aiLoading} title="Ask the AI to review your allocation and suggest rebalancing (costs 15 credits)">
             {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             AI Review (15 cr)
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button onClick={openCreate}><Plus className="h-4 w-4" /> Add</Button></DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>{editing ? "Edit investment" : "Add investment"}</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>{editing ? "Edit investment" : "Add investment"}</DialogTitle>
+                <DialogDescription>
+                  Give the position a name and its cost basis. If it's a public stock, ETF or index, add its ticker symbol so we can update its price for you automatically.
+                </DialogDescription>
+              </DialogHeader>
               <div className="grid gap-3">
-                <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Apple stock" /></div>
+                <div>
+                  <Label>Name</Label>
+                  <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Apple stock" />
+                  <p className="text-[11px] text-muted-foreground mt-1">A short label you'll recognise in the list.</p>
+                </div>
+                <div>
+                  <Label>Ticker symbol <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                  <Input value={form.symbol} onChange={e => setForm({ ...form, symbol: e.target.value.toUpperCase() })} placeholder="e.g. AAPL, MSFT, BTC-USD" maxLength={12} />
+                  <p className="text-[11px] text-muted-foreground mt-1 flex items-start gap-1">
+                    <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                    Add a Yahoo Finance symbol to enable live price refresh every 60s. Leave blank for private assets (real estate, business, cash).
+                  </p>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Country</Label>
@@ -369,19 +393,43 @@ function PortfolioPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div><Label>Currency</Label><Input value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value.toUpperCase() })} maxLength={6} /></div>
+                  <div>
+                    <Label>Currency</Label>
+                    <Select value={form.currency} onValueChange={v => setForm({ ...form, currency: v })}>
+                      <SelectTrigger><SelectValue placeholder="Currency" /></SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.symbol} {c.code} — {c.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Initial amount</Label><Input type="number" value={form.initial_amount} onChange={e => setForm({ ...form, initial_amount: e.target.value })} /></div>
-                  <div><Label>Current value</Label><Input type="number" value={form.current_value} onChange={e => setForm({ ...form, current_value: e.target.value })} /></div>
+                  <div>
+                    <Label>Initial amount</Label>
+                    <Input type="number" value={form.initial_amount} onChange={e => setForm({ ...form, initial_amount: e.target.value })} placeholder="What you paid" />
+                  </div>
+                  <div>
+                    <Label>Current value</Label>
+                    <Input type="number" value={form.current_value} onChange={e => setForm({ ...form, current_value: e.target.value })} placeholder="Market value today" />
+                  </div>
                 </div>
-                <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
+                <div>
+                  <Label>Notes</Label>
+                  <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} placeholder="Optional: strategy, shares held, broker…" />
+                </div>
               </div>
               <DialogFooter><Button onClick={save}>{editing ? "Save" : "Add"}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
       </div>
+
+      {lastRefresh && (
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground -mt-3">
+          // Live prices last updated {formatDate(lastRefresh, { hour: "2-digit", minute: "2-digit", second: "2-digit" })} · Auto-refresh every 60s · Data via Yahoo Finance (may be delayed ~15 min)
+        </p>
+      )}
+
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Stat label="Invested" value={formatCurrency(totals.invested)} />
