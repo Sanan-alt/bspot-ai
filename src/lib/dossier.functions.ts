@@ -165,17 +165,9 @@ const dossierTool = {
 } as const;
 
 async function callDossier(prompt: string): Promise<Omit<Dossier, "scope">> {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
-
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+  const { aiToolCall } = await import("./ai-provider.server");
+  const { result } = await aiToolCall<Omit<Dossier, "scope">>(
+    {
       messages: [
         {
           role: "system",
@@ -186,18 +178,12 @@ async function callDossier(prompt: string): Promise<Omit<Dossier, "scope">> {
       ],
       tools: [dossierTool],
       tool_choice: { type: "function", function: { name: "investment_dossier" } },
-    }),
-  });
-
-  if (res.status === 429) throw new Error("AI rate limit — try again in a minute.");
-  if (res.status === 402) throw new Error("AI credits exhausted on workspace.");
-  if (!res.ok) throw new Error(`AI gateway error: ${res.status}`);
-
-  const json = await res.json();
-  const call = json?.choices?.[0]?.message?.tool_calls?.[0];
-  if (!call?.function?.arguments) throw new Error("AI returned no dossier.");
-  return JSON.parse(call.function.arguments);
+    },
+    "investment_dossier",
+  );
+  return result;
 }
+
 
 const CACHE_TTL_HOURS = 24;
 const RATE_MAX = 10;        // 10 dossiers
