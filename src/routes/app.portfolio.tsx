@@ -15,7 +15,7 @@ import { COUNTRIES } from "@/lib/countries-data";
 import { CURRENCIES } from "@/lib/currencies";
 import { optimizePortfolio } from "@/lib/portfolio.functions";
 import { getQuotes } from "@/lib/markets.functions";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, LineChart, Line, CartesianGrid } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, AreaChart, Area, CartesianGrid, ReferenceLine } from "recharts";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/i18n-format";
 import { track } from "@/lib/telemetry";
 
