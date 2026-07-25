@@ -353,15 +353,16 @@ function PortfolioPage() {
   const UP = "oklch(0.66 0.16 150)";
   const DOWN = "oklch(0.62 0.19 25)";
   const tooltipStyle = {
-    background: "hsl(var(--popover))",
-    border: "1px solid hsl(var(--border))",
+    background: "var(--popover)",
+    border: "1px solid var(--border)",
     borderRadius: 8,
-    color: "hsl(var(--popover-foreground))",
+    color: "var(--popover-foreground)",
     fontSize: 12,
     boxShadow: "0 4px 16px rgb(0 0 0 / 12%)",
   } as const;
-  const axisColor = "hsl(var(--muted-foreground))";
-  const gridColor = "hsl(var(--border))";
+  const axisColor = "var(--muted-foreground)";
+  const gridColor = "var(--border)";
+
 
 
   return (
