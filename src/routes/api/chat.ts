@@ -23,10 +23,11 @@ export const Route = createFileRoute("/api/chat")({
       POST: async ({ request }) => {
         const SUPABASE_URL = process.env.SUPABASE_URL;
         const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
-        const apiKey = process.env.LOVABLE_API_KEY;
+        const apiKey = process.env.LOVABLE_API_KEY || process.env.GROQ_API_KEY;
         if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !apiKey) {
           return sseError("Server misconfigured", 500);
         }
+
 
         const authHeader = request.headers.get("authorization");
         if (!authHeader?.startsWith("Bearer ")) {
@@ -149,17 +150,16 @@ RESPONSE FORMAT RULES:
             .map((m) => ({ role: m.role, content: m.content })),
         ];
 
-        // Call upstream with streaming
-        const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model: "google/gemini-2.5-flash", messages, stream: true }),
-        });
+        // Call upstream with streaming (Gemini primary, Groq automatic failover)
+        const { aiStream } = await import("@/lib/ai-provider.server");
 
-        if (!upstream.ok || !upstream.body) {
-          if (upstream.status === 429) return sseError("AI rate limit. Try again shortly.", 429);
-          if (upstream.status === 402) return sseError("AI credits exhausted.", 402);
-          return sseError(`AI gateway ${upstream.status}`, 502);
+        let opened: { body: ReadableStream<Uint8Array>; provider: "gemini" | "groq" };
+        try {
+          opened = await aiStream({ messages });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "AI unavailable";
+          const status = msg.includes("rate limit") ? 429 : msg.includes("credits") ? 402 : 502;
+          return sseError(msg, status);
         }
 
         const encoder = new TextEncoder();
@@ -168,9 +168,12 @@ RESPONSE FORMAT RULES:
 
         const stream = new ReadableStream({
           async start(controller) {
-            const reader = upstream.body!.getReader();
-            let buffer = "";
-            try {
+            const pump = async (
+              body: ReadableStream<Uint8Array>,
+              provider: "gemini" | "groq",
+            ) => {
+              const reader = body.getReader();
+              let buffer = "";
               while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
@@ -188,7 +191,7 @@ RESPONSE FORMAT RULES:
                     if (delta) {
                       fullReply += delta;
                       controller.enqueue(
-                        encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`),
+                        encoder.encode(`data: ${JSON.stringify({ delta, provider })}\n\n`),
                       );
                     }
                   } catch {
@@ -196,8 +199,9 @@ RESPONSE FORMAT RULES:
                   }
                 }
               }
+            };
 
-              // Persist assistant message
+            const persist = async () => {
               if (fullReply) {
                 await supabase.from("chat_messages").insert({
                   user_id: userId,
@@ -205,9 +209,46 @@ RESPONSE FORMAT RULES:
                   content: fullReply,
                 });
               }
+            };
+
+            try {
+              try {
+                await pump(opened.body, opened.provider);
+              } catch (streamErr) {
+                // Primary died mid-stream: save what it produced, then hand the
+                // whole conversation over to the fallback provider.
+                if (opened.provider === "gemini") {
+                  await persist();
+                  const carried = fullReply;
+                  fullReply = "";
+                  const handover = carried
+                    ? [
+                        ...messages,
+                        { role: "assistant", content: carried },
+                        {
+                          role: "user",
+                          content:
+                            "Your previous answer was cut off. Continue seamlessly from where it stopped, without repeating what was already said.",
+                        },
+                      ]
+                    : messages;
+                  const fallback = await aiStream({ messages: handover }, ["gemini"]);
+                  controller.enqueue(
+                    encoder.encode(
+                      `event: provider\ndata: ${JSON.stringify({ provider: fallback.provider })}\n\n`,
+                    ),
+                  );
+                  await pump(fallback.body, fallback.provider);
+                } else {
+                  throw streamErr;
+                }
+              }
+
+              await persist();
               controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
               controller.close();
             } catch (err) {
+              await persist();
               const msg = err instanceof Error ? err.message : "Stream failed";
               controller.enqueue(
                 encoder.encode(`event: error\ndata: ${JSON.stringify({ message: msg })}\n\n`),
@@ -216,6 +257,7 @@ RESPONSE FORMAT RULES:
             }
           },
         });
+
 
         return new Response(stream, {
           status: 200,
