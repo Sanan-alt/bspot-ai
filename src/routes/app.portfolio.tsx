@@ -76,10 +76,14 @@ function PortfolioPage() {
   const byCountry = useMemo(() => {
     const map: Record<string, number> = {};
     for (const it of items) {
-      const key = it.country || "Unspecified";
+      const meta = COUNTRIES.find(c => c.code === it.country);
+      const key = meta ? `${meta.flag} ${meta.name}` : "Unspecified";
       map[key] = (map[key] || 0) + Number(it.current_value);
     }
-    return Object.entries(map).map(([name, value]) => ({ name, value }));
+    const total = Object.values(map).reduce((s, v) => s + v, 0) || 1;
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value, pct: (value / total) * 100 }))
+      .sort((a, b) => b.value - a.value);
   }, [items]);
 
   const timeframeDays = { "7d": 7, "30d": 30, "90d": 90, "1y": 365, all: Infinity }[timeframe];
@@ -91,14 +95,18 @@ function PortfolioPage() {
   }, [items, timeframeDays]);
 
   const perAsset = useMemo(
-    () => filteredByTime.map(i => ({
-      name: i.name.slice(0, 12),
-      pl: Number(i.current_value) - Number(i.initial_amount),
-      invested: Number(i.initial_amount),
-      current: Number(i.current_value),
-    })),
+    () => filteredByTime
+      .map(i => ({
+        name: i.name.length > 14 ? `${i.name.slice(0, 13)}…` : i.name,
+        fullName: i.name,
+        pl: Number((Number(i.current_value) - Number(i.initial_amount)).toFixed(2)),
+        invested: Number(i.initial_amount),
+        current: Number(i.current_value),
+      }))
+      .sort((a, b) => b.pl - a.pl),
     [filteredByTime]
   );
+
 
   // Cumulative P/L history built from investment creation dates within the window.
   const plHistory = useMemo(() => {
