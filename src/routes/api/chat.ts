@@ -23,10 +23,11 @@ export const Route = createFileRoute("/api/chat")({
       POST: async ({ request }) => {
         const SUPABASE_URL = process.env.SUPABASE_URL;
         const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
-        const apiKey = process.env.LOVABLE_API_KEY;
+        const apiKey = process.env.LOVABLE_API_KEY || process.env.GROQ_API_KEY;
         if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !apiKey) {
           return sseError("Server misconfigured", 500);
         }
+
 
         const authHeader = request.headers.get("authorization");
         if (!authHeader?.startsWith("Bearer ")) {
