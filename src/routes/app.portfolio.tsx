@@ -340,7 +340,29 @@ function PortfolioPage() {
     track("portfolio_export", { metadata: { format: "pdf", timeframe, rows: filteredByTime.length } });
   };
 
-  const COLORS = ["oklch(0.88 0.19 95)", "oklch(0.68 0.18 50)", "oklch(0.65 0.18 200)", "oklch(0.65 0.18 320)", "oklch(0.70 0.15 150)", "oklch(0.60 0.15 30)"];
+  const COLORS = [
+    "oklch(0.72 0.16 250)", // blue
+    "oklch(0.70 0.16 150)", // green
+    "oklch(0.75 0.17 60)",  // amber
+    "oklch(0.65 0.19 20)",  // red
+    "oklch(0.68 0.16 300)", // violet
+    "oklch(0.72 0.14 195)", // teal
+    "oklch(0.70 0.17 340)", // pink
+    "oklch(0.62 0.10 260)", // indigo grey
+  ];
+  const UP = "oklch(0.66 0.16 150)";
+  const DOWN = "oklch(0.62 0.19 25)";
+  const tooltipStyle = {
+    background: "hsl(var(--popover))",
+    border: "1px solid hsl(var(--border))",
+    borderRadius: 8,
+    color: "hsl(var(--popover-foreground))",
+    fontSize: 12,
+    boxShadow: "0 4px 16px rgb(0 0 0 / 12%)",
+  } as const;
+  const axisColor = "hsl(var(--muted-foreground))";
+  const gridColor = "hsl(var(--border))";
+
 
   return (
     <div className="space-y-6">
