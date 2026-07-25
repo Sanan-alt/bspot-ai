@@ -54,11 +54,9 @@ Constraints:
 
 Be specific (real industries, real countries). Include a mix of stocks/ETFs, real estate, small business, and emerging-market plays where appropriate.`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+    const { aiToolCall } = await import("./ai-provider.server");
+    const { result } = await aiToolCall<{ suggestions: Suggestion[] }>(
+      {
         messages: [
           { role: "system", content: "You are a senior investment strategist. Always call the suggest_investments tool." },
           { role: "user", content: userPrompt },
@@ -99,17 +97,9 @@ Be specific (real industries, real countries). Include a mix of stocks/ETFs, rea
           },
         }],
         tool_choice: { type: "function", function: { name: "suggest_investments" } },
-      }),
-    });
-
-    if (!res.ok) {
-      if (res.status === 429) throw new Error("AI rate limit exceeded. Try again shortly.");
-      if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Settings → Workspace → Usage.");
-      throw new Error(`AI gateway ${res.status}: ${(await res.text()).slice(0, 200)}`);
-    }
-    const json = await res.json();
-    const args = json?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-    if (!args) throw new Error("AI returned no suggestions");
-    const parsed = JSON.parse(args) as { suggestions: Suggestion[] };
-    return parsed.suggestions;
+      },
+      "suggest_investments",
+    );
+    return result.suggestions;
   });
+
