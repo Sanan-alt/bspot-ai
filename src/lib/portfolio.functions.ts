@@ -27,23 +27,13 @@ export const optimizePortfolio = createServerFn({ method: "POST" })
       throw new Error(creditErr.message || "Could not spend credits");
     }
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: "You are a portfolio advisor. Reply with 4-6 concise practical bullet points." },
-          { role: "user", content: `Review this portfolio and give optimization tips:\n${data.summary}` },
-        ],
-      }),
+    const { aiText } = await import("./ai-provider.server");
+    const { text } = await aiText({
+      messages: [
+        { role: "system", content: "You are a portfolio advisor. Reply with 4-6 concise practical bullet points." },
+        { role: "user", content: `Review this portfolio and give optimization tips:\n${data.summary}` },
+      ],
     });
+    return { advice: text || "No advice returned." };
 
-    if (!res.ok) {
-      if (res.status === 429) throw new Error("AI rate limit. Try again shortly.");
-      if (res.status === 402) throw new Error("AI credits exhausted.");
-      throw new Error(`AI gateway ${res.status}`);
-    }
-    const json = await res.json();
-    return { advice: json?.choices?.[0]?.message?.content ?? "No advice returned." };
   });
