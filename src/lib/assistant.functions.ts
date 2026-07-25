@@ -14,8 +14,8 @@ export const sendChatMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => ChatInput.parse(i))
   .handler(async ({ data, context }): Promise<{ reply: string }> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
+    const apiKey = process.env.LOVABLE_API_KEY || process.env.GROQ_API_KEY;
+    if (!apiKey) throw new Error("No AI provider configured");
     const { supabase, userId } = context;
 
     // Rate limit BEFORE spending credits

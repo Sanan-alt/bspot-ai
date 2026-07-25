@@ -12,8 +12,8 @@ export const optimizePortfolio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
   .handler(async ({ data, context }): Promise<{ advice: string }> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
+    const apiKey = process.env.LOVABLE_API_KEY || process.env.GROQ_API_KEY;
+    if (!apiKey) throw new Error("No AI provider configured");
 
     const { error: creditErr } = await context.supabase.rpc("consume_credits", {
       p_amount: COST,
