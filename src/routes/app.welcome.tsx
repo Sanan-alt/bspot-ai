@@ -49,7 +49,7 @@ function WelcomePage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      navigate({ to: "/signin", search: { redirect: "/app/welcome" } });
+      navigate({ to: "/signin", search: { next: "/app/welcome" } });
       return;
     }
     (async () => {
