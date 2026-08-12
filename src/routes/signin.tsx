@@ -7,9 +7,10 @@ import { Loader2 } from "lucide-react";
 import { AuthShell, Divider, Field } from "./signup";
 
 export const Route = createFileRoute("/signin")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: { next?: unknown }): { next?: string } => ({
     next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
   }),
+
   component: SignIn,
 });
 
