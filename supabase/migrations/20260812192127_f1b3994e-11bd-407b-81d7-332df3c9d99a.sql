@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "admins view all profiles" ON public.profiles;
