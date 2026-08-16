@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { isInAppEnabled } from "@/lib/notification-prefs";
 
 /**
  * Mounted once inside the app shell: shows a toast whenever a new
@@ -21,8 +22,9 @@ export function NotificationsListener() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         (payload) => {
-          const n = payload.new as { id: string; title: string; message: string };
+          const n = payload.new as { id: string; title: string; message: string; type: string };
           if (!n?.id || seen.current.has(n.id)) return;
+          if (!isInAppEnabled(n.type)) return;
           seen.current.add(n.id);
           toast(n.title, {
             description: n.message,
