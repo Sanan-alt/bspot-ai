@@ -60,8 +60,17 @@ function AppLayout() {
                 <ThemeToggle />
                 
                 <CreditsBadge />
-                <Link to="/app/notifications" aria-label="Notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
+                <Link
+                  to="/app/notifications"
+                  aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+                  className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent"
+                >
                   <Bell className="h-4 w-4" aria-hidden="true" />
+                  {unread > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-mono grid place-items-center">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
                 </Link>
                 <span className="hidden lg:block font-mono text-xs text-muted-foreground truncate max-w-[160px]">{user?.email ?? "demo@bspot.ai"}</span>
                 <button
