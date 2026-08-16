@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { MfaEnrollment } from "@/components/MfaEnrollment";
 import { RecoveryCodes } from "@/components/RecoveryCodes";
+import { NotificationPreferences } from "@/components/NotificationPreferences";
 
 export const Route = createFileRoute("/app/settings")({ component: SettingsPage });
 
