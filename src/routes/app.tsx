@@ -11,6 +11,8 @@ import { CreditsProvider } from "@/hooks/use-credits";
 import { Bell, LogOut } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useIdleTimeout } from "@/hooks/use-idle-timeout";
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications";
+import { NotificationsListener } from "@/components/NotificationsListener";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -28,6 +30,7 @@ function AppLayout() {
   const navigate = useNavigate();
   // Demo is a real (anonymous) Supabase session — gate cannot be bypassed via localStorage.
   const isDemo = !!user?.is_anonymous;
+  const unread = useUnreadNotifications();
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/signin" });
@@ -60,8 +63,17 @@ function AppLayout() {
                 <ThemeToggle />
                 
                 <CreditsBadge />
-                <Link to="/app/notifications" aria-label="Notifications" className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent">
+                <Link
+                  to="/app/notifications"
+                  aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+                  className="relative h-9 w-9 grid place-items-center rounded-md hover:bg-accent"
+                >
                   <Bell className="h-4 w-4" aria-hidden="true" />
+                  {unread > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-mono grid place-items-center">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
                 </Link>
                 <span className="hidden lg:block font-mono text-xs text-muted-foreground truncate max-w-[160px]">{user?.email ?? "demo@bspot.ai"}</span>
                 <button
@@ -86,6 +98,7 @@ function AppLayout() {
             </main>
           </div>
           <ChatbotFab />
+          <NotificationsListener />
         </div>
       </SidebarProvider>
     </CreditsProvider>
