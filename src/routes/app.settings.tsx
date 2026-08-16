@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { MfaEnrollment } from "@/components/MfaEnrollment";
 import { RecoveryCodes } from "@/components/RecoveryCodes";
+import { NotificationPreferences } from "@/components/NotificationPreferences";
 
 export const Route = createFileRoute("/app/settings")({ component: SettingsPage });
 
@@ -82,16 +83,19 @@ function SettingsPage() {
       </section>
 
       <section className="panel p-5 space-y-4">
-        <h2 className="font-display text-lg">Notifications</h2>
-        <Row label="Email alerts" desc="Receive important updates by email">
+        <div>
+          <h2 className="font-display text-lg">Notifications</h2>
+          <p className="text-xs text-muted-foreground">Toggle email and in-app delivery for each notification type.</p>
+        </div>
+        <Row label="Master email alerts" desc="Turn off to stop all notification emails">
           <Switch checked={emailAlerts} onCheckedChange={setEmailAlerts} />
         </Row>
-        <Row label="Push alerts" desc="In-app notifications and realtime updates">
+        <Row label="Master in-app alerts" desc="Turn off to stop realtime pop-ups">
           <Switch checked={pushAlerts} onCheckedChange={setPushAlerts} />
         </Row>
-        <Row label="AI tips & insights" desc="Periodic suggestions from the assistant">
-          <Switch checked={aiTips} onCheckedChange={setAiTips} />
-        </Row>
+        <div className="pt-3 border-t border-border">
+          <NotificationPreferences />
+        </div>
       </section>
 
       <section className="panel p-5 space-y-4">
