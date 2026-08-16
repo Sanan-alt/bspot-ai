@@ -11,6 +11,8 @@ import { CreditsProvider } from "@/hooks/use-credits";
 import { Bell, LogOut } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useIdleTimeout } from "@/hooks/use-idle-timeout";
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications";
+import { NotificationsListener } from "@/components/NotificationsListener";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -28,6 +30,7 @@ function AppLayout() {
   const navigate = useNavigate();
   // Demo is a real (anonymous) Supabase session — gate cannot be bypassed via localStorage.
   const isDemo = !!user?.is_anonymous;
+  const unread = useUnreadNotifications();
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/signin" });
@@ -95,6 +98,7 @@ function AppLayout() {
             </main>
           </div>
           <ChatbotFab />
+          <NotificationsListener />
         </div>
       </SidebarProvider>
     </CreditsProvider>
