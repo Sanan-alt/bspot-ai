@@ -1,95 +1,133 @@
-# BSpot AI — Audit + Focused Improvement
+# BSpot AI — Lemon Squeezy Payments Plan
 
-You picked **Audit + one feature area I pick next**, with **design preserved exactly** and no explicit "do not touch" zones.
+You chose **Option 2: Lemon Squeezy as merchant of record** for `/app/buy-credits`. This plan explains exactly what you must do on the Lemon Squeezy side, what it costs, and what I will build on the Lovable side once you are approved.
 
-The audit below is the first deliverable. The implementation slice for this round is at the end — **AI Assistant streaming**, chosen because it's the highest visibility-to-risk ratio and requires **zero visual changes**.
-
----
-
-## Part 1 — Audit summary
-
-Every claim below is grounded in a specific file. Nothing is edited in this plan.
-
-### ✅ Working well
-- **Auth basics**: email/password, Google OAuth, anonymous demo, login lockout, 30-min idle timeout, TOTP enroll + recovery codes, `next` redirect param validated same-origin.
-- **Credit enforcement**: server-side RPCs (`consume_credits`) run before every paid AI action; realtime balance sync; free daily top-up is idempotent; anon role is `REVOKE`d from sensitive RPCs.
-- **Countries**: 24h AI-scored cache, cron-refreshed macro data via a shared-secret-guarded edge function, age-based freshness badge.
-- **Security posture**: `supabaseAdmin` is a lazy Proxy used in only 2 files; `attachSupabaseAuth` registered globally in `src/start.ts`; deny-all RLS on `login_attempts` / `mfa_recovery_codes` forces access through `SECURITY DEFINER` functions.
-- **SEO**: full OG/Twitter tags + `Organization` JSON-LD in `__root.tsx`, real sitemap route, `robots.txt` correctly blocks `/app/`, `/signin`, `/signup`.
-- **Mobile**: shadcn `Sidebar collapsible="icon"` + responsive `hidden sm:` / `hidden lg:` classes throughout — no obvious overflow.
-
-### ⚠️ Partial / needs attention (not fixed in this round)
-| Area | Gap | Priority |
-|---|---|---|
-| Auth | Auth gate is a client-side `useEffect` redirect in `src/routes/app.tsx`, not a `_authenticated/` layout with `beforeLoad` — protected shell briefly mounts before redirect | Medium |
-| Auth | **TOTP MFA is enrolled but never challenged at sign-in** — no `mfa.getAuthenticatorAssuranceLevel()` step exists anywhere outside the enrollment component. 2FA is cosmetic unless Supabase project settings force AAL2 server-side | **High** |
-| Portfolio | Only one generic asset type; `current_value` is manual (no live pricing); no CSV/PDF export | Medium |
-| AI Assistant | No streaming (static "Thinking…"); no image/PDF input despite Gemini being multimodal; `ChatbotFab` is a link, not a popover | **High (partly fixed this round)** |
-| Countries | Live-data covers 16 hardcoded countries only; alpha2↔alpha3 map duplicated in 3 files; `src/components/WorldMap.tsx` (~99 lines) is dead code | Medium |
-| Credits | Real payments not wired — `purchaseCreditsMockFn` is owner-gated and explicitly a mock; client-side `CREDIT_COSTS` mirror drifts from server costs | Medium |
-| Notifications | No browser push, no email pipeline hookup to the existing template system; `clearAll()` uses raw `window.confirm` instead of the project's `AlertDialog` | Low–Medium |
-| i18n | 19 keys present in `en.json` are missing from `ar/hi/ur` — silent English fallback mid-RTL | Medium |
-| SEO | No per-route `canonical` / `og:url` on most pages | Low |
-| Perf | `react-simple-maps` + `d3-geo` imported eagerly on `/app/countries`; `world-atlas` TopoJSON fetched from jsDelivr on every mount | Low–Medium |
-
-None of these are critical enough to block anything shipping. The one I'd flag is **MFA enforcement at sign-in** — worth its own follow-up.
-
-### Not touched by this round
-- Real payments (Stripe wiring)
-- Any UI redesign
-- Any DB schema change
-- Any auth flow rewrite
-- Portfolio live-pricing hookup
-- Web push / email pipeline
+No code changes are included in this plan. Implementation starts only after you approve it.
 
 ---
 
-## Part 2 — Focused implementation: AI Assistant streaming
+## 1. What you must do on Lemon Squeezy (PK seller)
 
-**Why this one:** the chat is behind `ChatbotFab` on every dashboard page. Today `sendChatMessage` awaits the entire Gemini response before returning a single JSON blob, and the UI shows a static "Thinking…" bubble for the whole duration. Switching to SSE streaming keeps the existing bubble, existing input, existing everything — the assistant message just fills in progressively. Design preserved exactly.
+### Step A — Create the account
+1. Go to **lemonsqueezy.com** and sign up as a seller.
+2. During onboarding, Lemon Squeezy will ask for:
+   - Your **country of residence / business registration** (Pakistan).
+   - Your **business type**: individual / sole proprietor, or registered company.
+   - A valid **email address** (use `bspot.ai.official@gmail.com` or `msaoffical.sa@gmail.com` so the team has access).
+3. **Important verification step**: after signup, confirm that Pakistan is accepted in the payout-country list. If Pakistan is blocked, stop and tell me — we will switch to a different provider before any code is written.
 
-### What changes
+### Step B — Submit verification documents
+Lemon Squeezy (and its payment processor) will typically ask for:
+- **Government-issued photo ID**: NADRA CNIC front + back, or Pakistani passport.
+- **Proof of address**: utility bill, bank statement, or mobile bill in your name (usually last 3 months).
+- **Business proof (if company)**: SECP registration, NTN certificate, or business incorporation documents.
+- **Tax form**: non-US sellers usually complete a **W-8BEN** tax form inside the Lemon Squeezy dashboard to avoid US withholding tax.
 
-1. **New streaming server route** `src/routes/api/chat.ts`
-   - `POST` handler, `requireSupabaseAuth`-equivalent by reading the bearer from the incoming request headers and validating with `getClaims` (same pattern the middleware uses; server routes can't use fn middleware).
-   - Runs the **same pre-checks in the same order** as `sendChatMessage`: rate-limit RPC → `consume_credits` RPC → persist user message → load profile + last 20 messages → build the identical system prompt.
-   - Calls the Lovable AI Gateway with `stream: true`, returns a `Response` with `Content-Type: text/event-stream`, forwarding SSE chunks straight through.
-   - When the upstream stream closes, persists the accumulated assistant reply to `chat_messages` (same insert `assistant.functions.ts` does today).
-   - Maps 429 / 402 into structured SSE `error` events the client can render, so the current "AI rate limit" / "credits exhausted" toasts still fire.
+### Step C — Connect a payout method
+Because Pakistani Rupee (PKR) direct local-bank payouts are not guaranteed, be ready with one of these:
+- **Wise (formerly TransferWise)** account — recommended. You can open a USD/EUR/GBP balance and withdraw to your Pakistani bank.
+- **PayPal** business account (if available for your profile).
+- **Payoneer** account — another common route for Pakistani sellers.
 
-2. **Keep `sendChatMessage` server fn as-is** — it's a fine non-streaming fallback. Do not delete it. Any other caller keeps working.
+Lemon Squeezy will show you which payout methods are available once your country is verified.
 
-3. **Client swap in `src/routes/app.assistant.tsx`**
-   - Replace the current `useServerFn(sendChatMessage)` + `await` with a `fetch("/api/chat", ...)` that reads the SSE stream (`ReadableStream` + `TextDecoder`).
-   - Push a placeholder assistant message into the existing `messages` state immediately, then append token deltas to its `content` on each chunk. Existing bubble component renders the growing string with no visual change.
-   - On completion, refetch `useCredits` balance (already realtime-subscribed, so this is belt-and-suspenders).
-   - On SSE `error` event, show the same `toast.error` copy the current code uses.
-   - Preserve: markdown rendering (if any), auto-scroll to bottom, the "Thinking…" indicator now becomes the empty placeholder bubble that starts filling in.
+### Step D — Approval time
+- Typical approval: **1–3 business days** if documents are clear.
+- Sometimes up to **7 business days** during busy periods or if extra verification is needed.
 
-4. **Bearer attachment**
-   - `attachSupabaseAuth` is a `functionMiddleware`, so it doesn't run for `fetch()` calls to `/api/chat`. The client `fetch` sends `Authorization: Bearer ${session.access_token}` manually (read from `supabase.auth.getSession()` in the same call).
+### Step E — Create the three credit packs
+Once approved, create these products in Lemon Squeezy:
 
-5. **No changes to**: sidebar, page layout, message bubble styling, empty state, credit costs (still 2/msg), rate limit (still 20/60s), system prompt, profile injection, `chat_messages` schema, RLS.
+| Pack | Credits | Price (PKR) | Price (USD) |
+|---|---|---|---|
+| Starter | 200 | 150 | ~0.55 |
+| Pro | 1,000 | 800 | ~2.85 |
+| Power | 5,000 | 3,500 | ~12.50 |
 
-### Files touched
-- **Add** `src/routes/api/chat.ts` (~120 lines)
-- **Edit** `src/routes/app.assistant.tsx` — swap the send-message handler only; JSX untouched
-- **Keep** `src/lib/assistant.functions.ts` unchanged
+Each pack becomes a **Product + Variant** in Lemon Squeezy. You will copy the **Variant ID** for each one and give it to me so I can wire the checkout buttons.
 
-### Verification
-- Manual: send a chat message in preview, confirm the assistant bubble fills incrementally, credits decrement by 2, rate limit still trips at 20/min, "Not enough credits" toast still appears when balance <2.
-- No new deps required (SSE parsing is a small inline helper; no `eventsource-parser` install).
+---
 
-### Technical notes (skip if not interested)
-- Server route lives at `src/routes/api/chat.ts` (not `api/public/chat.ts`) so the platform's published-site auth gate applies as an extra layer on top of our bearer check. This matches the "authenticated app-internal chat" pattern.
-- The upstream Lovable AI Gateway supports OpenAI-style SSE (`data: {...}\n\n` frames). We forward frames as-is with a `data: [DONE]` sentinel at the end.
-- Credit consumption stays server-side and **before** the AI call, exactly as today. If the upstream stream errors mid-flight, the user has already been charged — same behavior as the current non-streaming path (which also charges before the fetch). No change in economics.
+## 2. Costs and fees
 
-### Follow-up candidates (not this round)
-If you like this result, the natural next slices are, in order:
-1. **MFA challenge at sign-in** (High severity, small code change)
-2. **Multimodal chat input** (image/PDF upload to the same `/api/chat` route)
-3. **i18n key backfill** (mechanical, invisible-to-design)
-4. **Delete `WorldMap.tsx` + centralize alpha2/3 map + lazy-load the map** (perf cleanup)
+### Lemon Squeezy fees
+- **No monthly fee**, no setup fee.
+- **Transaction fee**: **5% + $0.50 per successful transaction**.
+- This is all-inclusive: payment processing, fraud protection, tax compliance (VAT/sales tax), and merchant-of-record benefits.
 
-Ready to implement Part 2 on approval.
+### Example cost breakdown on a PKR 800 Pro pack
+Assume USD/PKR rate ≈ 280:
+- Sale amount: ~$2.85
+- Lemon Squeezy fee: 5% of $2.85 + $0.50 = ~$0.14 + $0.50 = **~$0.64**
+- You receive: ~$2.21
+
+### Other possible costs
+- **Currency conversion**: if Lemon Squeezy settles in USD and you withdraw to PKR, Wise/Payoneer/PayPal will charge their own conversion fee (usually 0.5%–2%).
+- **Payout fee**: depends on the payout method (Wise is generally cheapest).
+- **Refund / chargeback**: Lemon Squeezy handles the process; chargeback fees are deducted from your balance if they occur.
+
+---
+
+## 3. Lovable-side integration work (after you are approved)
+
+Once you give me the Lemon Squeezy credentials and variant IDs, I will implement the following:
+
+### Secrets to add in Lovable Project Settings
+- `LEMON_SQUEEZY_API_KEY` — from Lemon Squeezy → Settings → API.
+- `LEMON_SQUEEZY_STORE_ID` — your store ID.
+- `LEMON_SQUEEZY_WEBHOOK_SECRET` — used to verify webhook signatures.
+
+### Backend work
+1. **Create a checkout server function**
+   - Accepts the chosen pack.
+   - Calls Lemon Squeezy API to create a hosted checkout URL.
+   - Returns the checkout URL to the client.
+
+2. **Create a public webhook route** at `/api/public/lemonsqueezy`
+   - Verifies the webhook signature using `LEMON_SQUEEZY_WEBHOOK_SECRET`.
+   - Listens for `order_created` / `order_paid` events.
+   - On successful payment, calls `grant_credits` RPC to add credits to the user's account.
+   - Stores the order record in the credit history table.
+
+3. **Receipt email**
+   - Reuses the existing `src/lib/email-templates/receipt.tsx` template.
+   - Sends a purchase receipt to the user's email after a successful order.
+
+### Frontend work
+1. **Update `/app/buy-credits`**
+   - Replace the "Notify me when live" buttons with real **Buy now** buttons.
+   - Each button calls the checkout function and redirects the user to Lemon Squeezy's hosted checkout page.
+   - Show a "Processing…" state while the checkout URL is generated.
+
+2. **Post-purchase success handling**
+   - After payment, Lemon Squeezy redirects the user back to `/app/buy-credits?success=1`.
+   - The page shows a success toast and refreshes the credit balance.
+
+3. **Failure / cancel handling**
+   - If the user cancels, they return to `/app/buy-credits?canceled=1`.
+   - The page shows a friendly "Payment canceled" message.
+
+### Files that will be touched
+- Add `src/lib/lemonsqueezy.functions.ts` — checkout creation.
+- Add `src/routes/api/public/lemonsqueezy.ts` — webhook handler.
+- Edit `src/routes/app.buy-credits.tsx` — real purchase buttons.
+- Edit `src/lib/email-templates/receipt.tsx` — minor formatting if needed.
+- Possibly add a migration for an `orders` table if credit history is not enough to store Lemon Squeezy order IDs.
+
+### Testing plan
+1. Use Lemon Squeezy's **test mode** to simulate a purchase.
+2. Confirm credits are granted after the webhook fires.
+3. Confirm receipt email is sent.
+4. Confirm failed/canceled payments do not grant credits.
+5. Switch to live mode only after test mode works end-to-end.
+
+---
+
+## What I need from you before implementation
+
+1. Confirm this plan.
+2. Complete Lemon Squeezy signup and tell me whether Pakistan payouts are accepted.
+3. Send me the three **Variant IDs** from your Lemon Squeezy products.
+4. Add the three secrets listed above in Lovable Project Settings → Secrets.
+
+Once those four items are done, I will build the integration in the next step.
