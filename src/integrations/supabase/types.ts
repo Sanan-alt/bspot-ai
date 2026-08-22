@@ -413,6 +413,39 @@ export type Database = {
         }
         Relationships: []
       }
+      job_state: {
+        Row: {
+          job_key: string
+          last_error: string | null
+          last_run_at: string | null
+          last_status: string | null
+          locked_until: string | null
+          paused: boolean
+          runs: number
+          updated_at: string
+        }
+        Insert: {
+          job_key: string
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          locked_until?: string | null
+          paused?: boolean
+          runs?: number
+          updated_at?: string
+        }
+        Update: {
+          job_key?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          locked_until?: string | null
+          paused?: boolean
+          runs?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           attempted_at: string
@@ -753,10 +786,14 @@ export type Database = {
         Row: {
           alert_above: number | null
           alert_below: number | null
+          alerts_paused: boolean
           created_at: string
           id: string
           kind: string
           label: string | null
+          last_checked_at: string | null
+          last_price: number | null
+          last_triggered_at: string | null
           symbol: string
           updated_at: string
           user_id: string
@@ -764,10 +801,14 @@ export type Database = {
         Insert: {
           alert_above?: number | null
           alert_below?: number | null
+          alerts_paused?: boolean
           created_at?: string
           id?: string
           kind?: string
           label?: string | null
+          last_checked_at?: string | null
+          last_price?: number | null
+          last_triggered_at?: string | null
           symbol: string
           updated_at?: string
           user_id: string
@@ -775,10 +816,14 @@ export type Database = {
         Update: {
           alert_above?: number | null
           alert_below?: number | null
+          alerts_paused?: boolean
           created_at?: string
           id?: string
           kind?: string
           label?: string | null
+          last_checked_at?: string | null
+          last_price?: number | null
+          last_triggered_at?: string | null
           symbol?: string
           updated_at?: string
           user_id?: string
@@ -790,6 +835,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acquire_job_lease: {
+        Args: { p_key: string; p_lease_seconds: number }
+        Returns: boolean
+      }
       check_ai_rate_limit: {
         Args: { p_feature: string; p_max: number; p_window_seconds: number }
         Returns: Json
@@ -848,6 +897,10 @@ export type Database = {
         Returns: Json
       }
       regenerate_mfa_recovery_codes: { Args: never; Returns: string[] }
+      release_job_lease: {
+        Args: { p_error?: string; p_key: string; p_status: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "owner"
