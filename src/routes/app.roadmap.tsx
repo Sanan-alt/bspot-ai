@@ -123,7 +123,7 @@ function RoadmapPage() {
   };
 
   const setStatus = async (step: Step, status: string) => {
-    const patch: Record<string, unknown> = {
+    const patch: Record<string, any> = {
       status,
       completed_at: status === "done" ? new Date().toISOString() : null,
     };

@@ -60,7 +60,7 @@ async function run(request: Request) {
 
     const list = rows ?? [];
     if (!list.length) {
-      await supabaseAdmin.rpc("release_job_lease", { p_key: JOB_KEY, p_status: "idle", p_error: null });
+      await supabaseAdmin.rpc("release_job_lease", { p_key: JOB_KEY, p_status: "idle", p_error: undefined });
       return json({ ok: true, checked: 0, triggered: 0 });
     }
 
@@ -76,7 +76,7 @@ async function run(request: Request) {
       checked++;
 
       const name = row.label || row.symbol;
-      const patch: Record<string, unknown> = {
+      const patch: Record<string, any> = {
         last_price: q.price,
         last_checked_at: new Date().toISOString(),
       };
@@ -121,7 +121,7 @@ async function run(request: Request) {
     errorText = e instanceof Error ? e.message : String(e);
   }
 
-  await supabaseAdmin.rpc("release_job_lease", { p_key: JOB_KEY, p_status: status, p_error: errorText });
+  await supabaseAdmin.rpc("release_job_lease", { p_key: JOB_KEY, p_status: status, p_error: errorText ?? undefined });
   return json({ ok: status === "ok", checked, triggered, error: errorText }, status === "ok" ? 200 : 500);
 }
 
