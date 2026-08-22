@@ -8,6 +8,7 @@ import {
   History,
   LineChart,
   Bot,
+  Map,
   Sparkles,
   TrendingUp,
   Coins,
@@ -18,6 +19,7 @@ import { useCredits } from "@/hooks/use-credits";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OnboardingBanner } from "@/components/OnboardingBanner";
+import { NewsFeed } from "@/components/NewsFeed";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
