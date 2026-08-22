@@ -28,6 +28,7 @@ import { Route as CountryCodeRouteImport } from './routes/country.$code'
 import { Route as AppWelcomeRouteImport } from './routes/app.welcome'
 import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppRoadmapRouteImport } from './routes/app.roadmap'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppNewsRouteImport } from './routes/app.news'
@@ -148,6 +149,11 @@ const AppVisaRoute = AppVisaRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRoadmapRoute = AppRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioRoute = AppPortfolioRouteImport.update({
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
@@ -363,6 +370,7 @@ export interface FileRoutesByTo {
   '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
@@ -411,6 +419,7 @@ export interface FileRoutesById {
   '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
@@ -460,6 +469,7 @@ export interface FileRouteTypes {
     | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
@@ -506,6 +516,7 @@ export interface FileRouteTypes {
     | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
@@ -553,6 +564,7 @@ export interface FileRouteTypes {
     | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
@@ -735,6 +747,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/roadmap': {
+      id: '/app/roadmap'
+      path: '/roadmap'
+      fullPath: '/app/roadmap'
+      preLoaderRoute: typeof AppRoadmapRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/portfolio': {
@@ -949,6 +968,7 @@ interface AppRouteChildren {
   AppNewsRoute: typeof AppNewsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
+  AppRoadmapRoute: typeof AppRoadmapRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppVisaRoute: typeof AppVisaRoute
   AppWelcomeRoute: typeof AppWelcomeRoute
@@ -968,6 +988,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNewsRoute: AppNewsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
+  AppRoadmapRoute: AppRoadmapRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppVisaRoute: AppVisaRoute,
   AppWelcomeRoute: AppWelcomeRoute,
