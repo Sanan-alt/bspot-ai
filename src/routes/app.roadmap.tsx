@@ -123,11 +123,11 @@ function RoadmapPage() {
   };
 
   const setStatus = async (step: Step, status: string) => {
-    const patch: Record<string, any> = {
+    const patch: { status: string; completed_at: string | null } = {
       status,
       completed_at: status === "done" ? new Date().toISOString() : null,
     };
-    setSteps((prev) => prev.map((s) => (s.id === step.id ? { ...s, ...(patch as object) } as Step : s)));
+    setSteps((prev) => prev.map((s) => (s.id === step.id ? ({ ...s, ...patch } as Step) : s)));
     const { error } = await supabase.from("roadmap_steps").update(patch).eq("id", step.id);
     if (error) { toast.error(error.message); load(); }
   };

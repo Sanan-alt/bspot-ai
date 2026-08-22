@@ -76,7 +76,13 @@ async function run(request: Request) {
       checked++;
 
       const name = row.label || row.symbol;
-      const patch: Record<string, any> = {
+      const patch: {
+        last_price: number;
+        last_checked_at: string;
+        alert_above?: number | null;
+        alert_below?: number | null;
+        last_triggered_at?: string;
+      } = {
         last_price: q.price,
         last_checked_at: new Date().toISOString(),
       };
