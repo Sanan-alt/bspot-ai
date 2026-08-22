@@ -33,7 +33,7 @@ export const Route = createFileRoute("/app/")({
 const quick = [
   { to: "/app/converter", title: "Convert Currency", body: "Live FX, save to history.", icon: ArrowLeftRight },
   { to: "/app/markets", title: "Live Markets", body: "Stocks, crypto, forex.", icon: LineChart },
-  { to: "/app/countries", title: "Country Data", body: "Laws, taxes, scores.", icon: Globe2 },
+  { to: "/app/roadmap", title: "My Roadmap", body: "Step-by-step setup plan.", icon: Map },
   { to: "/app/assistant", title: "AI Assistant", body: "Ask anything, get answers.", icon: Bot },
 ] as const;
 
@@ -184,15 +184,21 @@ function Home() {
             </div>
           )}
         </div>
-        <div className="panel p-6">
-          <h2 className="font-display text-xl flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-neon" /> AI Tip
-          </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Diversify across at least 3 currencies and 2 emerging markets to reduce volatility exposure.
-          </p>
-          <Link to="/app/assistant" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-neon">
-            Ask the AI →
+        <div className="space-y-4">
+          <div className="panel p-6">
+            <h2 className="font-display text-xl flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-neon" /> AI Tip
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Diversify across at least 3 currencies and 2 emerging markets to reduce volatility exposure.
+            </p>
+            <Link to="/app/assistant" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-neon">
+              Ask the AI →
+            </Link>
+          </div>
+          <NewsFeed limit={5} compact title="Headlines" />
+          <Link to="/app/news" className="block panel p-3 text-center font-mono text-[10px] uppercase tracking-widest text-neon hover:panel-neon">
+            All news →
           </Link>
         </div>
       </div>
