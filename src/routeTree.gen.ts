@@ -28,8 +28,10 @@ import { Route as CountryCodeRouteImport } from './routes/country.$code'
 import { Route as AppWelcomeRouteImport } from './routes/app.welcome'
 import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppRoadmapRouteImport } from './routes/app.roadmap'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
+import { Route as AppNewsRouteImport } from './routes/app.news'
 import { Route as AppMarketsRouteImport } from './routes/app.markets'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppDocumentsRouteImport } from './routes/app.documents'
@@ -52,6 +54,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicJobsPriceAlertsRouteImport } from './routes/api/public/jobs/price-alerts'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -148,6 +151,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRoadmapRoute = AppRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPortfolioRoute = AppPortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -156,6 +164,11 @@ const AppPortfolioRoute = AppPortfolioRouteImport.update({
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNewsRoute = AppNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMarketsRoute = AppMarketsRouteImport.update({
@@ -274,6 +287,12 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsPriceAlertsRoute =
+  ApiPublicJobsPriceAlertsRouteImport.update({
+    id: '/api/public/jobs/price-alerts',
+    path: '/api/public/jobs/price-alerts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -301,8 +320,10 @@ export interface FileRoutesByFullPath {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/markets': typeof AppMarketsRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
@@ -314,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/emails': typeof AppAdminEmailsRoute
   '/app/admin/telemetry': typeof AppAdminTelemetryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/jobs/price-alerts': typeof ApiPublicJobsPriceAlertsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -345,8 +367,10 @@ export interface FileRoutesByTo {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/markets': typeof AppMarketsRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
@@ -358,6 +382,7 @@ export interface FileRoutesByTo {
   '/app/admin/emails': typeof AppAdminEmailsRoute
   '/app/admin/telemetry': typeof AppAdminTelemetryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/jobs/price-alerts': typeof ApiPublicJobsPriceAlertsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -391,8 +416,10 @@ export interface FileRoutesById {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/markets': typeof AppMarketsRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
+  '/app/roadmap': typeof AppRoadmapRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
@@ -404,6 +431,7 @@ export interface FileRoutesById {
   '/app/admin/emails': typeof AppAdminEmailsRoute
   '/app/admin/telemetry': typeof AppAdminTelemetryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/jobs/price-alerts': typeof ApiPublicJobsPriceAlertsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -438,8 +466,10 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/markets'
+    | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
@@ -451,6 +481,7 @@ export interface FileRouteTypes {
     | '/app/admin/emails'
     | '/app/admin/telemetry'
     | '/lovable/email/suppression'
+    | '/api/public/jobs/price-alerts'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -482,8 +513,10 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/markets'
+    | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
@@ -495,6 +528,7 @@ export interface FileRouteTypes {
     | '/app/admin/emails'
     | '/app/admin/telemetry'
     | '/lovable/email/suppression'
+    | '/api/public/jobs/price-alerts'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -527,8 +561,10 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/markets'
+    | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
+    | '/app/roadmap'
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
@@ -540,6 +576,7 @@ export interface FileRouteTypes {
     | '/app/admin/emails'
     | '/app/admin/telemetry'
     | '/lovable/email/suppression'
+    | '/api/public/jobs/price-alerts'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -569,6 +606,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicJobsPriceAlertsRoute: typeof ApiPublicJobsPriceAlertsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -711,6 +749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/roadmap': {
+      id: '/app/roadmap'
+      path: '/roadmap'
+      fullPath: '/app/roadmap'
+      preLoaderRoute: typeof AppRoadmapRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/portfolio': {
       id: '/app/portfolio'
       path: '/portfolio'
@@ -723,6 +768,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/app/notifications'
       preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/news': {
+      id: '/app/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppNewsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/markets': {
@@ -879,6 +931,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/price-alerts': {
+      id: '/api/public/jobs/price-alerts'
+      path: '/api/public/jobs/price-alerts'
+      fullPath: '/api/public/jobs/price-alerts'
+      preLoaderRoute: typeof ApiPublicJobsPriceAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -906,8 +965,10 @@ interface AppRouteChildren {
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppHistoryRoute: typeof AppHistoryRoute
   AppMarketsRoute: typeof AppMarketsRoute
+  AppNewsRoute: typeof AppNewsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
+  AppRoadmapRoute: typeof AppRoadmapRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppVisaRoute: typeof AppVisaRoute
   AppWelcomeRoute: typeof AppWelcomeRoute
@@ -924,8 +985,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppDocumentsRoute: AppDocumentsRoute,
   AppHistoryRoute: AppHistoryRoute,
   AppMarketsRoute: AppMarketsRoute,
+  AppNewsRoute: AppNewsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
+  AppRoadmapRoute: AppRoadmapRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppVisaRoute: AppVisaRoute,
   AppWelcomeRoute: AppWelcomeRoute,
@@ -957,6 +1020,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicJobsPriceAlertsRoute: ApiPublicJobsPriceAlertsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,

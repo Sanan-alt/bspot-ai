@@ -14,6 +14,8 @@ import {
   Plane,
   FolderLock,
   LineChart,
+  Newspaper,
+  Map as MapIcon,
   Shield,
   ChevronDown,
   ChevronRight,
@@ -34,13 +36,15 @@ import {
 } from "@/components/ui/sidebar";
 import { NeonLogo } from "./NeonLogo";
 
-// 7 primary items — the most-used journey
+// primary items — the most-used journey
 const primary = [
   { title: "Home", url: "/app", icon: Home },
   { title: "Markets", url: "/app/markets", icon: LineChart },
+  { title: "News", url: "/app/news", icon: Newspaper },
   { title: "Currency Converter", url: "/app/converter", icon: ArrowLeftRight },
   { title: "Country Data", url: "/app/countries", icon: Globe2 },
   { title: "Visa Guide", url: "/app/visa", icon: Plane },
+  { title: "My Roadmap", url: "/app/roadmap", icon: MapIcon },
   { title: "Portfolio", url: "/app/portfolio", icon: Briefcase },
   { title: "AI Assistant", url: "/app/assistant", icon: Bot },
 ];
