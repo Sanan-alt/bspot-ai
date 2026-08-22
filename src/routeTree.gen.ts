@@ -30,6 +30,7 @@ import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
+import { Route as AppNewsRouteImport } from './routes/app.news'
 import { Route as AppMarketsRouteImport } from './routes/app.markets'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppDocumentsRouteImport } from './routes/app.documents'
@@ -157,6 +158,11 @@ const AppPortfolioRoute = AppPortfolioRouteImport.update({
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNewsRoute = AppNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMarketsRoute = AppMarketsRouteImport.update({
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/markets': typeof AppMarketsRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/markets': typeof AppMarketsRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
@@ -400,6 +408,7 @@ export interface FileRoutesById {
   '/app/documents': typeof AppDocumentsRoute
   '/app/history': typeof AppHistoryRoute
   '/app/markets': typeof AppMarketsRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/settings': typeof AppSettingsRoute
@@ -448,6 +457,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/markets'
+    | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/settings'
@@ -493,6 +503,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/markets'
+    | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/settings'
@@ -539,6 +550,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/history'
     | '/app/markets'
+    | '/app/news'
     | '/app/notifications'
     | '/app/portfolio'
     | '/app/settings'
@@ -739,6 +751,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotificationsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/news': {
+      id: '/app/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppNewsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/markets': {
       id: '/app/markets'
       path: '/markets'
@@ -927,6 +946,7 @@ interface AppRouteChildren {
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppHistoryRoute: typeof AppHistoryRoute
   AppMarketsRoute: typeof AppMarketsRoute
+  AppNewsRoute: typeof AppNewsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -945,6 +965,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDocumentsRoute: AppDocumentsRoute,
   AppHistoryRoute: AppHistoryRoute,
   AppMarketsRoute: AppMarketsRoute,
+  AppNewsRoute: AppNewsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppSettingsRoute: AppSettingsRoute,
