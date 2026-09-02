@@ -55,7 +55,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     load();
     if (!user) return;
     const ch = supabase
-      .channel(`credits:${user.id}`)
+      .channel(`credits:${user.id}:${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "credits", filter: `user_id=eq.${user.id}` },
