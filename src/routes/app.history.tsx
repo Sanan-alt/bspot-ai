@@ -97,7 +97,7 @@ function HistoryPage() {
       setTxLoading(false);
     })();
     const ch = supabase
-      .channel(`credit_tx:${user.id}`)
+      .channel(`credit_tx:${user.id}:${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "credit_transactions", filter: `user_id=eq.${user.id}` },
