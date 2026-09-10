@@ -196,7 +196,7 @@ effectively unreachable if inputs are properly validated upstream.
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| `getRequest()` doesn't carry the Bearer token in the MCP call path | Medium | Investigate during task T-3; fallback to loopback HTTP if needed |
+| `getRequest()` doesn't carry the Bearer token in the MCP call path | Medium | Investigate during task T-1; fallback to loopback HTTP if needed |
 | `suggestBusinesses` call signature changes | Low | It's a TanStack server function — breaking changes would also break the UI; caught by TypeScript |
 | AI credits charged but AI fails (pre-deduction) | Low (existing) | Already accepted by the current UI implementation; out of scope for this task |
 | Duplicate tool name conflict with internal AI tool | None | The internal AI function named `suggest_investments` is ephemeral (inside the LLM tool-call schema), not a registered MCP tool |

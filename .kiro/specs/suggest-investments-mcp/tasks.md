@@ -2,16 +2,22 @@
 
 ## Checklist
 
-### T-1 — Confirm `suggestBusinesses` call convention  
+### T-1 — Confirm `suggestBusinesses` call convention
 - [ ] Verify the exact call form for `suggestBusinesses` when invoked from a
-      server-side peer (not from the browser). Specifically:
-  - Does calling `suggestBusinesses({ data: input })` in a server context
-    (inside a TanStack Start request) correctly surface the Bearer token
-    through `getRequest()` to `requireSupabaseAuth`?
+      server-side peer (not from the browser). The function is a TanStack Start
+      `createServerFn` and is called using `suggestBusinesses({ data: input })`
+      — the same form used by the browser UI. Confirm this form works correctly
+      from the MCP handler context. Specifically:
+  - Does calling `suggestBusinesses({ data: input })` inside a TanStack Start
+    server request (the MCP handler) correctly surface the Bearer token through
+    `getRequest()` to `requireSupabaseAuth`?
   - If yes, proceed to T-2.
   - If no, implement the loopback HTTP POST approach described in `design.md`
-    (call `suggestBusinesses.url` via `fetch` with an explicit
-    `Authorization` header extracted from the incoming MCP request).
+    (call the endpoint URL via `fetch` with an explicit `Authorization` header
+    extracted from the incoming MCP request).
+- **Note:** Do NOT use `.serverFn()` — that is not the correct call form for
+  this function. Use `suggestBusinesses({ data: input })` as shown in the
+  design skeleton.
 - **Verification:** A console log or unit-level check showing `context.userId`
   is populated when `suggestBusinesses` is called from the MCP handler.
 
