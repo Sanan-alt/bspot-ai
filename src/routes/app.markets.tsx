@@ -130,15 +130,31 @@ function MarketsPage() {
         const above = row.alert_above != null && q.c >= Number(row.alert_above);
         const below = row.alert_below != null && q.c <= Number(row.alert_below);
         if (!above && !below) continue;
-        const key = `${row.id}:${above ? "above" : "below"}:${Math.floor(Date.now() / 600_000)}`;
-        if (triggered.current.has(key)) continue;
-        triggered.current.add(key);
-        const title = `${row.symbol} ${above ? "above" : "below"} ${above ? row.alert_above : row.alert_below}`;
-        const message = `Price ${q.c.toFixed(2)} (${q.dp >= 0 ? "+" : ""}${q.dp.toFixed(2)}%) crossed your ${above ? "upper" : "lower"} alert.`;
-        toast.message(title, { description: message, icon: <Bell className="h-4 w-4 text-neon" /> });
-        await supabase.from("notifications" as never).insert({
-          user_id: user.id, type: "price_alert", title, message,
-        } as never);
+
+        // Each direction gets its own dedup key so both sides can fire
+        // independently on the same row within the same 10-minute bucket.
+        const directions = [
+          ...(above ? ["above" as const] : []),
+          ...(below ? ["below" as const] : []),
+        ];
+
+        for (const dir of directions) {
+          const key = `${row.id}:${dir}:${Math.floor(Date.now() / 600_000)}`;
+          if (triggered.current.has(key)) continue;
+          triggered.current.add(key);
+          const threshold = dir === "above" ? row.alert_above : row.alert_below;
+          const title = `${row.symbol} ${dir} ${threshold}`;
+          const message = `Price ${q.c.toFixed(2)} (${q.dp >= 0 ? "+" : ""}${q.dp.toFixed(2)}%) crossed your ${dir === "above" ? "upper" : "lower"} alert.`;
+          toast.message(title, { description: message, icon: <Bell className="h-4 w-4 text-neon" /> });
+          // Use canonical type "alert" so isInAppEnabled() respects the
+          // user's "Market alerts" preference (same as the server job).
+          await supabase.from("notifications" as never).insert({
+            user_id: user.id, type: "alert", title, message,
+          } as never);
+        }
+        // Reload so server-nulled thresholds propagate to stockRows promptly,
+        // preventing re-fire on the next 10-minute bucket boundary.
+        await loadWatchlist();
       }
     })();
   }, [qData, stockRows, user]);

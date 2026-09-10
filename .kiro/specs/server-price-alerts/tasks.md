@@ -31,7 +31,7 @@ in-app notification preference.
 + } as never);
 ```
 
-- [ ] Locate the `useEffect` that fires on `qData` changes (~line 130 in
+- [ ] Locate the `useEffect` that fires on `qData` changes (~line 108 in
       `app.markets.tsx`).
 - [ ] Change `type: "price_alert"` to `type: "alert"`.
 - **Verification:** After the change, a client-side alert fire produces a

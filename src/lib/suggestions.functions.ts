@@ -2,13 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const Input = z.object({
+// Exported so the MCP tool can import it directly and stay in sync automatically.
+export const Input = z.object({
   budget_usd: z.number().min(100).max(100_000_000),
   country: z.string().max(80).optional(),
   sector: z.string().max(80).optional(),
   risk: z.enum(["low", "medium", "high"]),
   horizon_years: z.number().min(1).max(30),
 });
+
+/** Inferred input type — importable by the MCP tool to stay in sync. */
+export type SuggestInput = z.infer<typeof Input>;
 
 const COST = 5;
 
@@ -28,8 +32,8 @@ export const suggestBusinesses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
   .handler(async ({ data, context }) => {
-    const apiKey = process.env.LOVABLE_API_KEY || process.env.GROQ_API_KEY;
-    if (!apiKey) throw new Error("No AI provider configured");
+    // AI provider keys are read inside ai-provider.server (Gemini → Groq failover).
+    // aiToolCall will throw with a clear message if neither key is configured.
 
     const { error: creditErr } = await context.supabase.rpc("consume_credits", {
       p_amount: COST,
