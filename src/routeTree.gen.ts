@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CountryCodeRouteImport } from './routes/country.$code'
+import { Route as AuthConfirmedRouteImport } from './routes/auth.confirmed'
 import { Route as AppWelcomeRouteImport } from './routes/app.welcome'
 import { Route as AppVisaRouteImport } from './routes/app.visa'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
@@ -134,6 +135,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
 const CountryCodeRoute = CountryCodeRouteImport.update({
   id: '/country/$code',
   path: '/country/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthConfirmedRoute = AuthConfirmedRouteImport.update({
+  id: '/auth/confirmed',
+  path: '/auth/confirmed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppWelcomeRoute = AppWelcomeRouteImport.update({
@@ -327,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
+  '/auth/confirmed': typeof AuthConfirmedRoute
   '/country/$code': typeof CountryCodeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
+  '/auth/confirmed': typeof AuthConfirmedRoute
   '/country/$code': typeof CountryCodeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app': typeof AppIndexRoute
@@ -423,6 +431,7 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRoute
   '/app/visa': typeof AppVisaRoute
   '/app/welcome': typeof AppWelcomeRoute
+  '/auth/confirmed': typeof AuthConfirmedRoute
   '/country/$code': typeof CountryCodeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
@@ -473,6 +482,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
+    | '/auth/confirmed'
     | '/country/$code'
     | '/email/unsubscribe'
     | '/app/'
@@ -520,6 +530,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
+    | '/auth/confirmed'
     | '/country/$code'
     | '/email/unsubscribe'
     | '/app'
@@ -568,6 +579,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/visa'
     | '/app/welcome'
+    | '/auth/confirmed'
     | '/country/$code'
     | '/email/unsubscribe'
     | '/app/'
@@ -601,6 +613,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
+  AuthConfirmedRoute: typeof AuthConfirmedRoute
   CountryCodeRoute: typeof CountryCodeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -726,6 +739,13 @@ declare module '@tanstack/react-router' {
       path: '/country/$code'
       fullPath: '/country/$code'
       preLoaderRoute: typeof CountryCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/confirmed': {
+      id: '/auth/confirmed'
+      path: '/auth/confirmed'
+      fullPath: '/auth/confirmed'
+      preLoaderRoute: typeof AuthConfirmedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/welcome': {
@@ -1015,6 +1035,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
+  AuthConfirmedRoute: AuthConfirmedRoute,
   CountryCodeRoute: CountryCodeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,

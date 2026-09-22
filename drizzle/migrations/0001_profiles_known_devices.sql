@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS known_devices text[] NOT NULL DEFAULT '{}';

@@ -213,18 +213,21 @@ export type Database = {
         Row: {
           balance: number
           last_free_grant_at: string | null
+          pending_balance: number
           updated_at: string
           user_id: string
         }
         Insert: {
           balance?: number
           last_free_grant_at?: string | null
+          pending_balance?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           balance?: number
           last_free_grant_at?: string | null
+          pending_balance?: number
           updated_at?: string
           user_id?: string
         }
@@ -536,6 +539,7 @@ export type Database = {
           id: string
           investment_budget_usd: number | null
           is_demo: boolean
+          known_devices: string[]
           language: string
           onboarded_at: string | null
           readiness_score: number | null
@@ -554,6 +558,7 @@ export type Database = {
           id: string
           investment_budget_usd?: number | null
           is_demo?: boolean
+          known_devices?: string[]
           language?: string
           onboarded_at?: string | null
           readiness_score?: number | null
@@ -572,6 +577,7 @@ export type Database = {
           id?: string
           investment_budget_usd?: number | null
           is_demo?: boolean
+          known_devices?: string[]
           language?: string
           onboarded_at?: string | null
           readiness_score?: number | null
@@ -659,6 +665,30 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      signup_attempts: {
+        Row: {
+          created_at: string
+          email_hash: string | null
+          fingerprint: string | null
+          id: string
+          ip_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_hash?: string | null
+          fingerprint?: string | null
+          id?: string
+          ip_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_hash?: string | null
+          fingerprint?: string | null
+          id?: string
+          ip_hash?: string | null
         }
         Relationships: []
       }
@@ -844,6 +874,10 @@ export type Database = {
         Returns: Json
       }
       check_login_lockout: { Args: { p_email_hash: string }; Returns: Json }
+      check_signup_rate_limit: {
+        Args: { p_fingerprint: string; p_ip_hash: string }
+        Returns: Json
+      }
       claim_daily_free_credits: { Args: never; Returns: Json }
       consume_credits: {
         Args: { p_amount: number; p_description?: string; p_feature: string }
@@ -896,11 +930,16 @@ export type Database = {
         Args: { p_email_hash: string; p_success: boolean }
         Returns: Json
       }
+      record_signup_attempt: {
+        Args: { p_email_hash: string; p_fingerprint: string; p_ip_hash: string }
+        Returns: undefined
+      }
       regenerate_mfa_recovery_codes: { Args: never; Returns: string[] }
       release_job_lease: {
         Args: { p_error?: string; p_key: string; p_status: string }
         Returns: undefined
       }
+      release_pending_credits: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user" | "owner"

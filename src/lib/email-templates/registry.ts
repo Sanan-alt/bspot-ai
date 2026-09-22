@@ -2,6 +2,8 @@ import type { ComponentType } from 'react'
 import { template as testVerificationTemplate } from './test-verification'
 import { template as appNotificationTemplate } from './app-notification'
 import { template as receiptTemplate } from './receipt'
+import { template as welcomeTemplate } from './welcome'
+import { template as loginAlertTemplate } from './login-alert'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -16,4 +18,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'test-verification': testVerificationTemplate,
   'app-notification': appNotificationTemplate,
   'receipt': receiptTemplate,
+  'welcome': welcomeTemplate,
+  'login-alert': loginAlertTemplate,
 }
