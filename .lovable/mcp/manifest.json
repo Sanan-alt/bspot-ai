@@ -115,6 +115,59 @@
           ]
         },
         "outputSchema": null
+      },
+      {
+        "name": "suggest_investments",
+        "title": "Suggest investment & business opportunities",
+        "description": "Generate 3–5 AI-powered, personalised investment and business opportunities tailored to the investor's budget, preferred country, sector, risk appetite, and time horizon. Requires authentication. Costs 5 BSpot credits per call.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "budget_usd": {
+              "type": "number",
+              "minimum": 100,
+              "maximum": 100000000,
+              "description": "Available investment budget in USD (100 – 100,000,000)."
+            },
+            "country": {
+              "description": "Preferred destination country (name or ISO code). Leave blank for global suggestions.",
+              "type": "string",
+              "maxLength": 80
+            },
+            "sector": {
+              "description": "Preferred sector or industry (e.g. 'tech', 'real estate', 'hospitality').",
+              "type": "string",
+              "maxLength": 80
+            },
+            "risk": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "description": "Risk appetite: low, medium, or high."
+            },
+            "horizon_years": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 30,
+              "description": "Investment time horizon in years (1 – 30)."
+            }
+          },
+          "required": [
+            "budget_usd",
+            "risk",
+            "horizon_years"
+          ]
+        },
+        "outputSchema": null
       }
     ]
   }
