@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790096090309,
+      "tag": "0000_signup_pending_credits_and_abuse_limits",
+      "breakpoints": true
+    }
+  ]
+}
