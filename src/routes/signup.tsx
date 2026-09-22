@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 import { NeonLogo } from "@/components/NeonLogo";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff, MailCheck } from "lucide-react";
+import { preSignupCheckFn, recordSignupAttemptFn } from "@/lib/signup-guard.functions";
+import { deviceFingerprint } from "@/lib/device-fingerprint";
 
 export const Route = createFileRoute("/signup")({
   component: SignUp,
@@ -27,6 +29,7 @@ function SignUp() {
   const [terms, setTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const strength = passwordStrength(pw);
 
   async function handle(e: FormEvent) {
@@ -36,10 +39,25 @@ function SignUp() {
     if (strength < 3) return setErr("Password must include upper, lower, number, and 8+ chars");
     if (!terms) return setErr("Please accept Terms and Conditions");
     setLoading(true);
+
+    const fingerprint = deviceFingerprint();
+
+    // Deliverability, disposable-domain and abuse checks before any account exists.
+    try {
+      const check = await preSignupCheckFn({ data: { email, fingerprint } });
+      if (!check.ok) {
+        setLoading(false);
+        return setErr(check.message);
+      }
+    } catch {
+      setLoading(false);
+      return setErr("We couldn't verify your email right now. Please try again in a moment.");
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password: pw,
-      options: { emailRedirectTo: `${window.location.origin}/app` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/confirmed` },
     });
     setLoading(false);
     if (error) {
@@ -47,13 +65,45 @@ function SignUp() {
       else setErr(error.message);
       return;
     }
-    toast.success("Account created — let's set up your profile");
-    navigate({ to: "/app" });
+
+    try {
+      await recordSignupAttemptFn({ data: { email, fingerprint } });
+    } catch {
+      // non-blocking
+    }
+
+    setSent(true);
+    toast.success("Check your inbox to confirm your email");
   }
 
   async function google() {
     const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/app` });
     if (r.error) toast.error(r.error.message);
+  }
+
+  if (sent) {
+    return (
+      <AuthShell title="Confirm your email" subtitle="One last step">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <MailCheck className="h-8 w-8 text-neon" />
+            <p className="text-sm">
+              We sent a confirmation link to <strong>{email}</strong>.
+            </p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Your <strong>100 welcome credits</strong> are reserved and will be added to your balance
+            the moment you click that link. This keeps the free credits for real people.
+          </p>
+          <button
+            onClick={() => navigate({ to: "/signin" })}
+            className="w-full border border-border py-3 rounded-md font-mono uppercase text-xs tracking-widest hover:border-primary hover:text-neon"
+          >
+            Go to sign in
+          </button>
+        </div>
+      </AuthShell>
+    );
   }
 
   return <AuthShell title="Create your free account" subtitle="Join the BSpot AI grid">
@@ -109,16 +159,31 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
 }
 
 export function Field({ label, type = "text", value, onChange, required }: { label: string; type?: string; value: string; onChange: (v: string) => void; required?: boolean }) {
+  const isPassword = type === "password";
+  const [reveal, setReveal] = useState(false);
+  const inputType = isPassword ? (reveal ? "text" : "password") : type;
   return (
     <label className="block">
       <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</span>
-      <input
-        type={type}
-        value={value}
-        required={required}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full bg-input border border-border rounded-md px-3 py-2.5 outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-      />
+      <div className="relative">
+        <input
+          type={inputType}
+          value={value}
+          required={required}
+          onChange={(e) => onChange(e.target.value)}
+          className={`mt-1 w-full bg-input border border-border rounded-md px-3 py-2.5 outline-none focus:border-primary focus:ring-1 focus:ring-primary ${isPassword ? "pr-11" : ""}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setReveal((r) => !r)}
+            aria-label={reveal ? "Hide password" : "Show password"}
+            className="absolute right-2 top-1/2 -translate-y-1/2 mt-0.5 h-8 w-8 grid place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+          >
+            {reveal ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
     </label>
   );
 }

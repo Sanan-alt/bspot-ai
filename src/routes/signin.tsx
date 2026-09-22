@@ -53,6 +53,23 @@ function SignIn() {
       const remaining = 5 - (r?.fail_count ?? 0);
       return setErr(`${error.message}${remaining > 0 && remaining < 5 ? ` (${remaining} attempt${remaining === 1 ? "" : "s"} left)` : ""}`);
     }
+    // New-device security alert (best effort, never blocks sign-in)
+    try {
+      const { registerDeviceFn } = await import("@/lib/signup-guard.functions");
+      const { deviceFingerprint, deviceLabel } = await import("@/lib/device-fingerprint");
+      const res = await registerDeviceFn({ data: { fingerprint: deviceFingerprint() } });
+      if (res.isNewDevice) {
+        const { sendTransactionalEmail } = await import("@/lib/email/send");
+        await sendTransactionalEmail({
+          templateName: "login-alert",
+          recipientEmail: email,
+          templateData: { recipient: email, device: deviceLabel(), signedInAt: new Date().toUTCString() },
+        });
+      }
+    } catch {
+      // ignore
+    }
+
     toast.success("Welcome back to the grid");
     next ? (window.location.href = next) : navigate({ to: "/app" });
   }
