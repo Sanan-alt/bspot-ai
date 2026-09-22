@@ -539,6 +539,7 @@ export type Database = {
           id: string
           investment_budget_usd: number | null
           is_demo: boolean
+          known_devices: string[]
           language: string
           onboarded_at: string | null
           readiness_score: number | null
@@ -557,6 +558,7 @@ export type Database = {
           id: string
           investment_budget_usd?: number | null
           is_demo?: boolean
+          known_devices?: string[]
           language?: string
           onboarded_at?: string | null
           readiness_score?: number | null
@@ -575,6 +577,7 @@ export type Database = {
           id?: string
           investment_budget_usd?: number | null
           is_demo?: boolean
+          known_devices?: string[]
           language?: string
           onboarded_at?: string | null
           readiness_score?: number | null
